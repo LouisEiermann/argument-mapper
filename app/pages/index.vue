@@ -1,52 +1,133 @@
 <template>
-  <div class="container">
-    <ClientOnly>
-      <UButton
-        :icon="
-          isDark ? 'i-heroicons-moon-20-solid' : 'i-heroicons-sun-20-solid'
-        "
-        color="gray"
-        variant="ghost"
-        aria-label="Theme"
-        @click="isDark = !isDark"
-      />
-      <template #fallback>
-        <div class="w-8 h-8" />
-      </template>
-    </ClientOnly>
-    <h1>Argument Mapper App</h1>
-    <UProgress :value="70" />
-    <Tree :node="data" v-if="data" />
-  </div>
+	<div v-if="user" class="feed">
+		<div ref="el" v-if="data && data.length > 0">
+			<UCard v-for="item in data">
+				<template #header>
+					<div class="header">
+						<UAvatar /> vs <UAvatar />
+						<p>{{ item.attributes.title }}</p>
+						<p>{{ timeSincePosted(item.attributes.createdAt) }}</p>
+					</div>
+				</template>
+				{{ item.description }}
+				<template #footer>
+					<div class="footer">
+						<UProgress :value="70" />
+						<div>
+							<UButton :to="'/argument/' + item.id">Zum Argument</UButton>
+							<div>Teilen</div>
+						</div>
+					</div>
+				</template>
+			</UCard>
+		</div>
+		<UButton @click="resetList()" class="refresh">Refresh</UButton>
+	</div>
+	<div v-else>
+		<h1>Startseite</h1>
+	</div>
 </template>
 <script setup lang="ts">
-const { find } = useStrapi();
-const colorMode = useColorMode();
-const isDark = computed({
-  get() {
-    return colorMode.value === "dark";
-  },
-  set() {
-    colorMode.preference = colorMode.value === "dark" ? "light" : "dark";
-  },
-});
+	import { useInfiniteScroll } from "@vueuse/core";
 
-const response = await find("argument-trees", { populate: "nodes" });
+	const user = useStrapiUser();
+	const { find } = useStrapi();
+	const route = useRoute();
 
-const { data, pending, error, refresh } = await useAsyncData("", () =>
-  $fetch(`http://localhost:1337/api/node-tree?id=${response.data[0].id}`),
-);
+	const el = ref<HTMLElement | null>(null);
+	const data = ref<any[]>([]);
+	const hasMoreData = ref(true);
+	const currentPage = ref(1);
+	const itemsPerPage = ref(10);
+	const { timeSincePosted } = useDateFormatter();
 
-provide("refresh", refresh);
+	const fetchData = async (page: number, pageSize: number) => {
+		const response = await find("argument-trees", {
+			pagination: { page, pageSize },
+			filters: {
+				isUnilateral: {
+					$ne: true,
+				},
+			},
+		});
+		return response.data;
+	};
+
+	const loadMoreData = async () => {
+		if (!hasMoreData.value) return;
+
+		const moreData = await fetchData(currentPage.value, itemsPerPage.value);
+		if (moreData.length === 0) {
+			hasMoreData.value = false;
+		} else {
+			data.value.push(...moreData);
+			currentPage.value += 1;
+		}
+	};
+
+	const fetchInitialData = async () => {
+		data.value = await fetchData(1, itemsPerPage.value);
+		currentPage.value = 2;
+	};
+
+	const { reset } = useInfiniteScroll(el, loadMoreData, { distance: 10 });
+
+	const { data: asyncData, refresh } = useAsyncData(
+		"argument-trees",
+		async () => {
+			if (data.value.length === 0) {
+				await fetchInitialData();
+			}
+			return data;
+		}
+	);
+
+	function resetList() {
+		data.value = [];
+		hasMoreData.value = true;
+		currentPage.value = 1;
+		fetchInitialData();
+	}
+
+	onMounted(() => {
+		fetchInitialData();
+	});
+
+	watchEffect(() => {
+		if (route.fullPath) {
+			resetList(); // Reset and fetch data on route change
+		}
+	});
 </script>
 <style lang="scss" scoped>
-.container {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+	.feed {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
 
-  h1 {
-    text-align: center;
-  }
-}
+		.argument {
+			display: flex;
+		}
+	}
+	.refresh {
+		margin-top: 2rem;
+	}
+
+	.header {
+		display: flex;
+		align-items: center;
+		gap: 1rem;
+	}
+
+	.footer {
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+
+		div {
+			display: flex;
+			justify-content: space-between;
+		}
+	}
 </style>

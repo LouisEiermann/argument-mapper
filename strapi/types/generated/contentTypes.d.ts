@@ -590,6 +590,53 @@ export interface PluginContentReleasesReleaseAction
   };
 }
 
+export interface PluginI18NLocale extends Schema.CollectionType {
+  collectionName: 'i18n_locale';
+  info: {
+    singularName: 'locale';
+    pluralName: 'locales';
+    collectionName: 'locales';
+    displayName: 'Locale';
+    description: '';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  pluginOptions: {
+    'content-manager': {
+      visible: false;
+    };
+    'content-type-builder': {
+      visible: false;
+    };
+  };
+  attributes: {
+    name: Attribute.String &
+      Attribute.SetMinMax<
+        {
+          min: 1;
+          max: 50;
+        },
+        number
+      >;
+    code: Attribute.String & Attribute.Unique;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'plugin::i18n.locale',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'plugin::i18n.locale',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
 export interface PluginUsersPermissionsPermission
   extends Schema.CollectionType {
   collectionName: 'up_permissions';
@@ -695,7 +742,6 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
   };
   options: {
     draftAndPublish: false;
-    timestamps: true;
   };
   attributes: {
     username: Attribute.String &
@@ -724,6 +770,42 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
       'manyToOne',
       'plugin::users-permissions.role'
     >;
+    friends: Attribute.Relation<
+      'plugin::users-permissions.user',
+      'manyToMany',
+      'plugin::users-permissions.user'
+    >;
+    sentRequests: Attribute.Relation<
+      'plugin::users-permissions.user',
+      'oneToMany',
+      'api::friend-request.friend-request'
+    >;
+    receivedRequests: Attribute.Relation<
+      'plugin::users-permissions.user',
+      'oneToMany',
+      'api::friend-request.friend-request'
+    >;
+    created: Attribute.Relation<
+      'plugin::users-permissions.user',
+      'oneToMany',
+      'api::argument-tree.argument-tree'
+    >;
+    isOpponent: Attribute.Relation<
+      'plugin::users-permissions.user',
+      'oneToMany',
+      'api::argument-tree.argument-tree'
+    >;
+    avatar: Attribute.Media<'images'>;
+    nodes: Attribute.Relation<
+      'plugin::users-permissions.user',
+      'oneToMany',
+      'api::node.node'
+    >;
+    achievements: Attribute.Relation<
+      'plugin::users-permissions.user',
+      'oneToMany',
+      'api::achievement.achievement'
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
@@ -741,50 +823,58 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
   };
 }
 
-export interface PluginI18NLocale extends Schema.CollectionType {
-  collectionName: 'i18n_locale';
+export interface ApiAchievementAchievement extends Schema.CollectionType {
+  collectionName: 'achievements';
   info: {
-    singularName: 'locale';
-    pluralName: 'locales';
-    collectionName: 'locales';
-    displayName: 'Locale';
-    description: '';
+    singularName: 'achievement';
+    pluralName: 'achievements';
+    displayName: 'Achievement';
   };
   options: {
-    draftAndPublish: false;
+    draftAndPublish: true;
   };
   pluginOptions: {
-    'content-manager': {
-      visible: false;
-    };
-    'content-type-builder': {
-      visible: false;
+    i18n: {
+      localized: true;
     };
   };
   attributes: {
     name: Attribute.String &
-      Attribute.SetMinMax<
-        {
-          min: 1;
-          max: 50;
-        },
-        number
-      >;
-    code: Attribute.String & Attribute.Unique;
+      Attribute.Required &
+      Attribute.Unique &
+      Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }>;
+    image: Attribute.Media<'images'> &
+      Attribute.Required &
+      Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false;
+        };
+      }>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
-      'plugin::i18n.locale',
+      'api::achievement.achievement',
       'oneToOne',
       'admin::user'
     > &
       Attribute.Private;
     updatedBy: Attribute.Relation<
-      'plugin::i18n.locale',
+      'api::achievement.achievement',
       'oneToOne',
       'admin::user'
     > &
       Attribute.Private;
+    localizations: Attribute.Relation<
+      'api::achievement.achievement',
+      'oneToMany',
+      'api::achievement.achievement'
+    >;
+    locale: Attribute.String;
   };
 }
 
@@ -797,19 +887,36 @@ export interface ApiArgumentTreeArgumentTree extends Schema.CollectionType {
     description: '';
   };
   options: {
-    draftAndPublish: true;
+    draftAndPublish: false;
   };
   attributes: {
-    Title: Attribute.String;
-    Mood: Attribute.Media;
+    title: Attribute.String;
+    mood: Attribute.Media<'images'>;
     nodes: Attribute.Relation<
       'api::argument-tree.argument-tree',
       'oneToMany',
       'api::node.node'
     >;
+    creator: Attribute.Relation<
+      'api::argument-tree.argument-tree',
+      'manyToOne',
+      'plugin::users-permissions.user'
+    >;
+    opponent: Attribute.Relation<
+      'api::argument-tree.argument-tree',
+      'manyToOne',
+      'plugin::users-permissions.user'
+    >;
+    opponentAccepted: Attribute.Boolean & Attribute.DefaultTo<false>;
+    isUnilateral: Attribute.Boolean & Attribute.DefaultTo<false>;
+    tags: Attribute.Relation<
+      'api::argument-tree.argument-tree',
+      'oneToMany',
+      'api::tag.tag'
+    >;
+    description: Attribute.Text;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
-    publishedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
       'api::argument-tree.argument-tree',
       'oneToOne',
@@ -818,6 +925,46 @@ export interface ApiArgumentTreeArgumentTree extends Schema.CollectionType {
       Attribute.Private;
     updatedBy: Attribute.Relation<
       'api::argument-tree.argument-tree',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
+export interface ApiFriendRequestFriendRequest extends Schema.CollectionType {
+  collectionName: 'friend_requests';
+  info: {
+    singularName: 'friend-request';
+    pluralName: 'friend-requests';
+    displayName: 'Friend Request';
+    description: '';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    sender: Attribute.Relation<
+      'api::friend-request.friend-request',
+      'manyToOne',
+      'plugin::users-permissions.user'
+    >;
+    receiver: Attribute.Relation<
+      'api::friend-request.friend-request',
+      'manyToOne',
+      'plugin::users-permissions.user'
+    >;
+    status: Attribute.String & Attribute.DefaultTo<'pending'>;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::friend-request.friend-request',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::friend-request.friend-request',
       'oneToOne',
       'admin::user'
     > &
@@ -834,25 +981,65 @@ export interface ApiNodeNode extends Schema.CollectionType {
     description: '';
   };
   options: {
-    draftAndPublish: true;
+    draftAndPublish: false;
   };
   attributes: {
     Title: Attribute.String;
     Description: Attribute.Blocks;
     Thesis: Attribute.Boolean;
-    Parent: Attribute.Relation<'api::node.node', 'oneToOne', 'api::node.node'>;
     Axiom: Attribute.Boolean;
-    Children: Attribute.Relation<
+    children: Attribute.Relation<
       'api::node.node',
       'oneToMany',
       'api::node.node'
     >;
+    parent: Attribute.Relation<'api::node.node', 'manyToOne', 'api::node.node'>;
+    SoundnessDoubted: Attribute.Boolean & Attribute.DefaultTo<false>;
+    FormalFellacyBelow: Attribute.String;
+    siblings: Attribute.Relation<
+      'api::node.node',
+      'manyToMany',
+      'api::node.node'
+    >;
+    coPremises: Attribute.Relation<
+      'api::node.node',
+      'manyToMany',
+      'api::node.node'
+    >;
+    level: Attribute.Integer & Attribute.DefaultTo<0>;
+    owner: Attribute.Relation<
+      'api::node.node',
+      'manyToOne',
+      'plugin::users-permissions.user'
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
-    publishedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<'api::node.node', 'oneToOne', 'admin::user'> &
       Attribute.Private;
     updatedBy: Attribute.Relation<'api::node.node', 'oneToOne', 'admin::user'> &
+      Attribute.Private;
+  };
+}
+
+export interface ApiTagTag extends Schema.CollectionType {
+  collectionName: 'tags';
+  info: {
+    singularName: 'tag';
+    pluralName: 'tags';
+    displayName: 'Tag';
+    description: '';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    name: Attribute.String & Attribute.Required & Attribute.Unique;
+    defaultMood: Attribute.Media<'images'> & Attribute.Required;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<'api::tag.tag', 'oneToOne', 'admin::user'> &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<'api::tag.tag', 'oneToOne', 'admin::user'> &
       Attribute.Private;
   };
 }
@@ -871,12 +1058,15 @@ declare module '@strapi/types' {
       'plugin::upload.folder': PluginUploadFolder;
       'plugin::content-releases.release': PluginContentReleasesRelease;
       'plugin::content-releases.release-action': PluginContentReleasesReleaseAction;
+      'plugin::i18n.locale': PluginI18NLocale;
       'plugin::users-permissions.permission': PluginUsersPermissionsPermission;
       'plugin::users-permissions.role': PluginUsersPermissionsRole;
       'plugin::users-permissions.user': PluginUsersPermissionsUser;
-      'plugin::i18n.locale': PluginI18NLocale;
+      'api::achievement.achievement': ApiAchievementAchievement;
       'api::argument-tree.argument-tree': ApiArgumentTreeArgumentTree;
+      'api::friend-request.friend-request': ApiFriendRequestFriendRequest;
       'api::node.node': ApiNodeNode;
+      'api::tag.tag': ApiTagTag;
     }
   }
 }

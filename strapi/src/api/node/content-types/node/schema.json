@@ -8,7 +8,7 @@
     "description": ""
   },
   "options": {
-    "draftAndPublish": true
+    "draftAndPublish": false
   },
   "pluginOptions": {},
   "attributes": {
@@ -21,18 +21,50 @@
     "Thesis": {
       "type": "boolean"
     },
-    "Parent": {
-      "type": "relation",
-      "relation": "oneToOne",
-      "target": "api::node.node"
-    },
     "Axiom": {
       "type": "boolean"
     },
-    "Children": {
+    "children": {
       "type": "relation",
       "relation": "oneToMany",
-      "target": "api::node.node"
+      "target": "api::node.node",
+      "mappedBy": "parent"
+    },
+    "parent": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::node.node",
+      "inversedBy": "children"
+    },
+    "SoundnessDoubted": {
+      "type": "boolean",
+      "default": false
+    },
+    "FormalFellacyBelow": {
+      "type": "string"
+    },
+    "siblings": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::node.node",
+      "inversedBy": "coPremises"
+    },
+    "coPremises": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::node.node",
+      "mappedBy": "siblings"
+    },
+    "level": {
+      "type": "integer",
+      "required": false,
+      "default": 0
+    },
+    "owner": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "nodes"
     }
   }
 }

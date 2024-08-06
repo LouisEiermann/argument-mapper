@@ -1,12 +1,12 @@
 <template>
-  <div>
-    <div>hello</div>
-  </div>
+  <main>
+    <NuxtLayout name="default">
+      <UNotifications />
+      <NuxtPage />
+      <CookieControl :locale="locale" />
+    </NuxtLayout>
+  </main>
 </template>
 <script setup lang="ts">
-  const {find} = useStrapi()
-
-  const response = await find('argument-trees', {populate: 'nodes'})
-  console.log(response.data[0])
-
+const { locale } = useI18n();
 </script>

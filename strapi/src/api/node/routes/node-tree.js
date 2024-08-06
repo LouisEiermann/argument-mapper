@@ -1,10 +1,9 @@
-
 module.exports = {
   routes: [
     {
       method: 'GET',
-      path: 'node-tree',
-      handler: 'api::node.node-tree.findChildren',
+      path: '/node-tree',
+      handler: 'node-tree.index',
       config: {
         auth: false
       }
