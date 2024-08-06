@@ -1,0 +1,35 @@
+{
+  "kind": "collectionType",
+  "collectionName": "argument_trees",
+  "info": {
+    "singularName": "argument-tree",
+    "pluralName": "argument-trees",
+    "displayName": "Argument Tree",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "Title": {
+      "type": "string"
+    },
+    "Mood": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "nodes": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::node.node"
+    }
+  }
+}
