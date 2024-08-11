@@ -1,0 +1,36 @@
+{
+  "kind": "collectionType",
+  "collectionName": "votes",
+  "info": {
+    "singularName": "vote",
+    "pluralName": "votes",
+    "displayName": "Vote",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "castBy": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "votes"
+    },
+    "argumentTree": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::argument-tree.argument-tree",
+      "inversedBy": "votes"
+    },
+    "for": {
+      "type": "enumeration",
+      "enum": [
+        "creator",
+        "opponent"
+      ],
+      "required": true
+    }
+  }
+}

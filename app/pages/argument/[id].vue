@@ -7,22 +7,25 @@
 						class="rounded-md"
 						:src="
 							'http://localhost:1337' +
-							response.data[0].attributes.tags.data[0].attributes.defaultMood
-								.data.attributes.url
+							data?.argumentTrees?.data[0].attributes.tags.data[0].attributes
+								.defaultMood.data.attributes.url
 						"
 					/>
 					<div class="tags">
-						<UBadge v-for="tag of response.data[0].attributes.tags.data">{{
-							tag.attributes.name
-						}}</UBadge>
+						<UBadge
+							v-for="tag of data?.argumentTrees?.data[0].attributes.tags.data"
+							>{{ localizedVersion("name", tag) }}</UBadge
+						>
 					</div>
 				</div>
 				<UCard>
 					<template #header
-						><h1 class="rounded-md">{{ response.data[0].attributes.title }}</h1>
+						><h1 class="rounded-md">
+							{{ data?.argumentTrees?.data[0].attributes.title }}
+						</h1>
 					</template>
 					<p>
-						{{ response.data[0].attributes.description }}
+						{{ data?.argumentTrees?.data[0].attributes.description }}
 					</p>
 					<template #footer
 						><UButton class="move-down" @click="isOpen = true"
@@ -31,49 +34,90 @@
 						<UButton
 							class="end-argument"
 							color="red"
-							v-if="userIsCreator || !response.data[0].attributes.isUnilateral"
+							v-if="
+								userIsCreator ||
+								!data?.argumentTrees?.data[0].attributes.isUnilateral
+							"
 							@click="onArgumentDelete"
 							>Argument beenden</UButton
 						>
 					</template>
 				</UCard>
 				<UModal v-model="isOpen">
-					<template #header>
-						<div class="header">
-							<h1>Neue Überzeugung</h1>
-							<UButton
-								color="gray"
-								variant="ghost"
-								icon="i-heroicons-x-mark-20-solid"
-								class="-my-1"
-								@click="isOpen = false"
-							/>
+					<UCard
+						:ui="{
+							ring: '',
+							divide: 'divide-y divide-gray-100 dark:divide-gray-800',
+						}"
+					>
+						<template #header>
+							<div class="header">
+								<h1>Einstellungen</h1>
+								<UButton
+									color="gray"
+									variant="ghost"
+									icon="i-heroicons-x-mark-20-solid"
+									class="-my-1"
+									@click="isOpen = false"
+								/>
+							</div>
+						</template>
+						<div class="space-y-6">
+							Mood Bild ändern:
+							<input type="file" @change="handleFileChange" />
 						</div>
-					</template>
 
-					<input type="file" @change="handleFileChange" />
+						<template #footer> test</template>
+					</UCard>
 				</UModal>
 			</div>
 			<UProgress :value="70" />
+			<UContainer class="participants">
+				<div>
+					<UAvatar />
+					<p>
+						{{
+							data?.argumentTrees?.data[0].attributes.creator.data.attributes
+								.username
+						}}
+					</p>
+					<UButton @click="vote('creator')">Vote</UButton>
+				</div>
+				vs
+				<div>
+					<UAvatar />
+					<p>
+						{{
+							data?.argumentTrees?.data[0].attributes.opponent.data.attributes
+								.username
+						}}
+					</p>
+					<UButton @click="vote('opponent')">Vote</UButton>
+				</div>
+			</UContainer>
 		</div>
 		<Tree
-			:node="findNodeByIdAtLevel(data, currentLevel) || data"
-			v-if="data"
+			:node="findNodeByIdAtLevel(data.nodeTree, currentLevel) || data.nodeTree"
+			v-if="data?.nodeTree"
 			:user-is-creator="userIsCreator"
 			:is-unilateral="
-				findNodeByIdAtLevel(data.children, currentLevel) ||
-				response.data[0].attributes.isUnilateral
+				findNodeByIdAtLevel(data.nodeTree?.children, currentLevel) ||
+				data?.argumentTrees.data[0].attributes.isUnilateral
 			"
 			:parent="
-				findNodeByIdAtLevel(data.children, currentLevel) ||
-				response.data[0].attributes.parent
+				findNodeByIdAtLevel(data.nodeTree.children, currentLevel) ||
+				data?.argumentTrees.data[0].attributes.parent
 			"
-			:whole-tree="data"
+			:whole-tree="data.nodeTree"
 		/>
 	</div>
 </template>
 <script setup lang="ts">
-	const { find, delete: deleteArgument } = useStrapi();
+	definePageMeta({
+		middleware: "auth",
+	});
+
+	const { find, delete: deleteArgument, findOne, create } = useStrapi();
 	const { params } = useRoute();
 	const { fetchUser } = useStrapiAuth();
 	const client = useStrapiClient();
@@ -83,33 +127,67 @@
 	const route = useRoute();
 	const currentLevel = computed(() => Number(route.query.level) || 1);
 	const isOpen = ref(false);
-
-	const response = await find("argument-trees", {
-		populate: {
-			nodes: true,
-			creator: true,
-			opponent: true,
-			isUnilateral: true,
-			tags: {
-				populate: ["defaultMood"],
-			},
-		},
-		filters: {
-			id: {
-				$eq: params.id,
-			},
-		},
-	});
+	const { localizedVersion } = useLocalizedContent();
 
 	const userIsCreator = computed(() => {
-		return user.value?.id === response.data[0].attributes.creator.data.id;
+		return (
+			user.value?.id ===
+			data.value?.argumentTrees?.data[0].attributes.creator.data.id
+		);
 	});
 
-	const { data, refresh } = await useAsyncData("data", () =>
-		$fetch(
-			`http://localhost:1337/api/node-tree?id=${response.data[0].attributes.nodes.data[0].id}`
-		)
-	);
+	const opponent = computed(async () => {
+		if (!data.value?.argumentTrees.data[0].attributes.isUnilateral) {
+			if (userIsCreator) {
+				return await findOne(
+					"users",
+					data.value?.argumentTrees.data[0].attributes.opponent?.id,
+					{
+						populate: ["friends", "created", "isOpponent", "avatar"],
+					}
+				);
+			} else {
+				return await findOne(
+					"users",
+					data.value?.argumentTrees.data[0].attributes.creator.id,
+					{
+						populate: ["friends", "created", "isOpponent", "avatar"],
+					}
+				);
+			}
+		} else {
+			return null;
+		}
+	});
+
+	const { data, refresh } = await useAsyncData("data", async () => {
+		const argumentTrees = await find("argument-trees", {
+			populate: {
+				nodes: true,
+				creator: true,
+				opponent: true,
+				isUnilateral: true,
+				tags: {
+					populate: ["defaultMood", "localizations"],
+				},
+			},
+			filters: {
+				id: {
+					$eq: params.id,
+				},
+			},
+		});
+
+		const nodeTree = await find("node-tree", {
+			filters: {
+				id: {
+					$eq: argumentTrees.data[0].attributes.nodes.data[0].id,
+				},
+			},
+		});
+
+		return { argumentTrees, nodeTree };
+	});
 
 	provide("refresh", refresh);
 
@@ -129,21 +207,24 @@
 	};
 
 	const onArgumentDelete = async (event) => {
-		await deleteArgument("argument-trees", response.data[0].id);
+		await deleteArgument(
+			"argument-trees",
+			data.value?.argumentTrees.data[0].id
+		);
 		await navigateTo("/account");
 		toast.add({ title: t("notification.argumentDeleted") });
 	};
 
-	function findNodeByIdAtLevel(node, targetId) {
-		if (node.id === targetId) {
+	const findNodeByIdAtLevel = (node, targetId) => {
+		if (node?.id === targetId) {
 			return node;
 		}
 
-		if (!node.children || node.children.length === 0) {
+		if (!node?.children || node.children?.length === 0) {
 			return null;
 		}
 
-		for (let child of node.children) {
+		for (let child of node?.children) {
 			const found = findNodeByIdAtLevel(child, targetId);
 			if (found) {
 				return found;
@@ -151,7 +232,16 @@
 		}
 
 		return null;
-	}
+	};
+
+	const vote = async (votedFor: string) => {
+		const argumentTree = data.value?.argumentTrees.data[0].id;
+		await create("votes", {
+			castBy: user.value?.id,
+			argumentTree: argumentTree,
+			for: votedFor,
+		});
+	};
 </script>
 <style lang="scss" scoped>
 	.image-container {
@@ -177,7 +267,6 @@
 		h1 {
 			top: 12rem;
 			font-size: 1.5rem;
-			background-color: #fff;
 			padding: 0.2rem;
 		}
 
@@ -203,5 +292,17 @@
 	.header {
 		display: flex;
 		justify-content: space-between;
+	}
+
+	.participants {
+		display: flex;
+		align-items: center;
+
+		div {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			min-width: 150px;
+		}
 	}
 </style>

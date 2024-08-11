@@ -4,10 +4,11 @@
   "info": {
     "singularName": "achievement",
     "pluralName": "achievements",
-    "displayName": "Achievement"
+    "displayName": "Achievement",
+    "description": ""
   },
   "options": {
-    "draftAndPublish": true
+    "draftAndPublish": false
   },
   "pluginOptions": {
     "i18n": {
@@ -26,17 +27,17 @@
       "unique": true
     },
     "image": {
+      "type": "media",
+      "multiple": false,
+      "required": true,
       "allowedTypes": [
         "images"
       ],
-      "type": "media",
-      "multiple": false,
       "pluginOptions": {
         "i18n": {
           "localized": false
         }
-      },
-      "required": true
+      }
     }
   }
 }

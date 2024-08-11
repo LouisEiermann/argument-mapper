@@ -1,7 +1,12 @@
 <template>
 	<div class="minimap-node">
 		<UCard
-			:class="{ 'current-node': currentLevel === node.id }"
+			:class="{
+				'current-node':
+					currentLevel === node.id || (node.Thesis && currentLevel === null),
+				'is-objection':
+					node?.owner.id !== node?.parent?.owner.id && node.parent,
+			}"
 			class="card"
 			@click="navigate(node.id)"
 		>
@@ -25,7 +30,7 @@
 		},
 	});
 	const route = useRoute();
-	const currentLevel = computed(() => Number(route.query.level) || 1);
+	const currentLevel = computed(() => Number(route.query.level) || null);
 
 	const navigate = async (id: string) => {
 		navigateTo({
@@ -60,5 +65,9 @@
 
 	.card {
 		cursor: pointer;
+	}
+
+	.is-objection {
+		background-color: red;
 	}
 </style>

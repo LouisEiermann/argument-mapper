@@ -55,6 +55,12 @@
     },
     "description": {
       "type": "text"
+    },
+    "votes": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::vote.vote",
+      "mappedBy": "argumentTree"
     }
   }
 }

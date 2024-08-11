@@ -92,14 +92,16 @@
 				}"
 			>
 				<template #header>
-					<h1>{{ $t("account.settings") }}</h1>
-					<UButton
-						color="gray"
-						variant="ghost"
-						icon="i-heroicons-x-mark-20-solid"
-						class="-my-1"
-						@click="isSettingsOpen = false"
-					/>
+					<div class="header">
+						<h1>{{ $t("account.settings") }}</h1>
+						<UButton
+							color="gray"
+							variant="ghost"
+							icon="i-heroicons-x-mark-20-solid"
+							class="-my-1"
+							@click="isSettingsOpen = false"
+						/>
+					</div>
 				</template>
 				<p>Avatar ändern:</p>
 				<UInput
@@ -121,14 +123,16 @@
 				}"
 			>
 				<template #header>
-					<h1>Freunde hinzufügen</h1>
-					<UButton
-						color="gray"
-						variant="ghost"
-						icon="i-heroicons-x-mark-20-solid"
-						class="-my-1"
-						@click="isFriendsManagementOpen = false"
-					/>
+					<div class="header">
+						<h1>Freunde hinzufügen</h1>
+						<UButton
+							color="gray"
+							variant="ghost"
+							icon="i-heroicons-x-mark-20-solid"
+							class="-my-1"
+							@click="isFriendsManagementOpen = false"
+						/>
+					</div>
 				</template>
 
 				<h2>Freunde:</h2>
@@ -456,7 +460,7 @@
 
 		formData.append("files", event.target.files[0]);
 		formData.append("ref", "plugin::users-permissions.user");
-		formData.append("refId", socialData.value.currentUser.id);
+		formData.append("refId", socialData.value?.currentUser.id);
 		formData.append("field", "avatar");
 
 		await client("/upload", {

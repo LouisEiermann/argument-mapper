@@ -113,6 +113,24 @@
       "type": "relation",
       "relation": "oneToMany",
       "target": "api::achievement.achievement"
+    },
+    "questionSession": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::question-session.question-session",
+      "mappedBy": "user"
+    },
+    "userProgress": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::user-progress.user-progress",
+      "inversedBy": "user"
+    },
+    "votes": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::vote.vote",
+      "mappedBy": "castBy"
     }
   }
 }

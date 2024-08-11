@@ -1,0 +1,47 @@
+{
+  "kind": "collectionType",
+  "collectionName": "user_progresses",
+  "info": {
+    "singularName": "user-progress",
+    "pluralName": "user-progresses",
+    "displayName": "UserProgress",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "topic": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::topic.topic"
+    },
+    "level": {
+      "type": "integer",
+      "required": true
+    },
+    "stage": {
+      "type": "integer",
+      "required": true
+    },
+    "completed": {
+      "type": "boolean"
+    },
+    "question": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::question.question"
+    },
+    "user": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "plugin::users-permissions.user",
+      "mappedBy": "userProgress"
+    },
+    "experience": {
+      "type": "biginteger",
+      "default": "0"
+    }
+  }
+}

@@ -12,16 +12,16 @@
 			}"
 		>
 			<UButton
-				v-if="node.owner.id === ownUser?.id && !node.Thesis"
+				v-if="node.owner?.id === ownUser?.id && !node.Thesis"
 				class="delete-button"
-				@click="deleteReason(node.id)"
+				@click="deleteReason(node?.id)"
 				icon="i-heroicons-x-circle-20-solid"
 				color="red"
 			></UButton>
 			<UButton
 				v-if="node.parent"
 				class="move-up"
-				@click.stop="ascendLevel(node.parent.id)"
+				@click.stop="ascendLevel(node.parent?.id)"
 				icon="i-heroicons-arrow-up-16-solid"
 			></UButton>
 			<div v-if="node.Thesis" class="badge">Thesis</div>
@@ -41,7 +41,7 @@
 			color="yellow"
 			:items="formalFallacies"
 			:popper="{ placement: 'bottom-start' }"
-			@click="currentDropdownNode = node.id"
+			@click="currentDropdownNode = node?.id"
 		>
 			<UButton
 				color="yellow"
@@ -63,33 +63,57 @@
 			v-if="
 				!userIsCreator && node.children.length === 0 && !node.SoundnessDoubted
 			"
-			@click="markAsNotSound(node.id)"
+			@click="markAsNotSound(node?.id)"
 			color="purple"
 			>Doubt Soundness
 		</UButton>
 		<UButton
 			v-else-if="!userIsCreator && node.children.length === 0"
-			@click="markAsSound(node.id)"
+			@click="markAsSound(node?.id)"
 			color="purple"
 			>Mark as Sound again
 		</UButton>
 		<UButton
-			v-if="node.owner.id !== ownUser?.id"
+			v-if="node.owner?.id !== ownUser?.id"
 			color="red"
 			@click="(isOpen = true), (isObjection = true)"
 			>Objection</UButton
 		>
 		<UModal v-model="isOpen">
-			<div class="p-4">
-				<UInput v-model="newReason.title" />
-				<UInput v-model="newReason2.title" />
-				<UButton v-if="!isObjection" @click="addReasons(node.id, false)"
-					>Add Reason</UButton
+			<UCard
+				:ui="{
+					ring: '',
+					divide: 'divide-y divide-gray-100 dark:divide-gray-800',
+				}"
+			>
+				<template #header>
+					<div class="header">
+						<h1 v-if="!isObjection">Grund hinzufügen</h1>
+						<h1 v-else>Gegenargument hinzufügen</h1>
+						<UButton
+							color="gray"
+							variant="ghost"
+							icon="i-heroicons-x-mark-20-solid"
+							class="-my-1"
+							@click="isOpen = false"
+						/>
+					</div>
+				</template>
+
+				<div class="space-y-6">
+					<UInput v-model="newReason.title" />
+					<UInput v-model="newReason2.title" />
+				</div>
+
+				<template #footer>
+					<UButton v-if="!isObjection" @click="addReasons(node?.id, false)"
+						>Add Reason</UButton
+					>
+					<UButton v-else @click="addReasons(node?.id, true)"
+						>Add Objection</UButton
+					></template
 				>
-				<UButton v-else @click="addReasons(node.id, true)"
-					>Add Objection</UButton
-				>
-			</div>
+			</UCard>
 		</UModal>
 		<div
 			class="children"
@@ -109,12 +133,14 @@
 		</div>
 	</div>
 	<USlideover v-model="isSlideroverOpen">
-		<div class="p-4 flex-1">
+		<div class="p-4 flex-1 scroll">
 			<UTextarea v-model="node.Title" />
 			<UDivider />
 			Sources:
 			<UDivider />
 			<UButton @click="save(node.id)">Speichern</UButton>
+			<UDivider />
+			<Discussion :node="node" />
 		</div>
 	</USlideover>
 </template>
@@ -129,7 +155,7 @@
 		"wholeTree",
 	]);
 
-	const { create, delete: deleteNode, update } = useStrapi();
+	const { create, delete: deleteStrapi, update } = useStrapi();
 	const isOpen = ref(false);
 	const isObjection = ref(false);
 	const isSlideroverOpen = ref(false);
@@ -143,8 +169,6 @@
 	const currentLevel = computed(() => Number(route.query.level) || 1);
 	const { fetchUser } = useStrapiAuth();
 	const ownUser = await fetchUser();
-
-	const refresh = inject("refresh");
 
 	const addReasons = async (parentId: any, isObjection: boolean) => {
 		if (!isObjection) {
@@ -192,7 +216,7 @@
 	};
 
 	const deleteReason = async (id: string) => {
-		await deleteNode("nodes", id);
+		await deleteStrapi("nodes", id);
 		refresh();
 	};
 
@@ -275,7 +299,6 @@
 		return groups;
 	}
 
-	// Usage in Vue component
 	const itemsGroupedByCoPremises = computed(() => {
 		return groupItemsBySiblings(props.node.children);
 	});
@@ -491,5 +514,14 @@
 
 	.not-valid {
 		opacity: 50%;
+	}
+
+	.header {
+		display: flex;
+		justify-content: space-between;
+	}
+
+	.scroll {
+		overflow: scroll;
 	}
 </style>

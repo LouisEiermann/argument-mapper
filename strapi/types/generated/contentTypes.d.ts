@@ -806,6 +806,21 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
       'oneToMany',
       'api::achievement.achievement'
     >;
+    questionSession: Attribute.Relation<
+      'plugin::users-permissions.user',
+      'oneToOne',
+      'api::question-session.question-session'
+    >;
+    userProgress: Attribute.Relation<
+      'plugin::users-permissions.user',
+      'oneToOne',
+      'api::user-progress.user-progress'
+    >;
+    votes: Attribute.Relation<
+      'plugin::users-permissions.user',
+      'oneToMany',
+      'api::vote.vote'
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
@@ -823,15 +838,131 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
   };
 }
 
+export interface PluginCommentsComment extends Schema.CollectionType {
+  collectionName: 'comments_comment';
+  info: {
+    tableName: 'plugin-comments-comments';
+    singularName: 'comment';
+    pluralName: 'comments';
+    displayName: 'Comment';
+    description: 'Comment content type';
+    kind: 'collectionType';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  pluginOptions: {
+    'content-manager': {
+      visible: false;
+    };
+    'content-type-builder': {
+      visible: false;
+    };
+  };
+  attributes: {
+    content: Attribute.Text & Attribute.Required;
+    blocked: Attribute.Boolean & Attribute.DefaultTo<false>;
+    blockedThread: Attribute.Boolean & Attribute.DefaultTo<false>;
+    blockReason: Attribute.String;
+    authorUser: Attribute.Relation<
+      'plugin::comments.comment',
+      'oneToOne',
+      'plugin::users-permissions.user'
+    >;
+    authorId: Attribute.String;
+    authorName: Attribute.String;
+    authorEmail: Attribute.Email;
+    authorAvatar: Attribute.String;
+    isAdminComment: Attribute.Boolean;
+    removed: Attribute.Boolean;
+    approvalStatus: Attribute.String;
+    related: Attribute.String;
+    reports: Attribute.Relation<
+      'plugin::comments.comment',
+      'oneToMany',
+      'plugin::comments.comment-report'
+    >;
+    threadOf: Attribute.Relation<
+      'plugin::comments.comment',
+      'oneToOne',
+      'plugin::comments.comment'
+    >;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'plugin::comments.comment',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'plugin::comments.comment',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
+export interface PluginCommentsCommentReport extends Schema.CollectionType {
+  collectionName: 'comments_comment-report';
+  info: {
+    tableName: 'plugin-comments-reports';
+    singularName: 'comment-report';
+    pluralName: 'comment-reports';
+    displayName: 'Reports';
+    description: 'Reports content type';
+    kind: 'collectionType';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  pluginOptions: {
+    'content-manager': {
+      visible: false;
+    };
+    'content-type-builder': {
+      visible: false;
+    };
+  };
+  attributes: {
+    content: Attribute.Text;
+    reason: Attribute.Enumeration<['BAD_LANGUAGE', 'DISCRIMINATION', 'OTHER']> &
+      Attribute.Required &
+      Attribute.DefaultTo<'OTHER'>;
+    resolved: Attribute.Boolean & Attribute.DefaultTo<false>;
+    related: Attribute.Relation<
+      'plugin::comments.comment-report',
+      'manyToOne',
+      'plugin::comments.comment'
+    >;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'plugin::comments.comment-report',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'plugin::comments.comment-report',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
 export interface ApiAchievementAchievement extends Schema.CollectionType {
   collectionName: 'achievements';
   info: {
     singularName: 'achievement';
     pluralName: 'achievements';
     displayName: 'Achievement';
+    description: '';
   };
   options: {
-    draftAndPublish: true;
+    draftAndPublish: false;
   };
   pluginOptions: {
     i18n: {
@@ -856,7 +987,6 @@ export interface ApiAchievementAchievement extends Schema.CollectionType {
       }>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
-    publishedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
       'api::achievement.achievement',
       'oneToOne',
@@ -915,6 +1045,11 @@ export interface ApiArgumentTreeArgumentTree extends Schema.CollectionType {
       'api::tag.tag'
     >;
     description: Attribute.Text;
+    votes: Attribute.Relation<
+      'api::argument-tree.argument-tree',
+      'oneToMany',
+      'api::vote.vote'
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
@@ -1021,6 +1156,148 @@ export interface ApiNodeNode extends Schema.CollectionType {
   };
 }
 
+export interface ApiQuestionQuestion extends Schema.CollectionType {
+  collectionName: 'questions';
+  info: {
+    singularName: 'question';
+    pluralName: 'questions';
+    displayName: 'Question';
+    description: '';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  pluginOptions: {
+    i18n: {
+      localized: true;
+    };
+  };
+  attributes: {
+    content: Attribute.Text &
+      Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }>;
+    fellacyType: Attribute.Enumeration<['Affirming the Consequent']> &
+      Attribute.Required &
+      Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }>;
+    questionType: Attribute.Enumeration<['multiple Choice', 'true or false']> &
+      Attribute.Required &
+      Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }>;
+    answers: Attribute.JSON &
+      Attribute.Required &
+      Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }>;
+    correctAnswer: Attribute.Integer &
+      Attribute.Required &
+      Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false;
+        };
+      }> &
+      Attribute.SetMinMax<
+        {
+          min: 1;
+          max: 4;
+        },
+        number
+      >;
+    topic: Attribute.Relation<
+      'api::question.question',
+      'manyToOne',
+      'api::topic.topic'
+    >;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::question.question',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::question.question',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    localizations: Attribute.Relation<
+      'api::question.question',
+      'oneToMany',
+      'api::question.question'
+    >;
+    locale: Attribute.String;
+  };
+}
+
+export interface ApiQuestionSessionQuestionSession
+  extends Schema.CollectionType {
+  collectionName: 'question_sessions';
+  info: {
+    singularName: 'question-session';
+    pluralName: 'question-sessions';
+    displayName: 'QuestionSession';
+    description: '';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    currentQuestionIndex: Attribute.Integer &
+      Attribute.Required &
+      Attribute.SetMinMax<
+        {
+          max: 10;
+        },
+        number
+      > &
+      Attribute.DefaultTo<0>;
+    isCompleted: Attribute.Boolean & Attribute.DefaultTo<false>;
+    questions: Attribute.Relation<
+      'api::question-session.question-session',
+      'oneToMany',
+      'api::question.question'
+    >;
+    user: Attribute.Relation<
+      'api::question-session.question-session',
+      'oneToOne',
+      'plugin::users-permissions.user'
+    >;
+    currentQuestion: Attribute.Relation<
+      'api::question-session.question-session',
+      'oneToOne',
+      'api::question.question'
+    >;
+    questionOrder: Attribute.JSON & Attribute.Required;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::question-session.question-session',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::question-session.question-session',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
 export interface ApiTagTag extends Schema.CollectionType {
   collectionName: 'tags';
   info: {
@@ -1032,14 +1309,169 @@ export interface ApiTagTag extends Schema.CollectionType {
   options: {
     draftAndPublish: false;
   };
+  pluginOptions: {
+    i18n: {
+      localized: true;
+    };
+  };
   attributes: {
-    name: Attribute.String & Attribute.Required & Attribute.Unique;
-    defaultMood: Attribute.Media<'images'> & Attribute.Required;
+    name: Attribute.String &
+      Attribute.Required &
+      Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }>;
+    defaultMood: Attribute.Media<'images'> &
+      Attribute.Required &
+      Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<'api::tag.tag', 'oneToOne', 'admin::user'> &
       Attribute.Private;
     updatedBy: Attribute.Relation<'api::tag.tag', 'oneToOne', 'admin::user'> &
+      Attribute.Private;
+    localizations: Attribute.Relation<
+      'api::tag.tag',
+      'oneToMany',
+      'api::tag.tag'
+    >;
+    locale: Attribute.String;
+  };
+}
+
+export interface ApiTopicTopic extends Schema.CollectionType {
+  collectionName: 'topics';
+  info: {
+    singularName: 'topic';
+    pluralName: 'topics';
+    displayName: 'topic';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  pluginOptions: {
+    i18n: {
+      localized: true;
+    };
+  };
+  attributes: {
+    name: Attribute.String &
+      Attribute.Required &
+      Attribute.Unique &
+      Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }>;
+    questions: Attribute.Relation<
+      'api::topic.topic',
+      'oneToMany',
+      'api::question.question'
+    >;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::topic.topic',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::topic.topic',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    localizations: Attribute.Relation<
+      'api::topic.topic',
+      'oneToMany',
+      'api::topic.topic'
+    >;
+    locale: Attribute.String;
+  };
+}
+
+export interface ApiUserProgressUserProgress extends Schema.CollectionType {
+  collectionName: 'user_progresses';
+  info: {
+    singularName: 'user-progress';
+    pluralName: 'user-progresses';
+    displayName: 'UserProgress';
+    description: '';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    topic: Attribute.Relation<
+      'api::user-progress.user-progress',
+      'oneToOne',
+      'api::topic.topic'
+    >;
+    level: Attribute.Integer & Attribute.Required;
+    stage: Attribute.Integer & Attribute.Required;
+    completed: Attribute.Boolean;
+    question: Attribute.Relation<
+      'api::user-progress.user-progress',
+      'oneToOne',
+      'api::question.question'
+    >;
+    user: Attribute.Relation<
+      'api::user-progress.user-progress',
+      'oneToOne',
+      'plugin::users-permissions.user'
+    >;
+    experience: Attribute.BigInteger & Attribute.DefaultTo<'0'>;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::user-progress.user-progress',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::user-progress.user-progress',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
+export interface ApiVoteVote extends Schema.CollectionType {
+  collectionName: 'votes';
+  info: {
+    singularName: 'vote';
+    pluralName: 'votes';
+    displayName: 'Vote';
+    description: '';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    castBy: Attribute.Relation<
+      'api::vote.vote',
+      'manyToOne',
+      'plugin::users-permissions.user'
+    >;
+    argumentTree: Attribute.Relation<
+      'api::vote.vote',
+      'manyToOne',
+      'api::argument-tree.argument-tree'
+    >;
+    for: Attribute.Enumeration<['creator', 'opponent']> & Attribute.Required;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<'api::vote.vote', 'oneToOne', 'admin::user'> &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<'api::vote.vote', 'oneToOne', 'admin::user'> &
       Attribute.Private;
   };
 }
@@ -1062,11 +1494,18 @@ declare module '@strapi/types' {
       'plugin::users-permissions.permission': PluginUsersPermissionsPermission;
       'plugin::users-permissions.role': PluginUsersPermissionsRole;
       'plugin::users-permissions.user': PluginUsersPermissionsUser;
+      'plugin::comments.comment': PluginCommentsComment;
+      'plugin::comments.comment-report': PluginCommentsCommentReport;
       'api::achievement.achievement': ApiAchievementAchievement;
       'api::argument-tree.argument-tree': ApiArgumentTreeArgumentTree;
       'api::friend-request.friend-request': ApiFriendRequestFriendRequest;
       'api::node.node': ApiNodeNode;
+      'api::question.question': ApiQuestionQuestion;
+      'api::question-session.question-session': ApiQuestionSessionQuestionSession;
       'api::tag.tag': ApiTagTag;
+      'api::topic.topic': ApiTopicTopic;
+      'api::user-progress.user-progress': ApiUserProgressUserProgress;
+      'api::vote.vote': ApiVoteVote;
     }
   }
 }

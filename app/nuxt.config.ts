@@ -7,6 +7,7 @@ export default defineNuxtConfig({
     "@dargmuesli/nuxt-cookie-control",
     "@nuxtjs/i18n",
     "nuxt-anchorscroll",
+    '@pinia/nuxt'
   ],
   colorMode: {
     preference: "light",
@@ -14,4 +15,20 @@ export default defineNuxtConfig({
   i18n: {
     vueI18n: "./i18n.config.ts",
   },
+  strapi: {
+    auth: {
+      populate: {
+        userProgress: true,
+        questionSession: {
+          populate: ["currentQuestion"]
+        }
+      }
+    },
+  },
+  cookieControl: {
+    locales: ['en', 'de'],
+  }
 });
+
+
+

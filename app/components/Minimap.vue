@@ -12,9 +12,7 @@
 		},
 	});
 
-	// Assuming nodes is an array with the top-level node being the root
 	const rootNode = computed(() => {
-		// Modify this based on your actual data structure
 		return props.nodes ?? null;
 	});
 </script>

@@ -1,0 +1,46 @@
+{
+  "kind": "collectionType",
+  "collectionName": "question_sessions",
+  "info": {
+    "singularName": "question-session",
+    "pluralName": "question-sessions",
+    "displayName": "QuestionSession",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "currentQuestionIndex": {
+      "type": "integer",
+      "default": 0,
+      "required": true,
+      "max": 10
+    },
+    "isCompleted": {
+      "type": "boolean",
+      "default": false
+    },
+    "questions": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::question.question"
+    },
+    "user": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "questionSession"
+    },
+    "currentQuestion": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::question.question"
+    },
+    "questionOrder": {
+      "type": "json",
+      "required": true
+    }
+  }
+}
