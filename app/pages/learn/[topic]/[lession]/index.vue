@@ -76,7 +76,6 @@
 		});
 
 		refresh();
-		console.log(typeof response);
 
 		if (response === "deleted") {
 			console.log("navigate!");

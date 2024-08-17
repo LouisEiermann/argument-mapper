@@ -6,14 +6,11 @@ export default defineNuxtConfig({
     "@nuxt/ui",
     "@dargmuesli/nuxt-cookie-control",
     "@nuxtjs/i18n",
-    "nuxt-anchorscroll",
-    '@pinia/nuxt'
+    "@pinia/nuxt",
+    "nuxt-anchorscroll"
   ],
   colorMode: {
     preference: "light",
-  },
-  i18n: {
-    vueI18n: "./i18n.config.ts",
   },
   strapi: {
     auth: {
@@ -27,8 +24,15 @@ export default defineNuxtConfig({
   },
   cookieControl: {
     locales: ['en', 'de'],
+  },
+  i18n: {
+    locales: [
+      { code: 'en', iso: 'en-US', file: 'en-US.json' },
+      { code: 'de', iso: 'de-DE', file: 'de-DE.json' }
+    ],
+    defaultLocale: "de",
+    lazy: true,
+    langDir: 'locales/',
+    strategy: 'no_prefix',
   }
 });
-
-
-

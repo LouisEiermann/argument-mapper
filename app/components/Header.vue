@@ -1,5 +1,5 @@
 <template>
-	<header :class="isDark ? 'bg-dark' : 'bg-white'" class="sticky top-0 z-1">
+	<header :class="isDark ? 'bg-dark' : 'bg-white'" class="sticky top-0">
 		<UContainer>
 			<div class="flex py-8 gap-4">
 				<div class="basis-1/4"></div>
@@ -93,3 +93,4 @@
 		} catch (e) {}
 	};
 </script>
+<style lang="scss" scoped></style>

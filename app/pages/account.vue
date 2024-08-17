@@ -1,8 +1,8 @@
 <template>
-	<UContainer>
+	<UContainer v-if="socialData">
 		<UContainer class="avatar">
 			<UAvatar
-				v-if="socialData?.currentUser.avatar"
+				v-if="socialData.currentUser.avatar"
 				:src="useStrapiMedia(socialData?.currentUser.avatar.url)"
 				:alt="socialData?.currentUser.username"
 				size="3xl"
@@ -10,7 +10,7 @@
 		</UContainer>
 		<UContainer>
 			<h1 class="text-center mt-8">
-				{{ socialData?.currentUser.username }}
+				{{ socialData.currentUser.username }}
 			</h1>
 			<p v-if="socialData">
 				Beigetreten: {{ formatDate(socialData?.currentUser.createdAt, locale) }}
@@ -18,57 +18,11 @@
 		</UContainer>
 		<UDivider class="my-8" />
 		<h1 class="beliefs">Meine Überzeugungen</h1>
-		<UModal v-model="isModalOpen">
-			<UCard
-				:ui="{
-					ring: '',
-					divide: 'divide-y divide-gray-100 dark:divide-gray-800',
-				}"
-			>
-				<template #header>
-					<div class="header">
-						<h1>Neue Überzeugung</h1>
-						<UButton
-							color="gray"
-							variant="ghost"
-							icon="i-heroicons-x-mark-20-solid"
-							class="-my-1"
-							@click="isModalOpen = false"
-						/>
-					</div>
-				</template>
-				<div class="space-y-6">
-					<UInput type="text" v-model="title" :placeholder="$t('Titel')" />
-					<UInput type="text" v-model="premise" :placeholder="$t('Prämisse')" />
-					<UInput
-						type="text"
-						v-model="node1"
-						:placeholder="$t('Begründung 1')"
-					/>
-					<UInput
-						type="text"
-						v-model="node2"
-						:placeholder="$t('Begründung 2')"
-					/>
-					<USelectMenu
-						:options="socialData?.availableTags"
-						multiple
-						v-model="selectedTags"
-						placeholder="Tags auswählen"
-						value-attribute="id"
-						option-attribute="name"
-					>
-						<UButton
-							label="Tags"
-							trailing-icon="i-heroicons-chevron-down-20-solid"
-					/></USelectMenu>
-				</div>
-
-				<template #footer>
-					<UButton @click="onNewThesis">Hinzufügen</UButton></template
-				>
-			</UCard>
-		</UModal>
+		<NewArgumentModal
+			:is-open="isModalOpen"
+			@refresh="refresh()"
+			@update:isOpen="isModalOpen = $event"
+		/>
 		<div class="grid-container">
 			<UCard v-for="standpoint in socialData?.standpoints" class="grid-item">
 				{{ standpoint.title }}
@@ -115,132 +69,11 @@
 				<UButton color="red" @click="onDeleteUser">Konto löschen</UButton>
 			</UCard>
 		</UModal>
-		<UModal v-model="isFriendsManagementOpen">
-			<UCard
-				:ui="{
-					ring: '',
-					divide: 'divide-y divide-gray-100 dark:divide-gray-800',
-				}"
-			>
-				<template #header>
-					<div class="header">
-						<h1>Freunde hinzufügen</h1>
-						<UButton
-							color="gray"
-							variant="ghost"
-							icon="i-heroicons-x-mark-20-solid"
-							class="-my-1"
-							@click="isFriendsManagementOpen = false"
-						/>
-					</div>
-				</template>
-
-				<h2>Freunde:</h2>
-				<UCard v-for="friend in socialData?.currentUser.friends">
-					{{ friend.username }}
-					<UButton @click="visitProfile(friend.id)">Nutzerprofil</UButton>
-				</UCard>
-
-				<h2>Freundesvorschläge:</h2>
-				<UCard v-for="suggestedFriend in socialData.suggestedFriends">
-					{{ suggestedFriend.username }}
-					<UButton @click="visitProfile(suggestedFriend.id)"
-						>Nutzerprofil</UButton
-					>
-					<UButton
-						v-if="
-							!socialData.sentFriendRequests.find((e) => {
-								return e.attributes.receiver.data.id === suggestedFriend.id;
-							}) &&
-							!socialData?.receivedFriendRequests.find((e) => {
-								return e.attributes.sender.data.id === suggestedFriend.id;
-							})
-						"
-						@click="sendFriendRequest(suggestedFriend.id)"
-						>Freundschaftsanfrage</UButton
-					>
-					<div
-						v-else-if="
-							socialData?.receivedFriendRequests.find((e) => {
-								return e.attributes.sender.data.id === suggestedFriend.id;
-							})
-						"
-					>
-						<UButton
-							@click="
-								acceptFriendRequest(
-									socialData.receivedFriendRequests.find((e) => {
-										return e.attributes.sender.data.id === suggestedFriend.id;
-									})?.id
-								)
-							"
-							>Freundschaftsanfrage annehmen</UButton
-						>
-						<UButton
-							color="red"
-							@click="rejectFriendRequest(receivedFriendRequests.id)"
-							>Freundschaftsanfrage ablehnen</UButton
-						>
-					</div>
-					<UChip
-						class="withdraw"
-						v-else
-						text="Withdraw"
-						size="2xl"
-						@click="
-							withdrawFriendRequest(
-								socialData?.sentFriendRequests.find((e) => {
-									return e.attributes.receiver.data.id === suggestedFriend.id;
-								})?.id
-							)
-						"
-					>
-						<UButton disabled>Pending...</UButton>
-					</UChip>
-				</UCard>
-				<h2>Freundschaftsanfragen:</h2>
-				<UCard
-					v-for="receivedFriendRequest in socialData.receivedFriendRequests"
-				>
-					{{ receivedFriendRequest.attributes.sender.data.attributes.username }}
-					<UButton @click="visitProfile(receivedFriendRequest.id)"
-						>Nutzerprofil</UButton
-					>
-					<UButton @click="acceptFriendRequest(receivedFriendRequest.id)"
-						>Freundschaftsanfrage annehmen</UButton
-					>
-					<UButton
-						color="red"
-						@click="rejectFriendRequest(receivedFriendRequest.id)"
-						>Freundschaftsanfrage ablehnen</UButton
-					>
-				</UCard>
-				<h2>Freunde suchen:</h2>
-				<UInput v-model="searchForFriendsSearchTerm"></UInput>
-				<UButton @click="searchFriends">Suchen</UButton>
-				<UCard v-for="foundUser in foundUsers">
-					{{ foundUser.username }}
-					<UButton @click="visitProfile(foundUser.id)">Nutzerprofil</UButton>
-					<UButton
-						v-if="
-							!socialData.sentFriendRequests.find((e) => {
-								return e.attributes.receiver.data.id === foundUser.id;
-							})
-						"
-						@click="sendFriendRequest(foundUser.id)"
-						>Freundschaftsanfrage</UButton
-					>
-					<UChip
-						v-else
-						text="Withdraw"
-						size="2xl"
-						@click="withdrawFriendRequest"
-					>
-						<UButton disabled>Pending...</UButton>
-					</UChip>
-				</UCard>
-			</UCard>
-		</UModal>
+		<FriendManagement
+			:is-friends-management-open="isFriendsManagementOpen"
+			@refresh="refresh()"
+			@update:isOpen="isFriendsManagementOpen = $event"
+		/>
 		<UDivider class="my-8" />
 		<UButton to="/learn">Lernen</UButton>
 		<UDivider class="my-8" />
@@ -286,12 +119,12 @@
 		middleware: "auth",
 	});
 
-	const { fetchUser } = useStrapiAuth();
 	const { find, create, update, delete: _delete } = useStrapi();
 	const client = useStrapiClient();
 	const { formatDate } = useDateFormatter();
 	const { locale } = useI18n();
-	const ownUser = await fetchUser();
+	const userStore = useUserStore();
+	const ownUser = await userStore.getUser;
 
 	const { data: socialData, refresh } = useAsyncData("socialData", async () => {
 		const currentUser = await find("users/me", {
@@ -326,7 +159,7 @@
 		);
 
 		const sentArgumentRequests = currentUser.created.filter((e) => {
-			return !e.isUnilateral;
+			return e.opponentAccepted;
 		});
 
 		const receivedArgumentRequests = currentUser.isOpponent;
@@ -339,18 +172,12 @@
 			},
 			pagination: {
 				start: 1,
-				limit: 10,
+				limit: 5,
 			},
 		});
 
-		const standpoints = currentUser.created.filter(
-			(e: { isUnilateral: boolean }) => {
-				return e.isUnilateral;
-			}
-		);
-
-		const availableTags = (await find("tags", {})).data.map((e) => {
-			return { id: e.id, name: e.attributes.name };
+		const standpoints = currentUser.created.filter((e) => {
+			return !e.opponentAccepted;
 		});
 
 		return {
@@ -361,68 +188,12 @@
 			suggestedFriends,
 			currentUser,
 			standpoints,
-			availableTags,
 		};
 	});
 
 	const isSettingsOpen = ref(false);
 	const isFriendsManagementOpen = ref(false);
-	const foundUsers = ref([]);
-	const searchForFriendsSearchTerm = ref("");
 	const isModalOpen = ref();
-	const title = ref();
-	const premise = ref();
-	const node1 = ref();
-	const node2 = ref();
-	const selectedTags = ref([]);
-	const response = ref();
-
-	const acceptFriendRequest = async (id: number) => {
-		await update("friend-requests", id, { status: "accepted" });
-		refresh();
-	};
-
-	const rejectFriendRequest = async (id: number) => {
-		await update("friend-requests", id, { status: "rejected" });
-		refresh();
-	};
-
-	const sendFriendRequest = async (receiverId: any) => {
-		await create("friend-requests", {
-			sender: socialData.value?.currentUser.id,
-			receiver: receiverId,
-		});
-		refresh();
-	};
-
-	const searchFriends = async () => {
-		foundUsers.value = [];
-		const currentUserId = socialData.value.currentUser.id;
-		const friendIds = socialData.value.currentUser.friends.map(
-			(friend: { id: any }) => friend.id
-		);
-		const excludeIds = [currentUserId, ...friendIds];
-
-		const result = await find("users", {
-			filters: {
-				id: {
-					$notIn: excludeIds,
-				},
-				username: {
-					$contains: searchForFriendsSearchTerm.value,
-				},
-			},
-		});
-
-		result.forEach((e: any) => {
-			foundUsers.value.push(e);
-		});
-	};
-
-	const withdrawFriendRequest = async (id: number) => {
-		await _delete("friend-requests", id);
-		refresh();
-	};
 
 	const acceptArgumentRequest = async (id: number) => {
 		await update("argument-trees", id, { opponentAccepted: true });
@@ -449,10 +220,6 @@
 		} catch (e) {}
 	};
 
-	const visitProfile = (id: any) => {
-		navigateTo(`/users/${id}`);
-	};
-
 	const handleFileChange = async (event: {
 		target: { files: (string | Blob)[] };
 	}) => {
@@ -467,47 +234,6 @@
 			method: "POST",
 			body: formData,
 		});
-		refresh();
-	};
-
-	const onNewThesis = async () => {
-		const thesis = (
-			await create("nodes", {
-				Title: premise.value,
-				Thesis: true,
-				owner: ownUser.value?.id,
-			})
-		).data;
-
-		const newReasonId = await create("nodes", {
-			Title: node1.value,
-			parent: thesis.id,
-			owner: ownUser.value?.id,
-		});
-		const newReason2Id = await create("nodes", {
-			Title: node2.value,
-			parent: thesis.id,
-			owner: ownUser.value?.id,
-		});
-
-		response.value = { newReasonId: newReasonId, newReason2Id: newReason2Id };
-
-		await update("nodes", response.value.newReasonId.data.id, {
-			siblings: [response.value.newReason2Id.data.id],
-		});
-		await update("nodes", response.value.newReason2Id.data.id, {
-			siblings: [response.value.newReasonId.data.id],
-		});
-
-		await create("argument-trees", {
-			title: title.value,
-			nodes: thesis.id,
-			creator: ownUser.value?.id,
-			isUnilateral: true,
-			tags: selectedTags.value,
-		});
-
-		isModalOpen.value = false;
 		refresh();
 	};
 </script>

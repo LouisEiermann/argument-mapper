@@ -44,10 +44,6 @@
       "type": "boolean",
       "default": false
     },
-    "isUnilateral": {
-      "type": "boolean",
-      "default": false
-    },
     "tags": {
       "type": "relation",
       "relation": "oneToMany",

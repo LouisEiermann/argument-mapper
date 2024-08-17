@@ -1,0 +1,31 @@
+{
+	"welcome": "Welcome to Appname",
+	"account": {
+		"register": "Register",
+		"login": "Login",
+		"logout": "Logout",
+		"email": "E-Mail Address",
+		"password": "Password",
+		"passwordConfirm": "Confirm Password",
+		"username": "Username",
+		"passwordForgotten": "Password forgotten",
+		"or": "Or",
+		"settings": "Settings"
+	},
+	"argument": {
+		"new": {
+			"title": "Title",
+			"thesis": "Thesis",
+			"conclusion": "Conclusion",
+			"premise": "Premise",
+			"coPremise": "Co-Premise",
+			"secondCoPremise": "Second Co-Premise",
+			"add": "Add"
+		}
+	},
+	"notification": {
+		"loginFailed": "Login failed. Please check your username and your password.",
+		"saved": "Saved.",
+		"argumentDeleted": "Argument deleted."
+	}
+}

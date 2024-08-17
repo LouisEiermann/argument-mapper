@@ -43,7 +43,7 @@
 				password: password.value,
 			});
 
-			await navigateTo("/account");
+			await navigateTo("/feed");
 		} catch (e) {
 			toast.add({ title: t("notification.loginFailed"), color: "red" });
 		}

@@ -12,16 +12,16 @@
   },
   "pluginOptions": {},
   "attributes": {
-    "Title": {
+    "title": {
       "type": "string"
     },
-    "Description": {
+    "description": {
       "type": "blocks"
     },
-    "Thesis": {
+    "thesis": {
       "type": "boolean"
     },
-    "Axiom": {
+    "axiom": {
       "type": "boolean"
     },
     "children": {
@@ -36,11 +36,11 @@
       "target": "api::node.node",
       "inversedBy": "children"
     },
-    "SoundnessDoubted": {
+    "soundnessDoubted": {
       "type": "boolean",
       "default": false
     },
-    "FormalFellacyBelow": {
+    "formalFellacyBelow": {
       "type": "string"
     },
     "siblings": {
@@ -65,6 +65,11 @@
       "relation": "manyToOne",
       "target": "plugin::users-permissions.user",
       "inversedBy": "nodes"
+    },
+    "argument": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::argument-tree.argument-tree"
     }
   }
 }

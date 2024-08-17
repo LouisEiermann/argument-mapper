@@ -6,13 +6,13 @@
 
 <script setup lang="ts">
 	const props = defineProps({
-		nodes: {
+		node: {
 			type: Object,
 			required: true,
 		},
 	});
 
 	const rootNode = computed(() => {
-		return props.nodes ?? null;
+		return props.node ?? null;
 	});
 </script>

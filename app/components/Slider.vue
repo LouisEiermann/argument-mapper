@@ -25,7 +25,7 @@
 						color="red"
 					></UButton>
 
-					<p>{{ node.Title }}</p>
+					<p>{{ node.title }}</p>
 
 					<UButton
 						class="move-down"
@@ -38,7 +38,7 @@
 	</UCarousel>
 </template>
 <script setup lang="ts">
-	defineProps(["sliderItems", "userIsCreator", "isUnilateral", "isNotValid"]);
+	defineProps(["sliderItems", "userIsCreator", "isNotValid"]);
 
 	const { delete: deleteStrapi } = useStrapi();
 	const isSlideroverOpen = ref(false);

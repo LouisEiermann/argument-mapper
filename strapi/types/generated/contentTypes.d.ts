@@ -1038,7 +1038,6 @@ export interface ApiArgumentTreeArgumentTree extends Schema.CollectionType {
       'plugin::users-permissions.user'
     >;
     opponentAccepted: Attribute.Boolean & Attribute.DefaultTo<false>;
-    isUnilateral: Attribute.Boolean & Attribute.DefaultTo<false>;
     tags: Attribute.Relation<
       'api::argument-tree.argument-tree',
       'oneToMany',
@@ -1119,18 +1118,18 @@ export interface ApiNodeNode extends Schema.CollectionType {
     draftAndPublish: false;
   };
   attributes: {
-    Title: Attribute.String;
-    Description: Attribute.Blocks;
-    Thesis: Attribute.Boolean;
-    Axiom: Attribute.Boolean;
+    title: Attribute.String;
+    description: Attribute.Blocks;
+    thesis: Attribute.Boolean;
+    axiom: Attribute.Boolean;
     children: Attribute.Relation<
       'api::node.node',
       'oneToMany',
       'api::node.node'
     >;
     parent: Attribute.Relation<'api::node.node', 'manyToOne', 'api::node.node'>;
-    SoundnessDoubted: Attribute.Boolean & Attribute.DefaultTo<false>;
-    FormalFellacyBelow: Attribute.String;
+    soundnessDoubted: Attribute.Boolean & Attribute.DefaultTo<false>;
+    formalFellacyBelow: Attribute.String;
     siblings: Attribute.Relation<
       'api::node.node',
       'manyToMany',
@@ -1146,6 +1145,11 @@ export interface ApiNodeNode extends Schema.CollectionType {
       'api::node.node',
       'manyToOne',
       'plugin::users-permissions.user'
+    >;
+    argument: Attribute.Relation<
+      'api::node.node',
+      'oneToOne',
+      'api::argument-tree.argument-tree'
     >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;

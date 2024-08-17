@@ -35,8 +35,8 @@
 							class="end-argument"
 							color="red"
 							v-if="
-								userIsCreator ||
-								!data?.argumentTrees?.data[0].attributes.isUnilateral
+								data?.userIsCreator ||
+								data?.argumentTrees?.data[0].attributes.opponentAccepted
 							"
 							@click="onArgumentDelete"
 							>Argument beenden</UButton
@@ -71,8 +71,16 @@
 					</UCard>
 				</UModal>
 			</div>
-			<UProgress :value="70" />
-			<UContainer class="participants">
+			<UProgress
+				v-if="
+					data?.argumentTrees?.data[0].attributes.opponent.data && data.votes
+				"
+				:value="useVoteCalculator(data?.votes).creatorPercentage"
+			/>
+			<UContainer
+				class="participants"
+				v-if="data?.argumentTrees?.data[0].attributes.opponent.data"
+			>
 				<div>
 					<UAvatar />
 					<p>
@@ -81,29 +89,33 @@
 								.username
 						}}
 					</p>
-					<UButton @click="vote('creator')">Vote</UButton>
+					<UButton
+						@click="vote('creator')"
+						v-if="!data?.userIsCreator && !data?.userIsOpponent"
+						>Vote</UButton
+					>
 				</div>
 				vs
 				<div>
 					<UAvatar />
 					<p>
 						{{
-							data?.argumentTrees?.data[0].attributes.opponent.data.attributes
+							data?.argumentTrees?.data[0].attributes.opponent.data?.attributes
 								.username
 						}}
 					</p>
-					<UButton @click="vote('opponent')">Vote</UButton>
+					<UButton
+						@click="vote('opponent')"
+						v-if="!data?.userIsCreator && !data?.userIsOpponent"
+						>Vote</UButton
+					>
 				</div>
 			</UContainer>
 		</div>
 		<Tree
-			:node="findNodeByIdAtLevel(data.nodeTree, currentLevel) || data.nodeTree"
 			v-if="data?.nodeTree"
-			:user-is-creator="userIsCreator"
-			:is-unilateral="
-				findNodeByIdAtLevel(data.nodeTree?.children, currentLevel) ||
-				data?.argumentTrees.data[0].attributes.isUnilateral
-			"
+			:node="findNodeByIdAtLevel(data.nodeTree, currentLevel) || data.nodeTree"
+			:user-is-creator="data?.userIsCreator"
 			:parent="
 				findNodeByIdAtLevel(data.nodeTree.children, currentLevel) ||
 				data?.argumentTrees.data[0].attributes.parent
@@ -117,48 +129,18 @@
 		middleware: "auth",
 	});
 
-	const { find, delete: deleteArgument, findOne, create } = useStrapi();
+	const { find, delete: strapiDelete, create } = useStrapi();
 	const { params } = useRoute();
-	const { fetchUser } = useStrapiAuth();
 	const client = useStrapiClient();
-	const user = await fetchUser();
+	const userStore = useUserStore();
+
 	const toast = useToast();
 	const { t } = useI18n();
 	const route = useRoute();
 	const currentLevel = computed(() => Number(route.query.level) || 1);
 	const isOpen = ref(false);
 	const { localizedVersion } = useLocalizedContent();
-
-	const userIsCreator = computed(() => {
-		return (
-			user.value?.id ===
-			data.value?.argumentTrees?.data[0].attributes.creator.data.id
-		);
-	});
-
-	const opponent = computed(async () => {
-		if (!data.value?.argumentTrees.data[0].attributes.isUnilateral) {
-			if (userIsCreator) {
-				return await findOne(
-					"users",
-					data.value?.argumentTrees.data[0].attributes.opponent?.id,
-					{
-						populate: ["friends", "created", "isOpponent", "avatar"],
-					}
-				);
-			} else {
-				return await findOne(
-					"users",
-					data.value?.argumentTrees.data[0].attributes.creator.id,
-					{
-						populate: ["friends", "created", "isOpponent", "avatar"],
-					}
-				);
-			}
-		} else {
-			return null;
-		}
-	});
+	const { fetchUser } = useStrapiAuth();
 
 	const { data, refresh } = await useAsyncData("data", async () => {
 		const argumentTrees = await find("argument-trees", {
@@ -166,7 +148,6 @@
 				nodes: true,
 				creator: true,
 				opponent: true,
-				isUnilateral: true,
 				tags: {
 					populate: ["defaultMood", "localizations"],
 				},
@@ -178,6 +159,8 @@
 			},
 		});
 
+		const user = await fetchUser();
+
 		const nodeTree = await find("node-tree", {
 			filters: {
 				id: {
@@ -186,7 +169,34 @@
 			},
 		});
 
-		return { argumentTrees, nodeTree };
+		const votes = await find("votes", {
+			filters: {
+				argumentTree: {
+					$eq: argumentTrees.data[0].id,
+				},
+			},
+		});
+
+		const userIsCreator = computed(() => {
+			return (
+				user.value?.id === argumentTrees.data[0].attributes.creator.data.id
+			);
+		});
+
+		const userIsOpponent = computed(() => {
+			return (
+				user.value?.id === argumentTrees.data[0].attributes.opponent.data?.id
+			);
+		});
+
+		return {
+			argumentTrees,
+			nodeTree,
+			votes,
+			userIsCreator,
+			userIsOpponent,
+			user,
+		};
 	});
 
 	provide("refresh", refresh);
@@ -207,10 +217,8 @@
 	};
 
 	const onArgumentDelete = async (event) => {
-		await deleteArgument(
-			"argument-trees",
-			data.value?.argumentTrees.data[0].id
-		);
+		await strapiDelete("argument-trees", data.value?.argumentTrees.data[0].id);
+
 		await navigateTo("/account");
 		toast.add({ title: t("notification.argumentDeleted") });
 	};
@@ -237,7 +245,7 @@
 	const vote = async (votedFor: string) => {
 		const argumentTree = data.value?.argumentTrees.data[0].id;
 		await create("votes", {
-			castBy: user.value?.id,
+			castBy: data.value?.user.value?.id,
 			argumentTree: argumentTree,
 			for: votedFor,
 		});
@@ -247,6 +255,7 @@
 	.image-container {
 		position: relative;
 	}
+
 	.tags {
 		position: absolute;
 		bottom: 0.5rem;
@@ -256,6 +265,7 @@
 			margin: 0.2rem;
 		}
 	}
+
 	.argument-container {
 		display: flex;
 		flex-direction: column;
@@ -285,6 +295,7 @@
 			gap: 1rem;
 		}
 	}
+
 	.end-argument {
 		width: fit-content;
 	}

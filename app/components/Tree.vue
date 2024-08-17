@@ -1,6 +1,6 @@
 <template>
 	<div class="tree-node">
-		<Minimap :nodes="wholeTree" />
+		<Minimap :node="wholeTree" />
 	</div>
 	<div class="tree-node">
 		<UCard
@@ -26,7 +26,7 @@
 			></UButton>
 			<div v-if="node.Thesis" class="badge">Thesis</div>
 			<div v-if="node.Axiom" class="badge">Axiom</div>
-			<p>{{ node.Title }}</p>
+			<p>{{ node.title }}</p>
 		</UCard>
 		<UButton
 			v-if="userIsCreator"
@@ -128,13 +128,12 @@
 				:slider-items="itemsGroupedByCoPremises"
 				:is-not-valid="node.FormalFellacyBelow || isNotValid"
 				:user-is-creator="userIsCreator"
-				:is-unilateral="isUnilateral"
 			/>
 		</div>
 	</div>
 	<USlideover v-model="isSlideroverOpen">
 		<div class="p-4 flex-1 scroll">
-			<UTextarea v-model="node.Title" />
+			<UTextarea v-model="node.title" />
 			<UDivider />
 			Sources:
 			<UDivider />
@@ -150,7 +149,6 @@
 		"isNotValid",
 		"userIsCreator",
 		"parent",
-		"isUnilateral",
 		"end",
 		"wholeTree",
 	]);
@@ -170,15 +168,17 @@
 	const { fetchUser } = useStrapiAuth();
 	const ownUser = await fetchUser();
 
+	const refresh = inject("refresh");
+
 	const addReasons = async (parentId: any, isObjection: boolean) => {
 		if (!isObjection) {
 			const newReasonId = await create("nodes", {
-				Title: newReason.value.title,
+				title: newReason.value.title,
 				parent: parentId,
 				owner: ownUser.value?.id,
 			});
 			const newReason2Id = await create("nodes", {
-				Title: newReason2.value.title,
+				title: newReason2.value.title,
 				parent: parentId,
 				owner: ownUser.value?.id,
 			});
@@ -192,12 +192,12 @@
 			});
 		} else {
 			const newReasonId = await create("nodes", {
-				Title: newReason.value.title,
+				title: newReason.value.title,
 				parent: parentId,
 				owner: ownUser.value?.id,
 			});
 			const newReason2Id = await create("nodes", {
-				Title: newReason2.value.title,
+				title: newReason2.value.title,
 				parent: parentId,
 				owner: ownUser.value?.id,
 			});

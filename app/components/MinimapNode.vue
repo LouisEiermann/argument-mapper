@@ -1,5 +1,5 @@
 <template>
-	<div class="minimap-node">
+	<div class="minimap-node" v-if="node">
 		<UCard
 			:class="{
 				'current-node':
@@ -10,7 +10,7 @@
 			class="card"
 			@click="navigate(node.id)"
 		>
-			<span>{{ node.Title }}</span>
+			<span>{{ node.title }}</span>
 		</UCard>
 		<div v-if="node.children && node.children.length > 0" class="node-children">
 			<MinimapNode
@@ -42,11 +42,10 @@
 	};
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 	.minimap-node {
 		display: flex;
 		flex-direction: column;
-		align-items: center;
 		margin: 10px;
 	}
 
@@ -55,7 +54,6 @@
 		justify-content: center;
 		margin-top: 10px;
 		padding-top: 10px;
-		border-top: 1px solid #ccc;
 		width: 100%;
 	}
 
@@ -65,6 +63,8 @@
 
 	.card {
 		cursor: pointer;
+		background-color: rgb(34, 197, 94);
+		color: white;
 	}
 
 	.is-objection {
