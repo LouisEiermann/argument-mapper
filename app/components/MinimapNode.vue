@@ -3,7 +3,7 @@
 		<UCard
 			:class="{
 				'current-node':
-					currentLevel === node.id || (node.Thesis && currentLevel === null),
+					currentLevel === node.id || (node.thesis && currentLevel === null),
 				'is-objection':
 					node?.owner.id !== node?.parent?.owner.id && node.parent,
 			}"
@@ -11,6 +11,12 @@
 			@click="navigate(node.id)"
 		>
 			<span>{{ node.title }}</span>
+			<UAvatar
+				:src="useStrapiMedia(node.owner.avatar?.url)"
+				class="avatar"
+				v-if="node.owner.avatar?.url"
+			/>
+			<UAvatar :src="null" :alt="node.owner.username" class="avatar" v-else />
 		</UCard>
 		<div v-if="node.children && node.children.length > 0" class="node-children">
 			<MinimapNode
@@ -57,14 +63,21 @@
 		width: 100%;
 	}
 
-	.current-node {
-		color: #fcd34d;
-	}
-
 	.card {
 		cursor: pointer;
 		background-color: rgb(34, 197, 94);
 		color: white;
+		position: relative;
+
+		&.current-node {
+			color: #fcd34d;
+		}
+
+		.avatar {
+			position: absolute;
+			top: -1rem;
+			right: 1rem;
+		}
 	}
 
 	.is-objection {

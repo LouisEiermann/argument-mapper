@@ -6,9 +6,10 @@
 					<img
 						class="rounded-md"
 						:src="
-							'http://localhost:1337' +
-							data?.argumentTrees?.data[0].attributes.tags.data[0].attributes
-								.defaultMood.data.attributes.url
+							useStrapiMedia(
+								data?.argumentTrees?.data[0].attributes.tags.data[0].attributes
+									.defaultMood.data.attributes.url
+							)
 						"
 					/>
 					<div class="tags">
@@ -27,20 +28,22 @@
 					<p>
 						{{ data?.argumentTrees?.data[0].attributes.description }}
 					</p>
-					<template #footer
-						><UButton class="move-down" @click="isOpen = true"
-							>Einstellungen</UButton
-						>
-						<UButton
-							class="end-argument"
-							color="red"
-							v-if="
-								data?.userIsCreator ||
-								data?.argumentTrees?.data[0].attributes.opponentAccepted
-							"
-							@click="onArgumentDelete"
-							>Argument beenden</UButton
-						>
+					<template #footer>
+						<div class="footer">
+							<UButton class="move-down" @click="isOpen = true"
+								>Einstellungen</UButton
+							>
+							<UButton
+								class="end-argument"
+								color="red"
+								v-if="
+									data?.userIsCreator ||
+									data?.argumentTrees?.data[0].attributes.opponentAccepted
+								"
+								@click="onArgumentDelete"
+								>Argument beenden</UButton
+							>
+						</div>
 					</template>
 				</UCard>
 				<UModal v-model="isOpen">
@@ -82,7 +85,26 @@
 				v-if="data?.argumentTrees?.data[0].attributes.opponent.data"
 			>
 				<div>
-					<UAvatar />
+					<UAvatar
+						v-if="
+							data?.argumentTrees?.data[0].attributes.creator.data.attributes
+								.avatar.data?.attributes.url
+						"
+						:src="
+							useStrapiMedia(
+								data?.argumentTrees?.data[0].attributes.creator.data.attributes
+									.avatar.data?.attributes.url
+							)
+						"
+					/>
+					<UAvatar
+						v-else
+						:src="null"
+						:alt="
+							data?.argumentTrees?.data[0].attributes.opponent.data.attributes
+								.username
+						"
+					/>
 					<p>
 						{{
 							data?.argumentTrees?.data[0].attributes.creator.data.attributes
@@ -97,7 +119,26 @@
 				</div>
 				vs
 				<div>
-					<UAvatar />
+					<UAvatar
+						v-if="
+							data?.argumentTrees?.data[0].attributes.opponent.data.attributes
+								.avatar.data?.attributes.url
+						"
+						:src="
+							useStrapiMedia(
+								data?.argumentTrees?.data[0].attributes.opponent.data.attributes
+									.avatar.data?.attributes.url
+							)
+						"
+					/>
+					<UAvatar
+						v-else
+						:src="null"
+						:alt="
+							data?.argumentTrees?.data[0].attributes.opponent.data.attributes
+								.username
+						"
+					/>
 					<p>
 						{{
 							data?.argumentTrees?.data[0].attributes.opponent.data?.attributes
@@ -121,6 +162,7 @@
 				data?.argumentTrees.data[0].attributes.parent
 			"
 			:whole-tree="data.nodeTree"
+			:argument="data?.argumentTrees?.data[0]"
 		/>
 	</div>
 </template>
@@ -146,8 +188,8 @@
 		const argumentTrees = await find("argument-trees", {
 			populate: {
 				nodes: true,
-				creator: true,
-				opponent: true,
+				creator: { populate: ["avatar"] },
+				opponent: { populate: ["avatar"] },
 				tags: {
 					populate: ["defaultMood", "localizations"],
 				},
@@ -303,6 +345,11 @@
 	.header {
 		display: flex;
 		justify-content: space-between;
+	}
+
+	.footer {
+		display: flex;
+		gap: 1rem;
 	}
 
 	.participants {

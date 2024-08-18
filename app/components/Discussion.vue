@@ -1,7 +1,7 @@
 <template>
 	<div>
-		<h2>New Comment:</h2>
-		<UTextarea v-model="newComment" />
+		<h1>Diskussion:</h1>
+		<UTextarea v-model="newComment" placeholder="Neuer Kommentar" />
 		<UButton @click="addNewComment(node.id)">Send</UButton>
 		<UDivider />
 

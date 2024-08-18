@@ -5,7 +5,7 @@
 	<div class="tree-node">
 		<UCard
 			class="node-content"
-			@click="isSlideroverOpen = true"
+			@click="isSlideoverOpen = true"
 			:class="{
 				'soundness-doubted': node.SoundnessDoubted,
 				'not-valid': isNotValid,
@@ -29,7 +29,7 @@
 			<p>{{ node.title }}</p>
 		</UCard>
 		<UButton
-			v-if="userIsCreator"
+			v-if="node.owner?.id === ownUser?.id"
 			class="add-button"
 			@click="isOpen = true"
 			icon="i-heroicons-plus-circle-16-solid"
@@ -76,7 +76,7 @@
 		<UButton
 			v-if="node.owner?.id !== ownUser?.id"
 			color="red"
-			@click="(isOpen = true), (isObjection = true)"
+			@click="isOpen = true"
 			>Objection</UButton
 		>
 		<UModal v-model="isOpen">
@@ -88,8 +88,10 @@
 			>
 				<template #header>
 					<div class="header">
-						<h1 v-if="!isObjection">Grund hinzufügen</h1>
-						<h1 v-else>Gegenargument hinzufügen</h1>
+						<h1 v-if="node.owner.id === ownUser?.id">
+							{{ $t("argument.support.add") }}
+						</h1>
+						<h1 v-else>{{ $t("argument.objection.add") }}</h1>
 						<UButton
 							color="gray"
 							variant="ghost"
@@ -101,18 +103,30 @@
 				</template>
 
 				<div class="space-y-6">
-					<UInput v-model="newReason.title" />
-					<UInput v-model="newReason2.title" />
+					<UInput
+						type="text"
+						v-model="premise"
+						:placeholder="$t('argument.new.premise')"
+					/>
+					<UInput
+						v-if="premise != ''"
+						type="text"
+						v-model="coPremise"
+						:placeholder="$t('argument.new.coPremise')"
+					/>
+					<UInput
+						v-if="coPremise != ''"
+						type="text"
+						v-model="secondCoPremise"
+						:placeholder="$t('argument.new.secondCoPremise')"
+					/>
 				</div>
 
 				<template #footer>
-					<UButton v-if="!isObjection" @click="addReasons(node?.id, false)"
-						>Add Reason</UButton
-					>
-					<UButton v-else @click="addReasons(node?.id, true)"
-						>Add Objection</UButton
-					></template
-				>
+					<UButton @click="addReasons(node?.id)">{{
+						$t("argument.new.add")
+					}}</UButton>
+				</template>
 			</UCard>
 		</UModal>
 		<div
@@ -131,17 +145,13 @@
 			/>
 		</div>
 	</div>
-	<USlideover v-model="isSlideroverOpen">
-		<div class="p-4 flex-1 scroll">
-			<UTextarea v-model="node.title" />
-			<UDivider />
-			Sources:
-			<UDivider />
-			<UButton @click="save(node.id)">Speichern</UButton>
-			<UDivider />
-			<Discussion :node="node" />
-		</div>
-	</USlideover>
+	<ArgumentSlideover
+		:is-slideover-open="isSlideoverOpen"
+		:node="node"
+		:own-user="ownUser"
+		@refresh="refresh()"
+		@update:isOpen="isSlideoverOpen = $event"
+	/>
 </template>
 <script setup lang="ts">
 	const props = defineProps([
@@ -151,63 +161,83 @@
 		"parent",
 		"end",
 		"wholeTree",
+		"argument",
 	]);
 
 	const { create, delete: deleteStrapi, update } = useStrapi();
 	const isOpen = ref(false);
-	const isObjection = ref(false);
-	const isSlideroverOpen = ref(false);
-	const newReason = ref({ title: "" });
-	const newReason2 = ref({ title: "" });
+	const isSlideoverOpen = ref(false);
 	const currentDropdownNode = ref();
-	const toast = useToast();
 	const { t } = useI18n();
-	const response = ref();
 	const route = useRoute();
 	const currentLevel = computed(() => Number(route.query.level) || 1);
 	const { fetchUser } = useStrapiAuth();
 	const ownUser = await fetchUser();
-
 	const refresh = inject("refresh");
 
-	const addReasons = async (parentId: any, isObjection: boolean) => {
-		if (!isObjection) {
-			const newReasonId = await create("nodes", {
-				title: newReason.value.title,
-				parent: parentId,
-				owner: ownUser.value?.id,
-			});
-			const newReason2Id = await create("nodes", {
-				title: newReason2.value.title,
-				parent: parentId,
-				owner: ownUser.value?.id,
-			});
-			response.value = { newReasonId: newReasonId, newReason2Id: newReason2Id };
+	const premise = ref("");
+	const coPremise = ref("");
+	const secondCoPremise = ref("");
 
-			await update("nodes", response.value.newReasonId.data.id, {
-				siblings: [response.value.newReason2Id.data.id],
-			});
-			await update("nodes", response.value.newReason2Id.data.id, {
-				siblings: [response.value.newReasonId.data.id],
-			});
-		} else {
-			const newReasonId = await create("nodes", {
-				title: newReason.value.title,
-				parent: parentId,
-				owner: ownUser.value?.id,
-			});
-			const newReason2Id = await create("nodes", {
-				title: newReason2.value.title,
-				parent: parentId,
-				owner: ownUser.value?.id,
-			});
-			response.value = { newReasonId: newReasonId, newReason2Id: newReason2Id };
+	const createdPremiseId = ref<number | null>(null);
+	const createdCoPremiseId = ref<number | null>(null);
+	const createdSecondCoPremiseId = ref<number | null>(null);
 
-			await update("nodes", response.value.newReasonId.data.id, {
-				siblings: [response.value.newReason2Id.data.id],
+	const addReasons = async (parentId: any) => {
+		const createdPremise = await create("nodes", {
+			title: premise.value,
+			parent: parentId,
+			owner: ownUser.value?.id,
+			argument: props.argument.id,
+		});
+
+		createdPremiseId.value = createdPremise.data.id;
+
+		if (coPremise.value !== "") {
+			const createdCoPremise = await create("nodes", {
+				title: coPremise.value,
+				parent: parentId,
+				owner: ownUser.value?.id,
+				argument: props.argument.id,
 			});
-			await update("nodes", response.value.newReason2Id.data.id, {
-				siblings: [response.value.newReasonId.data.id],
+
+			createdCoPremiseId.value = createdCoPremise.data.id;
+		}
+
+		if (secondCoPremise.value !== "") {
+			const createdSecondCoPremise = await create("nodes", {
+				title: secondCoPremise.value,
+				parent: parentId,
+				owner: ownUser.value?.id,
+				argument: props.argument.id,
+			});
+
+			createdSecondCoPremiseId.value = createdSecondCoPremise.data.id;
+		}
+
+		if (createdCoPremiseId.value && !createdSecondCoPremiseId.value) {
+			await update("nodes", createdPremiseId.value, {
+				siblings: [createdCoPremiseId.value],
+			});
+		} else if (createdCoPremiseId.value && createdSecondCoPremiseId.value) {
+			await update("nodes", createdPremiseId.value, {
+				siblings: [createdCoPremiseId.value, createdSecondCoPremiseId.value],
+			});
+		}
+
+		if (!createdSecondCoPremiseId.value && createdCoPremiseId.value) {
+			await update("nodes", createdCoPremiseId.value, {
+				siblings: [createdPremiseId.value],
+			});
+		} else if (createdSecondCoPremiseId.value && createdCoPremiseId.value) {
+			await update("nodes", createdCoPremiseId.value, {
+				siblings: [createdPremiseId.value, createdSecondCoPremiseId.value],
+			});
+		}
+
+		if (createdSecondCoPremiseId.value) {
+			await update("nodes", createdSecondCoPremiseId.value, {
+				siblings: [createdPremiseId.value, createdCoPremiseId.value],
 			});
 		}
 
@@ -234,12 +264,6 @@
 		await update("nodes", props.parent.id, {
 			FormalFellacyBelow: "",
 		});
-		refresh();
-	};
-
-	const save = async (id: string) => {
-		await update("nodes", id, props.node);
-		toast.add({ title: t("notification.saved") });
 		refresh();
 	};
 

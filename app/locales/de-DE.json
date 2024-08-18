@@ -21,6 +21,12 @@
 			"coPremise": "Co-Prämisse",
 			"secondCoPremise": "Zweite Co-Prämisse",
 			"add": "Hinzufügen"
+		},
+		"objection": {
+			"add": "Neues Gegenargument hinzufügen"
+		},
+		"support": {
+			"add": "Unterstützendes Argument hinzufügen"
 		}
 	},
 	"notification": {

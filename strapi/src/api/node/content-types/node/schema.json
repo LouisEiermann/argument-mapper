@@ -70,6 +70,11 @@
       "type": "relation",
       "relation": "oneToOne",
       "target": "api::argument-tree.argument-tree"
+    },
+    "sources": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::source.source"
     }
   }
 }

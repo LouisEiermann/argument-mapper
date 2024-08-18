@@ -21,6 +21,12 @@
 			"coPremise": "Co-Premise",
 			"secondCoPremise": "Second Co-Premise",
 			"add": "Add"
+		},
+		"objection": {
+			"add": "Add new counterargument"
+		},
+		"support": {
+			"add": "Add supportive argument"
 		}
 	},
 	"notification": {

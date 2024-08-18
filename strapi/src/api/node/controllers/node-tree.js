@@ -7,10 +7,30 @@ module.exports = {
     const node = await strapi.db.query("api::node.node").findOne({
       where: { id },
       populate: {
-        children: true,
-        siblings: true,
-        owner: true,
-        parent: { populate: { owner: true } },
+        children: {
+          populate: {
+            owner: {
+              populate: ["avatar"],
+            },
+          },
+        },
+        siblings: {
+          populate: {
+            owner: {
+              populate: ["avatar"],
+            },
+          },
+        },
+        owner: {
+          populate: ["avatar"],
+        },
+        parent: {
+          populate: {
+            owner: {
+              populate: ["avatar"],
+            },
+          },
+        },
       },
     });
 

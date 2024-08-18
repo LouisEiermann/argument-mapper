@@ -1,31 +1,33 @@
 <template>
-	<UCard v-if="data?.user?.questionSession" class="w-fit m-4">
-		<template #header>
-			<h1>{{ data?.user.questionSession.currentQuestion.content }}</h1>
-			<UBadge class="mt-2">{{
-				data?.user.questionSession.currentQuestion.fellacyType
-			}}</UBadge>
-		</template>
+	<div class="container">
+		<UCard v-if="data?.user?.questionSession" class="w-fit m-4">
+			<template #header>
+				<h1>{{ data?.user.questionSession.currentQuestion.content }}</h1>
+				<UBadge class="mt-2">{{
+					data?.user.questionSession.currentQuestion.fellacyType
+				}}</UBadge>
+			</template>
 
-		<div
-			v-for="answer in data?.user.questionSession.currentQuestion.answers"
-			:key="answer"
-		>
-			<UButton
-				color="blue"
-				class="mt-4"
-				@click="answerQuestion(answer.index)"
-				>{{ answer.text }}</UButton
+			<div
+				v-for="answer in data?.user.questionSession.currentQuestion.answers"
+				:key="answer"
 			>
-		</div>
+				<UButton
+					color="blue"
+					class="mt-4"
+					@click="answerQuestion(answer.index)"
+					>{{ answer.text }}</UButton
+				>
+			</div>
 
-		<template #footer>
-			<UProgress
-				:value="data?.user?.questionSession.currentQuestionIndex * 10"
-				indicator
-			/>
-		</template>
-	</UCard>
+			<template #footer>
+				<UProgress
+					:value="data?.user?.questionSession.currentQuestionIndex * 10"
+					indicator
+				/>
+			</template>
+		</UCard>
+	</div>
 </template>
 
 <script setup lang="ts">
@@ -83,3 +85,9 @@
 		}
 	};
 </script>
+<style lang="scss" scoped>
+	.container {
+		display: flex;
+		justify-content: center;
+	}
+</style>

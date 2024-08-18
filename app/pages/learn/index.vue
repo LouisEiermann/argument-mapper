@@ -1,5 +1,5 @@
 <template>
-	<UCard v-for="topic of data?.topics.data" class="m-4">
+	<UCard v-for="topic of data?.topics?.data" class="m-4">
 		<NuxtLink :to="'learn/' + topic.id">{{ topic.attributes.name }}</NuxtLink>
 		<template #footer>
 			<UProgress :value="0" indicator />
@@ -16,7 +16,7 @@
 	const user = await fetchUser();
 
 	const { data } = useAsyncData("data", async () => {
-		const topics = await find("topics", {});
+		const topics = await find("topics");
 
 		return {
 			topics,

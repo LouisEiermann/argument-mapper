@@ -1151,6 +1151,11 @@ export interface ApiNodeNode extends Schema.CollectionType {
       'oneToOne',
       'api::argument-tree.argument-tree'
     >;
+    sources: Attribute.Relation<
+      'api::node.node',
+      'oneToMany',
+      'api::source.source'
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<'api::node.node', 'oneToOne', 'admin::user'> &
@@ -1295,6 +1300,36 @@ export interface ApiQuestionSessionQuestionSession
       Attribute.Private;
     updatedBy: Attribute.Relation<
       'api::question-session.question-session',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
+export interface ApiSourceSource extends Schema.CollectionType {
+  collectionName: 'sources';
+  info: {
+    singularName: 'source';
+    pluralName: 'sources';
+    displayName: 'Source';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    url: Attribute.String & Attribute.Required;
+    description: Attribute.String;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::source.source',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::source.source',
       'oneToOne',
       'admin::user'
     > &
@@ -1506,6 +1541,7 @@ declare module '@strapi/types' {
       'api::node.node': ApiNodeNode;
       'api::question.question': ApiQuestionQuestion;
       'api::question-session.question-session': ApiQuestionSessionQuestionSession;
+      'api::source.source': ApiSourceSource;
       'api::tag.tag': ApiTagTag;
       'api::topic.topic': ApiTopicTopic;
       'api::user-progress.user-progress': ApiUserProgressUserProgress;
