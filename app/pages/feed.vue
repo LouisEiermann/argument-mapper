@@ -4,7 +4,41 @@
 			<UCard v-for="item in data">
 				<template #header>
 					<div class="header">
-						<UAvatar /> vs <UAvatar />
+						<UAvatar
+							v-if="
+								item.attributes.creator.data.attributes.avatar.data?.attributes
+									.url
+							"
+							:src="
+								useStrapiMedia(
+									item.attributes.creator.data.attributes.avatar.data
+										?.attributes.url
+								)
+							"
+						/>
+						<UAvatar
+							v-else
+							:src="null"
+							:alt="item.attributes.creator.data.attributes.username"
+						/>
+						vs
+						<UAvatar
+							v-if="
+								item.attributes.opponent.data.attributes.avatar.data?.attributes
+									.url
+							"
+							:src="
+								useStrapiMedia(
+									item.attributes.opponent.data.attributes.avatar.data
+										?.attributes.url
+								)
+							"
+						/>
+						<UAvatar
+							v-else
+							:src="null"
+							:alt="item.attributes.opponent.data.attributes.username"
+						/>
 						<p>{{ item.attributes.title }}</p>
 						<p>{{ timeSincePosted(item.attributes.createdAt) }}</p>
 					</div>
@@ -17,10 +51,6 @@
 								useVoteCalculator(item.attributes.votes).creatorPercentage
 							"
 						/>
-						<div>
-							<div>{{ item.attributes.votes.data }}</div>
-							<div>{{ item }}</div>
-						</div>
 						<div>
 							<UButton :to="'/argument/' + item.id">Zum Argument</UButton>
 							<div>Teilen</div>
@@ -58,7 +88,14 @@
 					$eq: true,
 				},
 			},
-			populate: ["votes"],
+			populate: {
+				votes: true,
+				creator: { populate: ["avatar"] },
+				opponent: { populate: ["avatar"] },
+				tags: {
+					populate: ["defaultMood", "localizations"],
+				},
+			},
 		});
 		return response.data;
 	};

@@ -1,9 +1,15 @@
 <template>
 	<UContainer>
 		<footer>
-			<NuxtLink to="/">test</NuxtLink>
-			<NuxtLink to="/">test</NuxtLink>
-			<NuxtLink to="/">test</NuxtLink>
+			<h1>Reason App</h1>
+			<div>
+				<h2>Support</h2>
+				<NuxtLink to="/support">Submit a Bug</NuxtLink>
+				<NuxtLink to="/">test</NuxtLink>
+				<NuxtLink to="/">test</NuxtLink>
+			</div>
+			<UDivider />
+			<p>Made with ❤️ by Louis Eiermann</p>
 		</footer>
 	</UContainer>
 </template>

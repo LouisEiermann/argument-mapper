@@ -14,13 +14,6 @@ module.exports = {
             },
           },
         },
-        siblings: {
-          populate: {
-            owner: {
-              populate: ["avatar"],
-            },
-          },
-        },
         owner: {
           populate: ["avatar"],
         },
@@ -31,6 +24,8 @@ module.exports = {
             },
           },
         },
+        sources: true,
+        premiseGroup: true,
       },
     });
 

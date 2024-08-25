@@ -4,7 +4,8 @@
   "info": {
     "singularName": "source",
     "pluralName": "sources",
-    "displayName": "Source"
+    "displayName": "Source",
+    "description": ""
   },
   "options": {
     "draftAndPublish": false
@@ -14,10 +15,6 @@
     "url": {
       "type": "string",
       "required": true
-    },
-    "description": {
-      "type": "string",
-      "required": false
     }
   }
 }

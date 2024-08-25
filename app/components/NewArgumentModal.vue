@@ -87,6 +87,8 @@
 	const createdCoPremiseId = ref<number | null>(null);
 	const createdSecondCoPremiseId = ref<number | null>(null);
 
+	const premiseGroupNodes = ref([]);
+
 	const tags = tagsStore.getTags;
 	const selectedTags = ref([]);
 	const { user } = toRefs(userStore);
@@ -163,31 +165,19 @@
 			createdSecondCoPremiseId.value = createdSecondCoPremise.data.id;
 		}
 
-		if (createdCoPremiseId.value && !createdSecondCoPremiseId.value) {
-			await update("nodes", createdPremiseId.value, {
-				siblings: [createdCoPremiseId.value],
-			});
-		} else if (createdCoPremiseId.value && createdSecondCoPremiseId.value) {
-			await update("nodes", createdPremiseId.value, {
-				siblings: [createdCoPremiseId.value, createdSecondCoPremiseId.value],
-			});
-		}
+		premiseGroupNodes.value.push(createdPremiseId.value);
 
-		if (!createdSecondCoPremiseId.value && createdCoPremiseId.value) {
-			await update("nodes", createdCoPremiseId.value, {
-				siblings: [createdPremiseId.value],
-			});
-		} else if (createdSecondCoPremiseId.value && createdCoPremiseId.value) {
-			await update("nodes", createdCoPremiseId.value, {
-				siblings: [createdPremiseId.value, createdSecondCoPremiseId.value],
-			});
+		if (createdCoPremiseId.value) {
+			premiseGroupNodes.value.push(createdCoPremiseId.value);
 		}
 
 		if (createdSecondCoPremiseId.value) {
-			await update("nodes", createdSecondCoPremiseId.value, {
-				siblings: [createdPremiseId.value, createdCoPremiseId.value],
-			});
+			premiseGroupNodes.value.push(createdSecondCoPremiseId.value);
 		}
+
+		await create("premise-groups", {
+			nodes: premiseGroupNodes.value,
+		});
 
 		emit("refresh");
 		emit("update:isOpen", false);

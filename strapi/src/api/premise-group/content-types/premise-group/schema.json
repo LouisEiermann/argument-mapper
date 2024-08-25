@@ -1,0 +1,28 @@
+{
+  "kind": "collectionType",
+  "collectionName": "premise_groups",
+  "info": {
+    "singularName": "premise-group",
+    "pluralName": "premise-groups",
+    "displayName": "PremiseGroup",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "nodes": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::node.node",
+      "mappedBy": "premiseGroup"
+    },
+    "premiseGroupTags": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::premise-group-tag.premise-group-tag",
+      "mappedBy": "premiseGroups"
+    }
+  }
+}

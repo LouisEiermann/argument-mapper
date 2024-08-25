@@ -1130,16 +1130,6 @@ export interface ApiNodeNode extends Schema.CollectionType {
     parent: Attribute.Relation<'api::node.node', 'manyToOne', 'api::node.node'>;
     soundnessDoubted: Attribute.Boolean & Attribute.DefaultTo<false>;
     formalFellacyBelow: Attribute.String;
-    siblings: Attribute.Relation<
-      'api::node.node',
-      'manyToMany',
-      'api::node.node'
-    >;
-    coPremises: Attribute.Relation<
-      'api::node.node',
-      'manyToMany',
-      'api::node.node'
-    >;
     level: Attribute.Integer & Attribute.DefaultTo<0>;
     owner: Attribute.Relation<
       'api::node.node',
@@ -1156,12 +1146,136 @@ export interface ApiNodeNode extends Schema.CollectionType {
       'oneToMany',
       'api::source.source'
     >;
+    premiseGroup: Attribute.Relation<
+      'api::node.node',
+      'manyToOne',
+      'api::premise-group.premise-group'
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<'api::node.node', 'oneToOne', 'admin::user'> &
       Attribute.Private;
     updatedBy: Attribute.Relation<'api::node.node', 'oneToOne', 'admin::user'> &
       Attribute.Private;
+  };
+}
+
+export interface ApiPremiseGroupPremiseGroup extends Schema.CollectionType {
+  collectionName: 'premise_groups';
+  info: {
+    singularName: 'premise-group';
+    pluralName: 'premise-groups';
+    displayName: 'PremiseGroup';
+    description: '';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    nodes: Attribute.Relation<
+      'api::premise-group.premise-group',
+      'oneToMany',
+      'api::node.node'
+    >;
+    premiseGroupTags: Attribute.Relation<
+      'api::premise-group.premise-group',
+      'manyToMany',
+      'api::premise-group-tag.premise-group-tag'
+    >;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::premise-group.premise-group',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::premise-group.premise-group',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
+export interface ApiPremiseGroupTagPremiseGroupTag
+  extends Schema.CollectionType {
+  collectionName: 'premise_group_tags';
+  info: {
+    singularName: 'premise-group-tag';
+    pluralName: 'premise-group-tags';
+    displayName: 'PremiseGroupTag';
+    description: '';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  pluginOptions: {
+    i18n: {
+      localized: true;
+    };
+  };
+  attributes: {
+    name: Attribute.String &
+      Attribute.Required &
+      Attribute.Unique &
+      Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }>;
+    description: Attribute.String &
+      Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }>;
+    url: Attribute.String &
+      Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }>;
+    icon: Attribute.Media<'images', true> &
+      Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false;
+        };
+      }>;
+    premiseGroups: Attribute.Relation<
+      'api::premise-group-tag.premise-group-tag',
+      'manyToMany',
+      'api::premise-group.premise-group'
+    >;
+    type: Attribute.Enumeration<
+      ['formalFellacy', 'informalFellacy', 'commonPattern']
+    > &
+      Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }>;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::premise-group-tag.premise-group-tag',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::premise-group-tag.premise-group-tag',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    localizations: Attribute.Relation<
+      'api::premise-group-tag.premise-group-tag',
+      'oneToMany',
+      'api::premise-group-tag.premise-group-tag'
+    >;
+    locale: Attribute.String;
   };
 }
 
@@ -1313,13 +1427,13 @@ export interface ApiSourceSource extends Schema.CollectionType {
     singularName: 'source';
     pluralName: 'sources';
     displayName: 'Source';
+    description: '';
   };
   options: {
     draftAndPublish: false;
   };
   attributes: {
     url: Attribute.String & Attribute.Required;
-    description: Attribute.String;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
@@ -1388,7 +1502,8 @@ export interface ApiTopicTopic extends Schema.CollectionType {
   info: {
     singularName: 'topic';
     pluralName: 'topics';
-    displayName: 'topic';
+    displayName: 'Topic';
+    description: '';
   };
   options: {
     draftAndPublish: false;
@@ -1539,6 +1654,8 @@ declare module '@strapi/types' {
       'api::argument-tree.argument-tree': ApiArgumentTreeArgumentTree;
       'api::friend-request.friend-request': ApiFriendRequestFriendRequest;
       'api::node.node': ApiNodeNode;
+      'api::premise-group.premise-group': ApiPremiseGroupPremiseGroup;
+      'api::premise-group-tag.premise-group-tag': ApiPremiseGroupTagPremiseGroupTag;
       'api::question.question': ApiQuestionQuestion;
       'api::question-session.question-session': ApiQuestionSessionQuestionSession;
       'api::source.source': ApiSourceSource;

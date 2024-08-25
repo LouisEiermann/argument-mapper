@@ -43,18 +43,6 @@
     "formalFellacyBelow": {
       "type": "string"
     },
-    "siblings": {
-      "type": "relation",
-      "relation": "manyToMany",
-      "target": "api::node.node",
-      "inversedBy": "coPremises"
-    },
-    "coPremises": {
-      "type": "relation",
-      "relation": "manyToMany",
-      "target": "api::node.node",
-      "mappedBy": "siblings"
-    },
     "level": {
       "type": "integer",
       "required": false,
@@ -75,6 +63,12 @@
       "type": "relation",
       "relation": "oneToMany",
       "target": "api::source.source"
+    },
+    "premiseGroup": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::premise-group.premise-group",
+      "inversedBy": "nodes"
     }
   }
 }

@@ -8,12 +8,34 @@
 				>
 				<p v-else>{{ node.title }}</p>
 			</div>
-			<UDivider />
-			<div>
-				Quellen:
-				<UButton @click="openNewSource = true">Neue Quelle hinzufügen</UButton>
+			<UDivider label="Quellen" />
+			<div class="sources">
+				<div v-for="source of node.sources">
+					<UInput
+						v-model="source.url"
+						v-if="node.owner.id === ownUser?.id"
+						placeholder="https://source.com"
+					/>
+					<UButton
+						@click="update('sources', source.id, source), refresh()"
+						v-if="node.owner.id === ownUser?.id"
+						>Speichern</UButton
+					>
+					<UButton
+						@click="strapiDelete('sources', source.id), refresh()"
+						v-if="node.owner.id === ownUser?.id"
+						color="red"
+						>Löschen</UButton
+					>
+					<p v-else>{{ source.url }}</p>
+				</div>
+				<UButton
+					@click="openNewSource = true"
+					v-if="node.owner.id === ownUser?.id"
+					>Neue Quelle hinzufügen</UButton
+				>
 			</div>
-			<UDivider />
+			<UDivider label="Diskussion" />
 			<Discussion :node="node" />
 		</div>
 		<UModal v-model="openNewSource">
@@ -42,11 +64,6 @@
 						v-model="sourceUrl"
 						placeholder="URL zur Quelle"
 					/>
-					<UInput
-						type="text"
-						v-model="sourceDescription"
-						placeholder="Erklärung der Quelle"
-					/>
 				</div>
 
 				<template #footer>
@@ -59,16 +76,18 @@
 	</USlideover>
 </template>
 <script lang="ts" setup>
-	const emit = defineEmits(["refresh", "update:isOpen"]);
+	const emit = defineEmits(["update:isOpen"]);
 	const props = defineProps(["isSlideoverOpen", "node", "ownUser"]);
 
-	const { update } = useStrapi();
+	const { create, update, delete: strapiDelete } = useStrapi();
 	const toast = useToast();
 	const { t } = useI18n();
+	const { isUrlValid } = useUrlValidation();
 
 	const openNewSource = ref();
 	const sourceUrl = ref();
-	const sourceDescription = ref();
+
+	const refresh = inject("refresh");
 
 	const open = computed({
 		get() {
@@ -82,18 +101,51 @@
 	const save = async (id: string) => {
 		await update("nodes", id, props.node);
 		toast.add({ title: t("notification.saved") });
-		emit("refresh");
+		refresh();
 	};
 
-	const addSource = async (id: string) => {
-		await update("nodes", id, props.node);
-		toast.add({ title: t("notification.saved") });
-		emit("refresh");
+	const addSource = async () => {
+		if (isUrlValid(sourceUrl.value)) {
+			const newSource = await create("sources", {
+				url: sourceUrl.value,
+			});
+
+			const updatedSources = [...(props.node.sources || []), newSource.data.id];
+
+			await update("nodes", props.node.id, { sources: updatedSources });
+
+			sourceUrl.value = "";
+
+			toast.add({ title: t("notification.saved") });
+			refresh();
+			openNewSource.value = false;
+		} else {
+			toast.add({
+				title: t(
+					"Wrong URL Pattern! Try something like: 'https://my-source.com'"
+				),
+			});
+		}
 	};
 </script>
 <style lang="scss" scoped>
 	.header {
 		display: flex;
 		justify-content: space-between;
+	}
+
+	.sources {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 1rem;
+		margin-top: 1rem;
+		margin-bottom: 1rem;
+
+		* {
+			display: flex;
+			align-items: flex-start;
+			gap: 1rem;
+		}
 	}
 </style>

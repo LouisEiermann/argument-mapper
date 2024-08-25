@@ -7,7 +7,9 @@ export default defineNuxtConfig({
     "@dargmuesli/nuxt-cookie-control",
     "@nuxtjs/i18n",
     "@pinia/nuxt",
-    "nuxt-anchorscroll"
+    "@nuxt/eslint",
+    "nuxt-anchorscroll",
+    "nuxt-security",
   ],
   colorMode: {
     preference: "light",
@@ -34,5 +36,16 @@ export default defineNuxtConfig({
     lazy: true,
     langDir: 'locales/',
     strategy: 'no_prefix',
-  }
+  },
+  security: {
+    headers: {
+      crossOriginEmbedderPolicy: process.env.NODE_ENV === 'development' ? 'unsafe-none' : 'require-corp',
+      contentSecurityPolicy: {
+        'default-src': ["'self'"],
+        'script-src': ["'self'", "'unsafe-inline'"],
+        'img-src': ["'self'", "http://localhost:1337", "data:"],
+        'connect-src': ["'self'", "http://localhost:1337"],
+      }
+    },
+  },
 });

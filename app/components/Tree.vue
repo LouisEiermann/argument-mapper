@@ -79,6 +79,12 @@
 			@click="isOpen = true"
 			>Objection</UButton
 		>
+		<UButton
+			v-if="node.owner?.id !== ownUser?.id && !node.thesis"
+			color="blue"
+			@click="isTaggingOpen = true"
+			>Tagging</UButton
+		>
 		<UModal v-model="isOpen">
 			<UCard
 				:ui="{
@@ -129,6 +135,69 @@
 				</template>
 			</UCard>
 		</UModal>
+		<UModal v-model="isTaggingOpen">
+			<UCard
+				:ui="{
+					ring: '',
+					divide: 'divide-y divide-gray-100 dark:divide-gray-800',
+				}"
+			>
+				<template #header>
+					<div class="header">
+						<h1>
+							{{ $t("Tagging") }}
+						</h1>
+						<UButton
+							color="gray"
+							variant="ghost"
+							icon="i-heroicons-x-mark-20-solid"
+							class="-my-1"
+							@click="isTaggingOpen = false"
+						/>
+					</div>
+				</template>
+
+				<div class="space-y-6">
+					<USelectMenu
+						type="text"
+						:options="premiseGroupData?.formalFellacies"
+						:placeholder="$t('Formal Fellacies')"
+						multiple
+						searchable
+						v-model="selectedFormalFellacies"
+						option-attribute="name"
+						value-attribute="id"
+					>
+					</USelectMenu>
+					<USelectMenu
+						type="text"
+						:options="premiseGroupData?.informalFellacies"
+						:placeholder="$t('Informal Fellacies')"
+						multiple
+						searchable
+						v-model="selectedInformalFellacies"
+						option-attribute="name"
+						value-attribute="id"
+					/>
+					<USelectMenu
+						type="text"
+						:options="premiseGroupData?.commonPatterns"
+						:placeholder="$t('Common Pattern')"
+						multiple
+						searchable
+						v-model="selectedCommonPatterns"
+						option-attribute="name"
+						value-attribute="id"
+					/>
+				</div>
+
+				<template #footer>
+					<UButton @click="addPremiseGroupTag(node.premiseGroup.id)">{{
+						$t("argument.new.add")
+					}}</UButton>
+				</template>
+			</UCard>
+		</UModal>
 		<div
 			class="children"
 			v-if="
@@ -149,7 +218,6 @@
 		:is-slideover-open="isSlideoverOpen"
 		:node="node"
 		:own-user="ownUser"
-		@refresh="refresh()"
 		@update:isOpen="isSlideoverOpen = $event"
 	/>
 </template>
@@ -164,8 +232,9 @@
 		"argument",
 	]);
 
-	const { create, delete: deleteStrapi, update } = useStrapi();
+	const { create, delete: deleteStrapi, update, find } = useStrapi();
 	const isOpen = ref(false);
+	const isTaggingOpen = ref(false);
 	const isSlideoverOpen = ref(false);
 	const currentDropdownNode = ref();
 	const { t } = useI18n();
@@ -179,9 +248,54 @@
 	const coPremise = ref("");
 	const secondCoPremise = ref("");
 
+	const selectedFormalFellacies = ref([]);
+	const selectedInformalFellacies = ref([]);
+	const selectedCommonPatterns = ref([]);
+
 	const createdPremiseId = ref<number | null>(null);
 	const createdCoPremiseId = ref<number | null>(null);
 	const createdSecondCoPremiseId = ref<number | null>(null);
+
+	const premiseGroupNodes = ref([]);
+
+	const { data: premiseGroupData } = useAsyncData(
+		"premiseGroupData",
+		async () => {
+			const premiseGroupTags = (await find("premise-group-tags")).data;
+
+			const formalFellacies = computed(() => {
+				return premiseGroupTags
+					.filter(
+						(premiseGroupTag) =>
+							premiseGroupTag.attributes.type === "formalFellacy"
+					)
+					.map(({ id, attributes }) => ({ id, ...attributes }));
+			});
+
+			const informalFellacies = computed(() => {
+				return premiseGroupTags
+					.filter((premiseGroupTag) => {
+						return premiseGroupTag.attributes.type === "informalFellacy";
+					})
+					.map(({ id, attributes }) => ({ id, ...attributes }));
+			});
+
+			const commonPatterns = computed(() => {
+				return premiseGroupTags
+					.filter((premiseGroupTag) => {
+						return premiseGroupTag.attributes.type === "commonPattern";
+					})
+					.map(({ id, attributes }) => ({ id, ...attributes }));
+			});
+
+			return {
+				premiseGroupTags,
+				formalFellacies,
+				informalFellacies,
+				commonPatterns,
+			};
+		}
+	);
 
 	const addReasons = async (parentId: any) => {
 		const createdPremise = await create("nodes", {
@@ -215,34 +329,35 @@
 			createdSecondCoPremiseId.value = createdSecondCoPremise.data.id;
 		}
 
-		if (createdCoPremiseId.value && !createdSecondCoPremiseId.value) {
-			await update("nodes", createdPremiseId.value, {
-				siblings: [createdCoPremiseId.value],
-			});
-		} else if (createdCoPremiseId.value && createdSecondCoPremiseId.value) {
-			await update("nodes", createdPremiseId.value, {
-				siblings: [createdCoPremiseId.value, createdSecondCoPremiseId.value],
-			});
-		}
+		premiseGroupNodes.value.push(createdPremiseId.value);
 
-		if (!createdSecondCoPremiseId.value && createdCoPremiseId.value) {
-			await update("nodes", createdCoPremiseId.value, {
-				siblings: [createdPremiseId.value],
-			});
-		} else if (createdSecondCoPremiseId.value && createdCoPremiseId.value) {
-			await update("nodes", createdCoPremiseId.value, {
-				siblings: [createdPremiseId.value, createdSecondCoPremiseId.value],
-			});
+		if (createdCoPremiseId.value) {
+			premiseGroupNodes.value.push(createdCoPremiseId.value);
 		}
 
 		if (createdSecondCoPremiseId.value) {
-			await update("nodes", createdSecondCoPremiseId.value, {
-				siblings: [createdPremiseId.value, createdCoPremiseId.value],
-			});
+			premiseGroupNodes.value.push(createdSecondCoPremiseId.value);
 		}
+
+		await create("premise-groups", {
+			nodes: premiseGroupNodes.value,
+		});
 
 		refresh();
 		isOpen.value = false;
+	};
+
+	const addPremiseGroupTag = async (premiseGroup: string) => {
+		await update("premise-groups", premiseGroup, {
+			premiseGroupTags: [
+				...selectedFormalFellacies.value,
+				...selectedInformalFellacies.value,
+				...selectedCommonPatterns.value,
+			],
+		});
+
+		refresh();
+		isTaggingOpen.value = false;
 	};
 
 	const deleteReason = async (id: string) => {
@@ -276,7 +391,7 @@
 		});
 	};
 
-	function groupItemsBySiblings(items) {
+	const groupItemsByPremiseGroup = (items) => {
 		// Map to track visited nodes
 		const visited = new Set();
 		// Array to hold the final groups
@@ -284,6 +399,9 @@
 
 		// Create a map for quick lookup of nodes by their ID
 		const nodesById = new Map(items.map((item) => [item.id, item]));
+
+		// Create a map for nodes by their premiseGroup ID
+		const groupsByPremiseGroupId = new Map();
 
 		// Helper function to add items to the group
 		function addGroup(item) {
@@ -296,15 +414,16 @@
 					visited.add(current.id);
 					group.add(current);
 
-					// Enqueue siblings
-					current.siblings.forEach((sibling) => {
-						if (!visited.has(sibling.id)) {
-							const siblingItem = nodesById.get(sibling.id);
-							if (siblingItem) {
-								queue.push(siblingItem);
+					// Enqueue other nodes in the same premiseGroup
+					const premiseGroupId = current.premiseGroup?.id;
+					if (premiseGroupId) {
+						const groupItems = groupsByPremiseGroupId.get(premiseGroupId);
+						groupItems?.forEach((groupItem) => {
+							if (!visited.has(groupItem.id)) {
+								queue.push(groupItem);
 							}
-						}
-					});
+						});
+					}
 				}
 			}
 
@@ -312,6 +431,17 @@
 				groups.push({ items: Array.from(group) });
 			}
 		}
+
+		// Populate the groupsByPremiseGroupId map
+		items.forEach((item) => {
+			const premiseGroupId = item.premiseGroup?.id;
+			if (premiseGroupId) {
+				if (!groupsByPremiseGroupId.has(premiseGroupId)) {
+					groupsByPremiseGroupId.set(premiseGroupId, []);
+				}
+				groupsByPremiseGroupId.get(premiseGroupId).push(item);
+			}
+		});
 
 		// Iterate over each item and add to the groups if not visited
 		items.forEach((item) => {
@@ -321,10 +451,10 @@
 		});
 
 		return groups;
-	}
+	};
 
 	const itemsGroupedByCoPremises = computed(() => {
-		return groupItemsBySiblings(props.node.children);
+		return groupItemsByPremiseGroup(props.node.children);
 	});
 
 	const formalFallacies = [

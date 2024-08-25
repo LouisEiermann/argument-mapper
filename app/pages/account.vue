@@ -4,7 +4,7 @@
 			<UAvatar
 				v-if="socialData.currentUser.avatar"
 				:src="useStrapiMedia(socialData?.currentUser.avatar.url)"
-				:alt="socialData?.currentUser.username"
+				:alt="socialData.currentUser.username"
 				size="3xl"
 			/>
 		</UContainer>
@@ -31,6 +31,53 @@
 			<UCard class="grid-item"
 				><UButton @click="isModalOpen = true">+</UButton></UCard
 			>
+		</div>
+		<UDivider
+			class="my-8"
+			label="Meine Argumente"
+			:ui="{ label: 'text-4xl' }"
+		/>
+		<div v-if="socialData.sentArgumentRequests.length > 0">
+			<UCard v-for="argument in socialData?.sentArgumentRequests">
+				{{ argument.id }}
+				<UButton
+					:to="'/argument/' + argument.id"
+					v-if="argument.opponentAccepted"
+					>Zum Argument</UButton
+				>
+				<UChip
+					class="withdraw"
+					v-else
+					text="Argumentanfrage zurückziehen"
+					size="2xl"
+					@click="withdrawArgumentRequest(argument.id)"
+				>
+					<UButton disabled>Pending...</UButton>
+				</UChip>
+			</UCard>
+			<UCard v-for="argument in socialData?.receivedArgumentRequests">
+				{{ argument.id }}
+				<UButton
+					:to="'/argument/' + argument.id"
+					v-if="argument.opponentAccepted"
+					>Zum Argument</UButton
+				>
+				<div v-else>
+					<UButton @click="acceptArgumentRequest(argument.id)"
+						>Argumentanfrage annehmen</UButton
+					>
+					<UButton color="red" @click="rejectArgumentRequest(argument.id)"
+						>Argumentanfrage ablehnen</UButton
+					>
+				</div>
+			</UCard>
+		</div>
+		<div v-else>
+			<UCard class="text-center">
+				<UAlert type="warning" title="Nothing Here!">
+					You need to first <strong>do X</strong>.
+				</UAlert>
+			</UCard>
 		</div>
 		<UDivider class="my-8" />
 		<UButton label="Freunde" @click="isFriendsManagementOpen = true" />
@@ -76,37 +123,7 @@
 		/>
 		<UDivider class="my-8" />
 		<UButton to="/learn">Lernen</UButton>
-		<UDivider class="my-8" />
-		<div>Meine Argumente:</div>
-		<UCard v-for="argument in socialData?.sentArgumentRequests">
-			{{ argument.id }}
-			<UButton :to="'/argument/' + argument.id" v-if="argument.opponentAccepted"
-				>Zum Argument</UButton
-			>
-			<UChip
-				class="withdraw"
-				v-else
-				text="Argumentanfrage zurückziehen"
-				size="2xl"
-				@click="withdrawArgumentRequest(argument.id)"
-			>
-				<UButton disabled>Pending...</UButton>
-			</UChip>
-		</UCard>
-		<UCard v-for="argument in socialData?.receivedArgumentRequests">
-			{{ argument.id }}
-			<UButton :to="'/argument/' + argument.id" v-if="argument.opponentAccepted"
-				>Zum Argument</UButton
-			>
-			<div v-else>
-				<UButton @click="acceptArgumentRequest(argument.id)"
-					>Argumentanfrage annehmen</UButton
-				>
-				<UButton color="red" @click="rejectArgumentRequest(argument.id)"
-					>Argumentanfrage ablehnen</UButton
-				>
-			</div>
-		</UCard>
+		<UDivider label="Achievements" :ui="{ label: 'text-4xl' }" />
 		<UContainer>
 			<div v-for="achievenment of socialData?.currentUser.achievements">
 				{{ achievenment.name }}

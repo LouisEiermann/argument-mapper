@@ -1,6 +1,5 @@
 <template>
 	<div>
-		<h1>Diskussion:</h1>
 		<UTextarea v-model="newComment" placeholder="Neuer Kommentar" />
 		<UButton @click="addNewComment(node.id)">Send</UButton>
 		<UDivider />
