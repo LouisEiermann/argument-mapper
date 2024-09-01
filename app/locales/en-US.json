@@ -10,7 +10,8 @@
 		"username": "Username",
 		"passwordForgotten": "Password forgotten",
 		"or": "Or",
-		"settings": "Settings"
+		"settings": "Settings",
+		"joined": "Joined"
 	},
 	"argument": {
 		"new": {
@@ -27,6 +28,11 @@
 		},
 		"support": {
 			"add": "Add supportive argument"
+		},
+		"discussion": {
+			"title": "Discussion",
+			"newComment": "New comment",
+			"reply": "Reply"
 		}
 	},
 	"notification": {

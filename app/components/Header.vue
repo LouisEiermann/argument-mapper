@@ -1,5 +1,5 @@
 <template>
-	<header :class="isDark ? 'bg-dark' : 'bg-white'" class="sticky top-0">
+	<header :class="isDark ? 'bg-dark' : 'bg-white'" class="mb-10">
 		<UContainer>
 			<div class="flex py-8 gap-4">
 				<div class="basis-1/4"></div>
@@ -19,7 +19,6 @@
 					</div>
 				</div>
 			</div>
-			<UTabs :items="items" @change="onChange" :default-index="-1" />
 			<UDivider>
 				<ClientOnly>
 					<UButton
@@ -43,14 +42,6 @@
 <script setup lang="ts">
 	const { locale } = useI18n();
 	const colorMode = useColorMode();
-	const { scrollToAnchor } = useAnchorScroll({
-		toTop: {
-			scrollOptions: {
-				behavior: "smooth",
-				offsetTop: 0,
-			},
-		},
-	});
 
 	const { logout, fetchUser } = useStrapiAuth();
 
@@ -67,24 +58,6 @@
 		},
 	});
 
-	const items = [
-		{
-			label: "Referenzen",
-		},
-		{
-			label: "Das Team",
-		},
-		{
-			label: "Kontakt",
-		},
-	];
-
-	const onChange = (index: number) => {
-		const item = items[index];
-
-		scrollToAnchor(item.label);
-	};
-
 	const onLogout = async () => {
 		try {
 			logout();
@@ -93,4 +66,3 @@
 		} catch (e) {}
 	};
 </script>
-<style lang="scss" scoped></style>

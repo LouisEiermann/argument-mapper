@@ -674,8 +674,4 @@
 		display: flex;
 		justify-content: space-between;
 	}
-
-	.scroll {
-		overflow: scroll;
-	}
 </style>

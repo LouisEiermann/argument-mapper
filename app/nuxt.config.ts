@@ -10,6 +10,7 @@ export default defineNuxtConfig({
     "@nuxt/eslint",
     "nuxt-anchorscroll",
     "nuxt-security",
+    "nuxt-booster"
   ],
   colorMode: {
     preference: "light",

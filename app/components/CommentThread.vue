@@ -1,28 +1,36 @@
 <template>
-	<UCard>
+	<UCard class="mb-4">
 		<template #header>
 			<h1 class="rounded-md">{{ comment.author.name }}</h1>
 			<p>{{ comment.createdAt }}</p>
 		</template>
 
-		<div v-if="comment.author.id === ownUser?.id">
+		<div
+			v-if="comment.author.id === ownUser?.id"
+			class="relative flex flex-col gap-4 mb-4"
+		>
 			<UTextarea v-model="comment.content" />
-			<UButton @click="updateComment(node.id, comment.id, comment.content)">
-				Update Comment
-			</UButton>
-			<UButton @click="deleteComment(node.id, comment.id, comment.author.id)">
-				Delete Comment
-			</UButton>
+			<div class="flex gap-4">
+				<UButton @click="updateComment(node.id, comment.id, comment.content)">
+					Update Comment
+				</UButton>
+				<UButton
+					@click="deleteComment(node.id, comment.id, comment.author.id)"
+					color="red"
+					class="absolute -top-4 right-4"
+					icon="i-heroicons-x-circle-20-solid"
+				/>
+				<UButton
+					@click="(isOpen = true), (currentCommentToReplyTo = comment.id)"
+				>
+					{{ $t("argument.discussion.reply") }}
+				</UButton>
+			</div>
 		</div>
 		<div v-else>
 			<p>{{ comment.content }}</p>
 		</div>
 
-		<UButton @click="(isOpen = true), (currentCommentToReplyTo = comment.id)">
-			Reply
-		</UButton>
-
-		<!-- Render children comments if they exist -->
 		<div v-if="comment.children && comment.children.length > 0" class="ml-4">
 			<CommentThread
 				v-for="child in comment.children"
@@ -34,7 +42,6 @@
 			/>
 		</div>
 
-		<!-- Reply modal -->
 		<UModal v-model="isOpen">
 			<UCard
 				:ui="{
@@ -43,8 +50,15 @@
 				}"
 			>
 				<template #header>
-					<div class="header">
-						<h1>Reply</h1>
+					<div class="flex justify-between">
+						<h1>{{ $t("argument.discussion.reply") }}</h1>
+						<UButton
+							color="gray"
+							variant="ghost"
+							icon="i-heroicons-x-mark-20-solid"
+							class="-my-1"
+							@click="isOpen = false"
+						/>
 					</div>
 				</template>
 
@@ -54,7 +68,7 @@
 
 				<template #footer>
 					<UButton @click="addNewComment(node.id, currentCommentToReplyTo)">
-						Reply
+						{{ $t("argument.discussion.reply") }}
 					</UButton>
 				</template>
 			</UCard>

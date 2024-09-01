@@ -1119,7 +1119,6 @@ export interface ApiNodeNode extends Schema.CollectionType {
   };
   attributes: {
     title: Attribute.String;
-    description: Attribute.Blocks;
     thesis: Attribute.Boolean;
     axiom: Attribute.Boolean;
     children: Attribute.Relation<
@@ -1151,6 +1150,7 @@ export interface ApiNodeNode extends Schema.CollectionType {
       'manyToOne',
       'api::premise-group.premise-group'
     >;
+    description: Attribute.Text;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<'api::node.node', 'oneToOne', 'admin::user'> &

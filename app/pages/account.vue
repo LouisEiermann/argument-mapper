@@ -1,44 +1,66 @@
 <template>
-	<UContainer v-if="socialData">
+	<UContainer>
 		<UContainer class="avatar">
 			<UAvatar
-				v-if="socialData.currentUser.avatar"
-				:src="useStrapiMedia(socialData?.currentUser.avatar.url)"
-				:alt="socialData.currentUser.username"
+				v-if="socialData?.currentUser?.avatar"
+				:src="useStrapiMedia(socialData?.currentUser?.avatar?.url)"
+				:alt="socialData?.currentUser?.username"
 				size="3xl"
-			/>
+				class="shadow-2xl relative"
+			>
+				<UButton
+					icon="heroicons:cog"
+					@click="isSettingsOpen = true"
+					class="absolute -top-2 -right-2 z-10"
+				/>
+			</UAvatar>
 		</UContainer>
 		<UContainer>
-			<h1 class="text-center mt-8">
-				{{ socialData.currentUser.username }}
+			<h1 class="text-center mt-8 text-2xl">
+				{{ socialData?.currentUser?.username }}
 			</h1>
-			<p v-if="socialData">
-				Beigetreten: {{ formatDate(socialData?.currentUser.createdAt, locale) }}
+			<p v-if="socialData?.currentUser?.createdAt" class="text-center text-sm">
+				{{ $t("account.joined") }} :
+				{{ formatDate(socialData.currentUser.createdAt, locale) }}
 			</p>
 		</UContainer>
-		<UDivider class="my-8" />
-		<h1 class="beliefs">Meine Überzeugungen</h1>
+		<UDivider
+			class="my-8"
+			label="Meine Überzeugungen"
+			:ui="{ label: 'text-4xl' }"
+		/>
 		<NewArgumentModal
 			:is-open="isModalOpen"
-			@refresh="refresh()"
+			@refresh="refresh"
 			@update:isOpen="isModalOpen = $event"
 		/>
 		<div class="grid-container">
-			<UCard v-for="standpoint in socialData?.standpoints" class="grid-item">
+			<UCard
+				v-for="standpoint in standpoints"
+				:key="standpoint.id"
+				class="grid-item"
+			>
 				{{ standpoint.title }}
 				<UButton :to="'/argument/' + standpoint.id">Zum Standpunkt</UButton>
 			</UCard>
-			<UCard class="grid-item"
-				><UButton @click="isModalOpen = true">+</UButton></UCard
-			>
+			<UCard class="grid-item">
+				<UButton @click="isModalOpen = true">+</UButton>
+			</UCard>
 		</div>
 		<UDivider
 			class="my-8"
 			label="Meine Argumente"
 			:ui="{ label: 'text-4xl' }"
 		/>
-		<div v-if="socialData.sentArgumentRequests.length > 0">
-			<UCard v-for="argument in socialData?.sentArgumentRequests">
+		<div
+			v-if="sentArgumentRequests?.length || receivedArgumentRequests?.length"
+			class="grid-container"
+		>
+			<UCard
+				v-for="argument in sentArgumentRequests"
+				:key="argument.id"
+				class="grid-item"
+			>
 				{{ argument.id }}
 				<UButton
 					:to="'/argument/' + argument.id"
@@ -55,7 +77,7 @@
 					<UButton disabled>Pending...</UButton>
 				</UChip>
 			</UCard>
-			<UCard v-for="argument in socialData?.receivedArgumentRequests">
+			<UCard v-for="argument in receivedArgumentRequests" :key="argument.id">
 				{{ argument.id }}
 				<UButton
 					:to="'/argument/' + argument.id"
@@ -74,17 +96,13 @@
 		</div>
 		<div v-else>
 			<UCard class="text-center">
-				<UAlert type="warning" title="Nothing Here!">
-					You need to first <strong>do X</strong>.
-				</UAlert>
+				<UAlert type="warning" title="Nothing Here!" />
 			</UCard>
 		</div>
 		<UDivider class="my-8" />
-		<UButton label="Freunde" @click="isFriendsManagementOpen = true" />
-		<UDivider class="my-8" />
-		<UButton label="Open" @click="isSettingsOpen = true">
-			{{ $t("account.settings") }}
-		</UButton>
+		<div class="flex gap-4">
+			<UButton label="Freunde" @click="isFriendsManagementOpen = true" />
+		</div>
 		<UModal v-model="isSettingsOpen">
 			<UCard
 				:ui="{
@@ -111,50 +129,71 @@
 					icon="i-heroicons-folder"
 					class="upload-avatar"
 				/>
-
 				<UDivider>Danger Zone</UDivider>
 				<UButton color="red" @click="onDeleteUser">Konto löschen</UButton>
 			</UCard>
 		</UModal>
 		<FriendManagement
 			:is-friends-management-open="isFriendsManagementOpen"
-			@refresh="refresh()"
+			@refresh="refresh"
 			@update:isOpen="isFriendsManagementOpen = $event"
 		/>
-		<UDivider class="my-8" />
-		<UButton to="/learn">Lernen</UButton>
-		<UDivider label="Achievements" :ui="{ label: 'text-4xl' }" />
-		<UContainer>
-			<div v-for="achievenment of socialData?.currentUser.achievements">
-				{{ achievenment.name }}
+		<div class="flex items-start gap-4">
+			<div class="flex-1">
+				<UDivider
+					label="Achievements"
+					:ui="{ label: 'text-4xl' }"
+					class="mb-4"
+				/>
+				<UContainer>
+					<div
+						v-for="achievement in socialData?.currentUser?.achievements"
+						:key="achievement.id"
+					>
+						{{ achievement.name }}
+					</div>
+				</UContainer>
 			</div>
-		</UContainer>
+			<!-- Styling the button as a large action button with centered text -->
+			<UButton
+				color="blue"
+				to="/learn"
+				class="basis-1/2 ml-4 h-14 px-6 text-lg font-semibold flex items-center justify-center"
+			>
+				Lernen
+			</UButton>
+		</div>
 	</UContainer>
 </template>
+
 <script setup lang="ts">
 	definePageMeta({
 		middleware: "auth",
 	});
 
-	const { find, create, update, delete: _delete } = useStrapi();
+	const { find, update, delete: _delete } = useStrapi();
 	const client = useStrapiClient();
 	const { formatDate } = useDateFormatter();
 	const { locale } = useI18n();
-	const userStore = useUserStore();
-	const ownUser = await userStore.getUser;
 
 	const { data: socialData, refresh } = useAsyncData("socialData", async () => {
 		const currentUser = await find("users/me", {
-			populate: ["friends", "created", "isOpponent", "avatar", "achievements"],
+			populate: {
+				friends: true,
+				created: { populate: { opponent: true, tags: true } },
+				isOpponent: true,
+				avatar: true,
+				achievements: true,
+			},
 		});
 
-		const currentUserId = currentUser.id;
-		const friendIds = currentUser.friends.map(
-			(friend: { id: any }) => friend.id
-		);
+		const currentUserId = currentUser?.data?.id;
+
+		const friendIds =
+			currentUser?.data?.friends?.map((friend) => friend.id) || [];
+
 		const excludeIds = [currentUserId, ...friendIds];
 
-		// Fetch friend requests where the current user is either sender or receiver
 		const friendRequests = await find("friend-requests", {
 			populate: ["sender", "receiver"],
 			filters: {
@@ -164,22 +203,6 @@
 				],
 			},
 		});
-
-		const sentFriendRequests = friendRequests.data.filter(
-			(e) => e.attributes.sender.data.id === currentUserId
-		);
-
-		const receivedFriendRequests = friendRequests.data.filter(
-			(e) =>
-				e.attributes.receiver.data.id === currentUserId &&
-				e.attributes.status === "pending"
-		);
-
-		const sentArgumentRequests = currentUser.created.filter((e) => {
-			return e.opponentAccepted;
-		});
-
-		const receivedArgumentRequests = currentUser.isOpponent;
 
 		const suggestedFriends = await find("users", {
 			filters: {
@@ -193,36 +216,45 @@
 			},
 		});
 
-		const standpoints = currentUser.created.filter((e) => {
-			return !e.opponentAccepted;
-		});
-
 		return {
-			sentFriendRequests,
-			receivedFriendRequests,
-			sentArgumentRequests,
-			receivedArgumentRequests,
+			currentUserId,
+			friendRequests,
 			suggestedFriends,
 			currentUser,
-			standpoints,
 		};
+	});
+
+	const sentArgumentRequests = computed(() => {
+		return (
+			socialData.value?.currentUser?.created?.filter((e) => e.opponent) || []
+		);
+	});
+
+	const receivedArgumentRequests = computed(() => {
+		return socialData.value?.currentUser?.isOpponent || [];
+	});
+
+	const standpoints = computed(() => {
+		return (
+			socialData.value?.currentUser?.created?.filter((e) => !e.opponent) || []
+		);
 	});
 
 	const isSettingsOpen = ref(false);
 	const isFriendsManagementOpen = ref(false);
-	const isModalOpen = ref();
+	const isModalOpen = ref(false);
 
-	const acceptArgumentRequest = async (id: number) => {
+	const acceptArgumentRequest = async (id) => {
 		await update("argument-trees", id, { opponentAccepted: true });
 		refresh();
 	};
 
-	const rejectArgumentRequest = async (id: number) => {
+	const rejectArgumentRequest = async (id) => {
 		await _delete("argument-trees", id);
 		refresh();
 	};
 
-	const withdrawArgumentRequest = async (id: number) => {
+	const withdrawArgumentRequest = async (id) => {
 		await _delete("argument-trees", id);
 		refresh();
 	};
@@ -234,12 +266,12 @@
 			});
 
 			await navigateTo("/");
-		} catch (e) {}
+		} catch (e) {
+			console.error(e);
+		}
 	};
 
-	const handleFileChange = async (event: {
-		target: { files: (string | Blob)[] };
-	}) => {
+	const handleFileChange = async (event) => {
 		const formData = new FormData();
 
 		formData.append("files", event.target.files[0]);
@@ -254,21 +286,21 @@
 		refresh();
 	};
 </script>
+
 <style lang="scss" scoped>
 	.withdraw {
 		cursor: pointer;
 	}
 	.grid-container {
 		display: grid;
-		grid-template-columns: repeat(3, 1fr); /* 3 columns */
-		grid-template-rows: repeat(3, 1fr); /* 3 rows */
-		gap: 10px; /* Optional: space between grid items */
+		grid-template-columns: repeat(3, 1fr);
+		gap: 10px;
 	}
 	.grid-item {
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		padding: 20px; /* Optional: padding for visual spacing */
+		padding: 20px;
 		cursor: pointer;
 	}
 
@@ -282,11 +314,5 @@
 	.header {
 		display: flex;
 		justify-content: space-between;
-	}
-
-	.beliefs {
-		text-align: center;
-		font-size: 2rem;
-		margin: 2rem;
 	}
 </style>

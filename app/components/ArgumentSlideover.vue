@@ -1,9 +1,17 @@
 <template>
 	<USlideover v-model="open">
-		<div class="p-4 flex-1 scroll">
-			<div>
-				<UTextarea v-model="node.title" v-if="node.owner.id === ownUser?.id" />
-				<UButton @click="save(node.id)" v-if="node.owner.id === ownUser?.id"
+		<div class="p-4 flex-1 overflow-scroll">
+			<div class="flex flex-col gap-4 mb-4">
+				<UInput v-model="node.title" v-if="node.owner.id === ownUser?.id" />
+				<UTextarea
+					v-model="node.description"
+					v-if="node.owner.id === ownUser?.id"
+					placeholder="Elaborate on this premise"
+				/>
+				<UButton
+					@click="save(node.id)"
+					v-if="node.owner.id === ownUser?.id"
+					class="self-start inline-block"
 					>Speichern</UButton
 				>
 				<p v-else>{{ node.title }}</p>

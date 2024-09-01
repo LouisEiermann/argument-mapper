@@ -1,5 +1,6 @@
 {
 	"welcome": "Willkommen bei Appname",
+	"general": {},
 	"account": {
 		"register": "Registrieren",
 		"login": "Einloggen",
@@ -10,7 +11,8 @@
 		"username": "Benutzername",
 		"passwordForgotten": "Passwort vergessen",
 		"or": "Oder",
-		"settings": "Einstellungen"
+		"settings": "Einstellungen",
+		"joined": "Beigetreten"
 	},
 	"argument": {
 		"new": {
@@ -27,6 +29,11 @@
 		},
 		"support": {
 			"add": "Unterstützendes Argument hinzufügen"
+		},
+		"discussion": {
+			"title": "Diskussion",
+			"newComment": "Neuer Kommentar",
+			"reply": "Antworten"
 		}
 	},
 	"notification": {

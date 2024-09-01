@@ -15,9 +15,6 @@
     "title": {
       "type": "string"
     },
-    "description": {
-      "type": "blocks"
-    },
     "thesis": {
       "type": "boolean"
     },
@@ -69,6 +66,9 @@
       "relation": "manyToOne",
       "target": "api::premise-group.premise-group",
       "inversedBy": "nodes"
+    },
+    "description": {
+      "type": "text"
     }
   }
 }
