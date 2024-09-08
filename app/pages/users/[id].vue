@@ -3,9 +3,9 @@
 		<h1 class="text-center mt-8">
 			{{ data?.user.username }}
 		</h1>
-		<p v-if="data?.user">
+		<!-- <p v-if="data?.user">
 			Beigetreten: {{ formatDate(data.user.createdAt, locale) }}
-		</p>
+		</p> -->
 	</UContainer>
 	<UContainer v-if="data?.user">
 		<UAvatar

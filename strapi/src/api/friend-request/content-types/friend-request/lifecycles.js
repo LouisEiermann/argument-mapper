@@ -55,6 +55,27 @@ module.exports = {
           },
         }
       );
+
+      // Check if a chat between these two users already exists
+      const existingChat = await strapi.entityService.findMany(
+        "api::chat.chat",
+        {
+          filters: {
+            participants: {
+              $and: [{ id: senderUser.id }, { id: receiverUser.id }],
+            },
+          },
+        }
+      );
+
+      // If no existing chat is found, create a new one
+      if (!existingChat || existingChat.length === 0) {
+        await strapi.entityService.create("api::chat.chat", {
+          data: {
+            participants: [senderUser.id, receiverUser.id],
+          },
+        });
+      }
     }
   },
 };

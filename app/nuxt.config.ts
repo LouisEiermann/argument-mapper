@@ -45,7 +45,7 @@ export default defineNuxtConfig({
         'default-src': ["'self'"],
         'script-src': ["'self'", "'unsafe-inline'"],
         'img-src': ["'self'", "http://localhost:1337", "data:"],
-        'connect-src': ["'self'", "http://localhost:1337"],
+        'connect-src': ["'self'", "http://localhost:1337", "ws://localhost:1337"],
       }
     },
   },

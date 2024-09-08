@@ -29,6 +29,12 @@
 		</div>
 		<div v-else>
 			<p>{{ comment.content }}</p>
+			<UButton
+				@click="(isOpen = true), (currentCommentToReplyTo = comment.id)"
+				class="m-4"
+			>
+				{{ $t("argument.discussion.reply") }}
+			</UButton>
 		</div>
 
 		<div v-if="comment.children && comment.children.length > 0" class="ml-4">

@@ -821,6 +821,11 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
       'oneToMany',
       'api::vote.vote'
     >;
+    chats: Attribute.Relation<
+      'plugin::users-permissions.user',
+      'manyToMany',
+      'api::chat.chat'
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
@@ -831,6 +836,59 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
       Attribute.Private;
     updatedBy: Attribute.Relation<
       'plugin::users-permissions.user',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
+export interface PluginStrapiLeafletGeomanConfig extends Schema.SingleType {
+  collectionName: 'strapi_leaflet_geoman_config';
+  info: {
+    singularName: 'config';
+    pluralName: 'configs';
+    displayName: 'Strapi Leaflet Geoman Config';
+  };
+  options: {
+    populateCreatorFields: false;
+    draftAndPublish: false;
+  };
+  pluginOptions: {
+    'content-manager': {
+      visible: false;
+    };
+    'content-type-builder': {
+      visible: false;
+    };
+  };
+  attributes: {
+    defaultLatitude: Attribute.Decimal &
+      Attribute.Required &
+      Attribute.DefaultTo<42>;
+    defaultLongitude: Attribute.Decimal &
+      Attribute.Required &
+      Attribute.DefaultTo<42>;
+    defaultZoom: Attribute.Integer &
+      Attribute.Required &
+      Attribute.DefaultTo<6>;
+    defaultTileURL: Attribute.String &
+      Attribute.Required &
+      Attribute.DefaultTo<'https://tile.openstreetmap.org/{z}/{x}/{y}.png'>;
+    defaultTileAttribution: Attribute.String &
+      Attribute.Required &
+      Attribute.DefaultTo<"Map data \u00A9 <a href='https://www.openstreetmap.org'>OpenStreetMap</a> contributors">;
+    defaultTileAccessToken: Attribute.String & Attribute.DefaultTo<''>;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'plugin::strapi-leaflet-geoman.config',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'plugin::strapi-leaflet-geoman.config',
       'oneToOne',
       'admin::user'
     > &
@@ -953,6 +1011,55 @@ export interface PluginCommentsCommentReport extends Schema.CollectionType {
   };
 }
 
+export interface PluginEmailDesignerEmailTemplate
+  extends Schema.CollectionType {
+  collectionName: 'email_templates';
+  info: {
+    singularName: 'email-template';
+    pluralName: 'email-templates';
+    displayName: 'Email-template';
+    name: 'email-template';
+  };
+  options: {
+    draftAndPublish: false;
+    timestamps: true;
+    increments: true;
+    comment: '';
+  };
+  pluginOptions: {
+    'content-manager': {
+      visible: false;
+    };
+    'content-type-builder': {
+      visible: false;
+    };
+  };
+  attributes: {
+    templateReferenceId: Attribute.Integer & Attribute.Unique;
+    design: Attribute.JSON;
+    name: Attribute.String;
+    subject: Attribute.String;
+    bodyHtml: Attribute.Text;
+    bodyText: Attribute.Text;
+    enabled: Attribute.Boolean & Attribute.DefaultTo<true>;
+    tags: Attribute.JSON;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'plugin::email-designer.email-template',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'plugin::email-designer.email-template',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
 export interface ApiAchievementAchievement extends Schema.CollectionType {
   collectionName: 'achievements';
   info: {
@@ -1066,6 +1173,37 @@ export interface ApiArgumentTreeArgumentTree extends Schema.CollectionType {
   };
 }
 
+export interface ApiChatChat extends Schema.CollectionType {
+  collectionName: 'chats';
+  info: {
+    singularName: 'chat';
+    pluralName: 'chats';
+    displayName: 'Chat';
+    description: '';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    participants: Attribute.Relation<
+      'api::chat.chat',
+      'manyToMany',
+      'plugin::users-permissions.user'
+    >;
+    messages: Attribute.Relation<
+      'api::chat.chat',
+      'oneToMany',
+      'api::message.message'
+    >;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<'api::chat.chat', 'oneToOne', 'admin::user'> &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<'api::chat.chat', 'oneToOne', 'admin::user'> &
+      Attribute.Private;
+  };
+}
+
 export interface ApiFriendRequestFriendRequest extends Schema.CollectionType {
   collectionName: 'friend_requests';
   info: {
@@ -1099,6 +1237,45 @@ export interface ApiFriendRequestFriendRequest extends Schema.CollectionType {
       Attribute.Private;
     updatedBy: Attribute.Relation<
       'api::friend-request.friend-request',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
+export interface ApiMessageMessage extends Schema.CollectionType {
+  collectionName: 'messages';
+  info: {
+    singularName: 'message';
+    pluralName: 'messages';
+    displayName: 'Message';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    content: Attribute.String;
+    sender: Attribute.Relation<
+      'api::message.message',
+      'oneToOne',
+      'plugin::users-permissions.user'
+    >;
+    chat: Attribute.Relation<
+      'api::message.message',
+      'manyToOne',
+      'api::chat.chat'
+    >;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::message.message',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::message.message',
       'oneToOne',
       'admin::user'
     > &
@@ -1648,11 +1825,15 @@ declare module '@strapi/types' {
       'plugin::users-permissions.permission': PluginUsersPermissionsPermission;
       'plugin::users-permissions.role': PluginUsersPermissionsRole;
       'plugin::users-permissions.user': PluginUsersPermissionsUser;
+      'plugin::strapi-leaflet-geoman.config': PluginStrapiLeafletGeomanConfig;
       'plugin::comments.comment': PluginCommentsComment;
       'plugin::comments.comment-report': PluginCommentsCommentReport;
+      'plugin::email-designer.email-template': PluginEmailDesignerEmailTemplate;
       'api::achievement.achievement': ApiAchievementAchievement;
       'api::argument-tree.argument-tree': ApiArgumentTreeArgumentTree;
+      'api::chat.chat': ApiChatChat;
       'api::friend-request.friend-request': ApiFriendRequestFriendRequest;
+      'api::message.message': ApiMessageMessage;
       'api::node.node': ApiNodeNode;
       'api::premise-group.premise-group': ApiPremiseGroupPremiseGroup;
       'api::premise-group-tag.premise-group-tag': ApiPremiseGroupTagPremiseGroupTag;

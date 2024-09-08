@@ -77,7 +77,11 @@
 					<UButton disabled>Pending...</UButton>
 				</UChip>
 			</UCard>
-			<UCard v-for="argument in receivedArgumentRequests" :key="argument.id">
+			<UCard
+				v-for="argument in receivedArgumentRequests"
+				:key="argument.id"
+				class="grid-item"
+			>
 				{{ argument.id }}
 				<UButton
 					:to="'/argument/' + argument.id"
@@ -98,10 +102,6 @@
 			<UCard class="text-center">
 				<UAlert type="warning" title="Nothing Here!" />
 			</UCard>
-		</div>
-		<UDivider class="my-8" />
-		<div class="flex gap-4">
-			<UButton label="Freunde" @click="isFriendsManagementOpen = true" />
 		</div>
 		<UModal v-model="isSettingsOpen">
 			<UCard
@@ -138,6 +138,34 @@
 			@refresh="refresh"
 			@update:isOpen="isFriendsManagementOpen = $event"
 		/>
+		<div class="flex items-start gap-4 mt-20">
+			<div class="flex-1">
+				<UDivider label="Freunde" :ui="{ label: 'text-4xl' }" class="mb-4" />
+				<UContainer>
+					<div
+						v-for="friend in socialData?.currentUser?.friends"
+						:key="friend.id"
+					>
+						<div class="container">
+							{{ friend.username }}
+							<UButton @click="navigateTo(`/users/${friend.id}`)"
+								>Nutzerprofil</UButton
+							>
+							<UButton @click="navigateTo(`/users/${friend.id}/chat`)"
+								>Chat</UButton
+							>
+						</div>
+					</div>
+				</UContainer>
+			</div>
+			<UButton
+				color="blue"
+				class="basis-1/2 ml-4 h-14 px-6 text-lg font-semibold flex items-center justify-center"
+				@click="isFriendsManagementOpen = true"
+			>
+				Freunde hinzufügen
+			</UButton>
+		</div>
 		<div class="flex items-start gap-4">
 			<div class="flex-1">
 				<UDivider
@@ -154,7 +182,6 @@
 					</div>
 				</UContainer>
 			</div>
-			<!-- Styling the button as a large action button with centered text -->
 			<UButton
 				color="blue"
 				to="/learn"

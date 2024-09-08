@@ -1,8 +1,11 @@
 <template>
 	<USlideover v-model="open">
 		<div class="p-4 flex-1 overflow-scroll">
-			<div class="flex flex-col gap-4 mb-4">
-				<UInput v-model="node.title" v-if="node.owner.id === ownUser?.id" />
+			<div
+				v-if="node.owner.id === ownUser?.id"
+				class="flex flex-col gap-4 mb-4"
+			>
+				<UInput v-model="node.title" />
 				<UTextarea
 					v-model="node.description"
 					v-if="node.owner.id === ownUser?.id"
@@ -14,8 +17,12 @@
 					class="self-start inline-block"
 					>Speichern</UButton
 				>
-				<p v-else>{{ node.title }}</p>
 			</div>
+			<div v-else>
+				<p>{{ node.title }}</p>
+				<p>{{ node.description }}</p>
+			</div>
+
 			<UDivider label="Quellen" />
 			<div class="sources">
 				<div v-for="source of node.sources">
@@ -37,6 +44,9 @@
 					>
 					<p v-else>{{ source.url }}</p>
 				</div>
+				<p v-if="!node.sources.length && node.owner.id !== ownUser?.id">
+					Noch keine Quellen
+				</p>
 				<UButton
 					@click="openNewSource = true"
 					v-if="node.owner.id === ownUser?.id"

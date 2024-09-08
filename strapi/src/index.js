@@ -25,7 +25,6 @@ module.exports = {
         const { result } = event;
 
         const userId = result.id;
-        console.log("HELLOOO");
 
         try {
           await strapi.entityService.create(
