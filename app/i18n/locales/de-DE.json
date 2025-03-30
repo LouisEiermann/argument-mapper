@@ -1,0 +1,81 @@
+{
+  "welcome": "Willkommen bei Appname",
+  "general": {
+    "cancel": "Abbrechen",
+    "unknown": "Unbekannt",
+    "send": "Senden",
+    "newChatMessage": "Neue Chatnachricht",
+    "daysAgo": "vor {days} Tagen",
+    "hoursAgo": "vor {hours} Stunden",
+    "minutesAgo": "vor {minutes} Minuten"
+  },
+  "account": {
+    "register": "Registrieren",
+    "login": "Einloggen",
+    "logout": "Ausloggen",
+    "email": "E-Mail Adresse",
+    "password": "Passwort",
+    "passwordConfirm": "Passwort bestätigen",
+    "username": "Benutzername",
+    "passwordForgotten": "Passwort vergessen",
+    "or": "Oder",
+    "settings": "Einstellungen",
+    "joined": "Beigetreten",
+    "noAccount": "Noch kein Konto? Hier Registrieren",
+    "changeAvatar": "Avatar ändern",
+    "dangerZone": "Danger Zone",
+    "deleteAccount": "Konto löschen",
+    "myBeliefs": "Meine Überzeugungen",
+    "myArguments": "Meine Argumente",
+    "toBelief": "Zum Standpunkt",
+    "friends": "Freunde",
+    "addFriends": "Freunde hinzufügen",
+    "userProfile": "Nutzerprofil",
+    "chat": "Chat",
+    "learn": "Lernen",
+    "achievements": "Achievements"
+  },
+  "argument": {
+    "new": {
+      "title": "Titel",
+      "thesis": "These",
+      "conclusion": "Konklusion",
+      "premise": "Prämisse",
+      "coPremise": "Co-Prämisse",
+      "secondCoPremise": "Zweite Co-Prämisse",
+      "add": "Hinzufügen",
+      "selectTags": "Tags auswählen",
+      "newDebate": "Neue Debatte",
+      "newBelief": "Neue Überzeugung",
+      "addSource": "Neue Quelle hinzufügen",
+      "sourceUrl": "URL zur Quelle"
+    },
+    "objection": {
+      "add": "Neues Gegenargument hinzufügen"
+    },
+    "support": {
+      "add": "Unterstützendes Argument hinzufügen"
+    },
+    "discussion": {
+      "title": "Diskussion",
+      "newComment": "Neuer Kommentar",
+      "reply": "Antworten"
+    },
+    "settings": "Einstellungen",
+    "endArgument": "Argument beenden",
+    "endArgumentConfirm": "Bekunde deinen Willen, das Argument zu beenden. Stimmt dein Partner dem Ende des Arguments zu, wird das Argument als geschlossen markiert und Ihr könnt beide nichts mehr daran ändern.\n\nGeschlossene Argumente können von anderen Nutzern bewertet werden.",
+    "iWantToEndArgument": "Ich will das Argument beenden",
+    "markAsSound": "Als Sound markieren",
+    "tagging": "Tagging",
+    "formalFellacies": "Formale Fehlschlüsse",
+    "informalFellacies": "Informelle Fehlschlüsse",
+    "commonPatterns": "Häufige Muster",
+    "closed": "Geschlossen",
+    "standpoint": "Standpunkt"
+  },
+  "notification": {
+    "loginFailed": "Login fehlgeschlagen. Bitte überprüfe deinen Benutzernamen und dein Passwort.",
+    "saved": "Gespeichert.",
+    "argumentFinished": "Argument geschlossen."
+  }
+}

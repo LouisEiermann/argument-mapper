@@ -57,6 +57,16 @@
       "relation": "oneToMany",
       "target": "api::vote.vote",
       "mappedBy": "argumentTree"
+    },
+    "finished": {
+      "type": "boolean",
+      "default": false,
+      "required": true
+    },
+    "userRequestingFinish": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "plugin::users-permissions.user"
     }
   }
 }

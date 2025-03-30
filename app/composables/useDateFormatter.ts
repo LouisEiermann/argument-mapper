@@ -1,44 +1,46 @@
 export const useDateFormatter = () => {
-	const formatDate = (dateString: Date, locale = "en-US") => {
-		const date = new Date(dateString);
-		const formatter = new Intl.DateTimeFormat(locale, {
-			year: "numeric",
-			month: "long",
-		});
-		return formatter.format(date);
-	};
+  const { t } = useI18n();
 
-	const diff_hours = (dt1: Date, dt2: Date) => {
-		const diffTime = Math.abs(dt2 - dt1);
-		const diffHours = Math.floor(diffTime / (1000 * 60 * 60));
-		return diffHours;
-	};
+  const formatDate = (dateString: Date, locale = "en-US") => {
+    const date = new Date(dateString);
+    const formatter = new Intl.DateTimeFormat(locale, {
+      year: "numeric",
+      month: "long",
+    });
+    return formatter.format(date);
+  };
 
-	const diff_days = (dt1: Date, dt2: Date) => {
-		const diffTime = Math.abs(dt2 - dt1);
-		const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-		return diffDays;
-	};
+  const diff_hours = (dt1: Date, dt2: Date) => {
+    const diffTime = Math.abs(dt2.getTime() - dt1.getTime());
+    const diffHours = Math.floor(diffTime / (1000 * 60 * 60));
+    return diffHours;
+  };
 
-	const timeSincePosted = (dateString: Date, locale = "en-US") => {
-		const dt1 = new Date();
-		const dt2 = new Date(dateString);
+  const diff_days = (dt1: Date, dt2: Date) => {
+    const diffTime = Math.abs(dt2.getTime() - dt1.getTime());
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+  };
 
-		const hours = diff_hours(dt1, dt2);
-		const days = diff_days(dt1, dt2);
+  const timeSincePosted = (dateString: Date, locale = "en-US") => {
+    const dt1 = new Date();
+    const dt2 = new Date(dateString);
 
-		if (days > 0) {
-			return `${days} days ago`;
-		} else if (hours > 0) {
-			return `${hours} hours ago`;
-		} else {
-			const minutes = Math.floor((dt1 - dt2) / (1000 * 60));
-			return `${minutes} minutes ago`;
-		}
-	};
+    const hours = diff_hours(dt1, dt2);
+    const days = diff_days(dt1, dt2);
 
-	return {
-		formatDate,
-		timeSincePosted,
-	};
+    if (days > 0) {
+      return t("general.daysAgo", { days });
+    } else if (hours > 0) {
+      return t("general.hoursAgo", { hours });
+    } else {
+      const minutes = Math.floor((dt1.getTime() - dt2.getTime()) / (1000 * 60));
+      return t("general.minutesAgo", { minutes });
+    }
+  };
+
+  return {
+    formatDate,
+    timeSincePosted,
+  };
 };

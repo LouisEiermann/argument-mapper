@@ -1,12 +1,13 @@
 <template>
-	<main>
-		<NuxtLayout name="default">
-			<UNotifications />
-			<NuxtPage />
-			<CookieControl :locale="locale" />
-		</NuxtLayout>
-	</main>
+  <main>
+    <UApp>
+      <NuxtLayout name="default">
+        <NuxtPage />
+        <CookieControl :locale="locale" />
+      </NuxtLayout>
+    </UApp>
+  </main>
 </template>
 <script setup lang="ts">
-	const { locale } = useI18n();
+const { locale } = useI18n();
 </script>

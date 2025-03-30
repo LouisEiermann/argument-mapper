@@ -7,27 +7,25 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "develop": "nuxt dev"
   },
   "dependencies": {
-    "@dargmuesli/nuxt-cookie-control": "^8.3.3",
-    "@nuxt/eslint": "^0.5.1",
-    "@nuxt/ui": "^2.18.4",
-    "@nuxtjs/i18n": "^8.3.1",
-    "@nuxtjs/strapi": "^1.12.0",
-    "@pinia/nuxt": "^0.5.3",
-    "@vueuse/core": "^10.11.0",
-    "nuxt": "^3.11.2",
-    "nuxt-booster": "^3.1.5",
-    "nuxt-security": "^2.0.0-rc.9",
-    "pinia": "^2.2.1",
-    "socket.io-client": "^4.7.5",
-    "vue": "^3.4.27",
-    "vue-router": "^4.3.2"
+    "@dargmuesli/nuxt-cookie-control": "^8.6.1",
+    "@nuxt/ui": "^3.0.2",
+    "@nuxtjs/i18n": "^9.3.0",
+    "@nuxtjs/strapi": "^2.0.0",
+    "@pinia/nuxt": "^0.5.5",
+    "nuxt": "^3.16.1",
+    "nuxt-booster": "^3.2.6",
+    "nuxt-security": "^2.2.0",
+    "socket.io-client": "^4.8.1",
+    "unhead": "^2.0.2",
+    "vue": "^3.5.13",
+    "vue-router": "^4.5.0"
   },
   "devDependencies": {
-    "nuxt-anchorscroll": "^1.0.3",
-    "prettier": "^3.2.5",
-    "sass": "^1.77.2"
+    "nuxt-anchorscroll": "^1.0.5",
+    "prettier": "^3.5.3"
   }
 }

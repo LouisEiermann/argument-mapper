@@ -1,95 +1,63 @@
 <template>
-	<UCarousel
-		v-slot="{ item }"
-		:items="sliderItems"
-		:ui="{ item: 'basis-full' }"
-		arrows
-		indicators
-	>
-		<div class="text-center mx-auto">
-			<div class="node" v-if="item.items">
-				<UCard
-					v-for="node of item.items"
-					class="node-content"
-					@click="isSlideroverOpen = true"
-					:class="{
-						'soundness-doubted': node.SoundnessDoubted,
-						'not-valid': isNotValid,
-					}"
-				>
-					<UButton
-						v-if="node.owner?.id === ownUser?.id && !node.Thesis"
-						class="delete-button"
-						@click="deleteReason(node?.id)"
-						icon="i-heroicons-x-circle-20-solid"
-						color="red"
-					></UButton>
+  <UCarousel
+    v-slot="{ item }"
+    :items="sliderItems"
+    :ui="{ item: 'basis-full' }"
+    arrows
+    indicators
+  >
+    <div class="text-center mx-auto my-8">
+      <div v-if="item.items" class="flex justify-center items-center gap-8">
+        <UCard
+          v-for="node of item.items"
+          class="relative min-w-[150px] w-[300px] h-[200px] mb-8"
+          :class="{
+            'soundness-doubted': node.SoundnessDoubted,
+            'not-valid': isNotValid,
+          }"
+          @click="isSlideroverOpen = true"
+        >
+          <UButton
+            v-if="node.owner?.id === ownUser?.id && !node.Thesis"
+            class="absolute -top-4 right-4"
+            icon="i-heroicons-x-circle-20-solid"
+            color="error"
+            @click="deleteReason(node?.id)"
+          />
 
-					<p>{{ node.title }}</p>
+          <p>{{ node.title }}</p>
 
-					<UButton
-						class="move-down"
-						@click="descendLevel(node?.id)"
-						icon="i-heroicons-arrow-down-16-solid"
-					/>
-				</UCard>
-			</div>
-		</div>
-	</UCarousel>
+          <UButton
+            class="absolute top-[11.5rem] left-[8.5rem]"
+            icon="i-heroicons-arrow-down-16-solid"
+            @click="descendLevel(node?.id)"
+          />
+        </UCard>
+      </div>
+    </div>
+  </UCarousel>
 </template>
 <script setup lang="ts">
-	defineProps(["sliderItems", "userIsCreator", "isNotValid"]);
+defineProps(["sliderItems", "userIsCreator", "isNotValid"]);
 
-	const { delete: deleteStrapi } = useStrapi();
-	const isSlideroverOpen = ref(false);
-	const { fetchUser } = useStrapiAuth();
-	const ownUser = await fetchUser();
+const { delete: deleteStrapi } = useStrapi();
+const isSlideroverOpen = ref(false);
+const { fetchUser } = useStrapiAuth();
+const ownUser = await fetchUser();
 
-	const refresh = inject("refresh");
+const refresh = inject("refresh");
 
-	const deleteReason = async (id: string) => {
-		await deleteStrapi("nodes", id);
-		refresh();
-	};
+const deleteReason = async (id: string) => {
+  await deleteStrapi("nodes", id);
+  refresh();
+};
 
-	const descendLevel = async (id: string) => {
-		navigateTo({
-			path: "",
-			query: {
-				level: id,
-			},
-		});
-	};
+const descendLevel = async (id: string) => {
+  navigateTo({
+    path: "",
+    query: {
+      level: id,
+    },
+  });
+};
 </script>
-<style lang="scss" scoped>
-	.node {
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		gap: 2rem;
-
-		&-content {
-			position: relative;
-			min-width: 150px;
-			width: 300px;
-			height: 200px;
-			margin-bottom: 2rem;
-		}
-	}
-
-	.text-center {
-		margin-bottom: 2rem;
-		margin-top: 2rem;
-	}
-
-	.delete-button {
-		position: absolute;
-		top: -1rem;
-		right: 1rem;
-	}
-
-	.move-down {
-		position: absolute;
-		top: 12rem;
-	}
-</style>

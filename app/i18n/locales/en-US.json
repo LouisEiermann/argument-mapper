@@ -1,0 +1,81 @@
+{
+  "welcome": "Welcome to Appname",
+  "account": {
+    "register": "Register",
+    "login": "Login",
+    "logout": "Logout",
+    "email": "E-Mail Address",
+    "password": "Password",
+    "passwordConfirm": "Confirm Password",
+    "username": "Username",
+    "passwordForgotten": "Password forgotten",
+    "or": "Or",
+    "settings": "Settings",
+    "joined": "Joined",
+    "noAccount": "No account yet? Register here",
+    "changeAvatar": "Change Avatar",
+    "dangerZone": "Danger Zone",
+    "deleteAccount": "Delete Account",
+    "myBeliefs": "My Beliefs",
+    "myArguments": "My Arguments",
+    "toBelief": "To Belief",
+    "friends": "Friends",
+    "addFriends": "Add Friends",
+    "userProfile": "User Profile",
+    "chat": "Chat",
+    "learn": "Learn",
+    "achievements": "Achievements"
+  },
+  "argument": {
+    "new": {
+      "title": "Title",
+      "thesis": "Thesis",
+      "conclusion": "Conclusion",
+      "premise": "Premise",
+      "coPremise": "Co-Premise",
+      "secondCoPremise": "Second Co-Premise",
+      "add": "Add",
+      "selectTags": "Select Tags",
+      "newDebate": "New Debate",
+      "newBelief": "New Belief",
+      "addSource": "Add New Source",
+      "sourceUrl": "Source URL"
+    },
+    "objection": {
+      "add": "Add new counterargument"
+    },
+    "support": {
+      "add": "Add supportive argument"
+    },
+    "discussion": {
+      "title": "Discussion",
+      "newComment": "New comment",
+      "reply": "Reply"
+    },
+    "settings": "Settings",
+    "endArgument": "End Argument",
+    "endArgumentConfirm": "Declare your intention to end the argument. If your partner agrees to end the argument, it will be marked as closed and neither of you will be able to modify it anymore.\n\nClosed arguments can be rated by other users.",
+    "iWantToEndArgument": "I want to end the argument",
+    "markAsSound": "Mark as Sound again",
+    "tagging": "Tagging",
+    "formalFellacies": "Formal Fallacies",
+    "informalFellacies": "Informal Fallacies",
+    "commonPatterns": "Common Patterns",
+    "closed": "Closed",
+    "standpoint": "Standpoint"
+  },
+  "notification": {
+    "loginFailed": "Login failed. Please check your username and your password.",
+    "saved": "Saved.",
+    "argumentFinished": "Argument closed."
+  },
+  "general": {
+    "cancel": "Cancel",
+    "unknown": "Unknown",
+    "send": "Send",
+    "newChatMessage": "New chat message",
+    "daysAgo": "{days} days ago",
+    "hoursAgo": "{hours} hours ago",
+    "minutesAgo": "{minutes} minutes ago"
+  }
+}
