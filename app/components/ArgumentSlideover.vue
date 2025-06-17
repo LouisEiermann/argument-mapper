@@ -6,14 +6,17 @@
           v-if="node.owner.id === ownUser?.id"
           class="flex flex-col gap-4 mb-4"
         >
-          <UInput v-model="node.title" />
+          <UInput
+            v-model="node.title"
+            placeholder="Elaborate on this premise"
+          />
           <UTextarea
             v-model="node.description"
             v-if="node.owner.id === ownUser?.id"
             placeholder="Elaborate on this premise"
           />
           <UButton
-            @click="save(node.id)"
+            @click="save()"
             v-if="node.owner.id === ownUser?.id"
             class="self-start inline-block"
             >Speichern</UButton
@@ -107,8 +110,11 @@ const open = computed({
   },
 });
 
-const save = async (id: string) => {
-  await update("nodes", id, props.node);
+const save = async () => {
+  await update("nodes", props.node.documentId, {
+    title: props.node.title,
+    description: props.node.description,
+  });
   toast.add({ title: t("notification.saved") });
   refresh();
 };
@@ -121,7 +127,7 @@ const addSource = async () => {
 
     const updatedSources = [...(props.node.sources || []), newSource.data.id];
 
-    await update("nodes", props.node.id, { sources: updatedSources });
+    await update("nodes", props.node.documentId, { sources: updatedSources });
 
     sourceUrl.value = "";
 

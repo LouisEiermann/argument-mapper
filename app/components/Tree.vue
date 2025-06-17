@@ -16,7 +16,7 @@
       @click="isSlideoverOpen = true"
     >
       <UButton
-        v-if="node.owner?.id === ownUser?.id && !node.Thesis"
+        v-if="node.owner?.id === ownUser?.id && !node.thesis"
         class="absolute -top-4 right-4"
         icon="i-heroicons-x-circle-20-solid"
         color="error"
@@ -28,8 +28,10 @@
         icon="i-heroicons-arrow-up-16-solid"
         @click.stop="ascendLevel(node.parent?.id)"
       />
-      <div v-if="node.Thesis" class="badge">Thesis</div>
-      <div v-if="node.Axiom" class="badge">Axiom</div>
+      <UBadge v-if="node.thesis" class="badge" color="secondary">Thesis</UBadge>
+      <UBadge v-if="node.children.length === 0" class="badge" color="secondary"
+        >Axiom</UBadge
+      >
       <p>{{ node.title }}</p>
     </UCard>
     <UDropdownMenu
@@ -356,7 +358,7 @@ const markAsSound = async (id: string) => {
 };
 
 const markAsValidAgain = async () => {
-  await update("nodes", props.parent.id, {
+  await update("nodes", props.parent.documentId, {
     FormalFellacyBelow: "",
   });
   refresh();

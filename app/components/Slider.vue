@@ -18,7 +18,7 @@
           @click="isSlideroverOpen = true"
         >
           <UButton
-            v-if="node.owner?.id === ownUser?.id && !node.Thesis"
+            v-if="node.owner?.id === ownUser?.id && !node.thesis"
             class="absolute -top-4 right-4"
             icon="i-heroicons-x-circle-20-solid"
             color="error"

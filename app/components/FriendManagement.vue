@@ -27,7 +27,7 @@
                 <div class="flex items-center gap-3">
                   <UAvatar
                     v-if="suggestedFriend.avatar"
-                    :src="suggestedFriend.avatar.url"
+                    :src="useStrapiMedia(suggestedFriend.avatar.url)"
                     :alt="suggestedFriend.username"
                   />
                   <span
@@ -73,7 +73,7 @@
                         acceptFriendRequest(
                           data?.receivedFriendRequests.find((e) => {
                             return e.sender.id === suggestedFriend.id;
-                          })?.id
+                          })?.documentId
                         )
                       "
                     >
@@ -82,7 +82,9 @@
                     <UButton
                       color="error"
                       variant="soft"
-                      @click="rejectFriendRequest(receivedFriendRequests.id)"
+                      @click="
+                        rejectFriendRequest(receivedFriendRequests.documentId)
+                      "
                     >
                       {{ $t("friends.reject") }}
                     </UButton>
@@ -96,7 +98,7 @@
                       withdrawFriendRequest(
                         data?.sentFriendRequests.find((e) => {
                           return e.receiver.id === suggestedFriend.id;
-                        })?.id
+                        })?.documentId
                       )
                     "
                   >
@@ -124,8 +126,10 @@
                         .avatar
                     "
                     :src="
-                      receivedFriendRequest.attributes.sender.data.attributes
-                        .avatar.url
+                      useStrapiMedia(
+                        receivedFriendRequest.attributes.sender.data.attributes
+                          .avatar.url
+                      )
                     "
                     :alt="
                       receivedFriendRequest.attributes.sender.data.attributes
@@ -152,14 +156,18 @@
                   </UButton>
                   <UButton
                     color="primary"
-                    @click="acceptFriendRequest(receivedFriendRequest.id)"
+                    @click="
+                      acceptFriendRequest(receivedFriendRequest.documentId)
+                    "
                   >
                     {{ $t("friends.accept") }}
                   </UButton>
                   <UButton
                     color="error"
                     variant="soft"
-                    @click="rejectFriendRequest(receivedFriendRequest.id)"
+                    @click="
+                      rejectFriendRequest(receivedFriendRequest.documentId)
+                    "
                   >
                     {{ $t("friends.reject") }}
                   </UButton>
@@ -195,7 +203,7 @@
                 <div class="flex items-center gap-3">
                   <UAvatar
                     v-if="foundUser.avatar"
-                    :src="foundUser.avatar.url"
+                    :src="useStrapiMedia(foundUser.avatar.url)"
                     :alt="foundUser.username"
                   />
                   <span
@@ -299,13 +307,13 @@ const { data, refresh } = useAsyncData("data", async () => {
   };
 });
 
-const acceptFriendRequest = async (id: number) => {
-  await update("friend-requests", id, { status: "accepted" });
+const acceptFriendRequest = async (documentId: number) => {
+  await update("friend-requests", documentId, { status: "accepted" });
   refresh();
 };
 
-const rejectFriendRequest = async (id: number) => {
-  await update("friend-requests", id, { status: "rejected" });
+const rejectFriendRequest = async (documentId: number) => {
+  await update("friend-requests", documentId, { status: "rejected" });
   refresh();
 };
 
@@ -359,8 +367,8 @@ const searchFriends = async () => {
   }
 };
 
-const withdrawFriendRequest = async (id: number) => {
-  await _delete("friend-requests", id);
+const withdrawFriendRequest = async (documentId: number) => {
+  await _delete("friend-requests", documentId);
   refresh();
 };
 

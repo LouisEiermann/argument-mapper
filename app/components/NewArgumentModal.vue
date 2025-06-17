@@ -136,9 +136,10 @@ const emit = defineEmits<{
 
 const props = defineProps<{
   otherUser?: any;
+  isDebate?: boolean;
 }>();
 
-const isDebate = ref(false);
+const isDebate = ref(props.isDebate || false);
 
 const { find, create, update, delete: _delete } = useStrapi();
 const tagsStore = useArgumentTagsStore();
@@ -256,7 +257,7 @@ const onNewThesis = async () => {
     }
 
     // Finally update the thesis node with the argument ID
-    await update("nodes", thesis.id, {
+    await update("nodes", thesis.documentId, {
       argument: argumentId,
     });
 

@@ -349,12 +349,12 @@ const onArgumentFinishRequest = async () => {
     data.value?.argumentTrees[0]?.userRequestingFinish?.id !=
       data.value?.user?.id
   ) {
-    await update("argument-trees", data.value?.argumentTrees[0].id, {
+    await update("argument-trees", data.value?.argumentTrees[0].documentId, {
       finished: true,
     });
     toast.add({ title: t("notification.argumentFinished") });
   } else {
-    await update("argument-trees", data.value?.argumentTrees[0].id, {
+    await update("argument-trees", data.value?.argumentTrees[0].documentId, {
       userRequestingFinish: data.value?.user.id,
     });
   }

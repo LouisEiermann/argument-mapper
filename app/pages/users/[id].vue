@@ -28,16 +28,7 @@
       }}</UButton>
     </UCard>
   </div>
-  <NewArgumentModal
-    :is-open="isModalOpen"
-    @refresh="refresh()"
-    @update:isOpen="isModalOpen = $event"
-    :is-debate="true"
-    :other-user="data?.user"
-  />
-  <UButton @click="isModalOpen = true">{{
-    $t("argument.new.newDebate")
-  }}</UButton>
+  <NewArgumentModal :is-debate="true" :other-user="data?.user" />
 </template>
 <script setup lang="ts">
 definePageMeta({
