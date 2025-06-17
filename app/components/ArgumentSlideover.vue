@@ -1,96 +1,87 @@
 <template>
-  <USlideover v-model="open">
-    <div class="p-4 flex-1 overflow-scroll">
-      <div
-        v-if="node.owner.id === ownUser?.id"
-        class="flex flex-col gap-4 mb-4"
-      >
-        <UInput v-model="node.title" />
-        <UTextarea
-          v-model="node.description"
+  <USlideover v-model:open="open">
+    <template #content
+      ><div class="p-4 flex-1 overflow-scroll">
+        <div
           v-if="node.owner.id === ownUser?.id"
-          placeholder="Elaborate on this premise"
-        />
-        <UButton
-          @click="save(node.id)"
-          v-if="node.owner.id === ownUser?.id"
-          class="self-start inline-block"
-          >Speichern</UButton
+          class="flex flex-col gap-4 mb-4"
         >
-      </div>
-      <div v-else>
-        <p>{{ node.title }}</p>
-        <p>{{ node.description }}</p>
-      </div>
-
-      <USeparator label="Quellen" />
-      <div class="flex flex-col items-start gap-4 my-4">
-        <div v-for="source of node.sources" class="flex items-start gap-4">
-          <UInput
-            v-model="source.url"
+          <UInput v-model="node.title" />
+          <UTextarea
+            v-model="node.description"
             v-if="node.owner.id === ownUser?.id"
-            placeholder="https://source.com"
+            placeholder="Elaborate on this premise"
           />
           <UButton
-            @click="(update('sources', source.id, source), refresh())"
+            @click="save(node.id)"
             v-if="node.owner.id === ownUser?.id"
+            class="self-start inline-block"
             >Speichern</UButton
           >
-          <UButton
-            @click="(strapiDelete('sources', source.id), refresh())"
-            v-if="node.owner.id === ownUser?.id"
-            color="red"
-            >Löschen</UButton
+        </div>
+        <div v-else>
+          <p>{{ node.title }}</p>
+          <p>{{ node.description }}</p>
+        </div>
+
+        <USeparator label="Quellen" />
+        <div class="flex flex-col items-start gap-4 my-4">
+          <UModal
+            :description="$t('argument.new.addSource')"
+            :title="$t('argument.new.addSource')"
+            :close="{
+              color: 'neutral',
+              variant: 'ghost',
+              icon: 'i-heroicons-x-mark-20-solid',
+            }"
           >
-          <p v-else>{{ source.url }}</p>
-        </div>
-        <p v-if="!node.sources.length && node.owner.id !== ownUser?.id">
-          Noch keine Quellen
-        </p>
-        <UButton
-          @click="openNewSource = true"
-          v-if="node.owner.id === ownUser?.id"
-          >Neue Quelle hinzufügen</UButton
-        >
-      </div>
-      <USeparator label="Diskussion" />
-      <Discussion :node="node" />
-    </div>
-    <UModal v-model="openNewSource" :description="$t('argument.new.addSource')">
-      <UCard
-        :ui="{
-          ring: '',
-          divide: 'divide-y divide-gray-100 dark:divide-gray-800',
-        }"
-      >
-        <template #header>
-          <div class="flex justify-between">
-            <h1>Neue Quelle hinzufügen</h1>
-            <UButton
-              color="neutral"
-              variant="ghost"
-              icon="i-heroicons-x-mark-20-solid"
-              class="-my-1"
-              @click="openNewSource = false"
+            <UButton v-if="node.owner.id === ownUser?.id"
+              >Neue Quelle hinzufügen</UButton
+            >
+
+            <template #body>
+              <div class="space-y-6">
+                <UInput
+                  type="text"
+                  v-model="sourceUrl"
+                  placeholder="URL zur Quelle"
+                />
+              </div>
+            </template>
+
+            <template #footer>
+              <UButton @click="addSource(node?.id)">{{
+                $t("argument.new.add")
+              }}</UButton>
+            </template>
+          </UModal>
+          <div v-for="source of node.sources" class="flex items-start gap-4">
+            <UInput
+              v-model="source.url"
+              v-if="node.owner.id === ownUser?.id"
+              placeholder="https://source.com"
             />
+            <UButton
+              @click="(update('sources', source.id, source), refresh())"
+              v-if="node.owner.id === ownUser?.id"
+              >Speichern</UButton
+            >
+            <UButton
+              @click="(strapiDelete('sources', source.id), refresh())"
+              v-if="node.owner.id === ownUser?.id"
+              color="error"
+              >Löschen</UButton
+            >
+            <p v-else>{{ source.url }}</p>
           </div>
-        </template>
-
-        <div class="space-y-6">
-          <UInput
-            type="text"
-            v-model="sourceUrl"
-            placeholder="URL zur Quelle"
-          />
+          <p v-if="!node.sources.length && node.owner.id !== ownUser?.id">
+            Noch keine Quellen
+          </p>
         </div>
-
-        <template #footer>
-          <UButton @click="addSource(node?.id)">{{
-            $t("argument.new.add")
-          }}</UButton>
-        </template>
-      </UCard>
-    </UModal>
+        <USeparator label="Diskussion" />
+        <Discussion :node="node" />
+      </div>
+    </template>
   </USlideover>
 </template>
 <script lang="ts" setup>

@@ -45,19 +45,63 @@
           </p>
           <template #footer v-if="!data.argumentTrees[0]?.finished">
             <div class="flex gap-4">
-              <UButton size="sm" @click="isOpen = true">
-                {{ $t("account.settings") }}
-              </UButton>
-              <UButton
-                size="sm"
-                color="error"
-                v-if="
-                  data.userIsCreator || data.argumentTrees[0]?.opponentAccepted
-                "
-                @click="finishArgumentModalIsOpen = true"
+              <UModal
+                :title="$t('account.settings')"
+                :description="$t('argument.settings')"
+                :close="{
+                  color: 'neutral',
+                  variant: 'ghost',
+                  icon: 'i-heroicons-x-mark-20-solid',
+                }"
               >
-                {{ $t("argument.endArgument") }}
-              </UButton>
+                <UButton color="primary">
+                  {{ $t("account.settings") }}
+                </UButton>
+                <template #body>
+                  <input
+                    type="file"
+                    @change="handleFileChange"
+                    class="w-full"
+                  />
+                </template>
+              </UModal>
+              <UModal
+                v-model="finishArgumentModalIsOpen"
+                :title="$t('argument.endArgument')"
+                :close="{
+                  color: 'neutral',
+                  variant: 'ghost',
+                  icon: 'i-heroicons-x-mark-20-solid',
+                }"
+              >
+                <UButton
+                  size="sm"
+                  color="error"
+                  v-if="
+                    data.userIsCreator ||
+                    data.argumentTrees[0]?.opponentAccepted
+                  "
+                  @click="finishArgumentModalIsOpen = true"
+                >
+                  {{ $t("argument.endArgument") }}
+                </UButton>
+                <template #body>
+                  {{ $t("argument.endArgumentConfirm") }}
+                </template>
+                <template #footer>
+                  <UButton
+                    color="error"
+                    size="sm"
+                    @click="onArgumentFinishRequest"
+                    :disabled="
+                      data.argumentTrees[0]?.userRequestingFinish?.id ===
+                      data?.user?.id
+                    "
+                  >
+                    {{ $t("argument.iWantToEndArgument") }}
+                  </UButton>
+                </template>
+              </UModal>
             </div>
           </template>
         </UCard>
@@ -144,74 +188,6 @@
         />
       </div>
     </div>
-
-    <!-- Modals -->
-    <UModal v-model="isOpen">
-      <UCard
-        :ui="{
-          ring: '',
-          divide: 'divide-y divide-gray-100 dark:divide-gray-800',
-        }"
-      >
-        <template #header>
-          <div class="flex justify-between items-center">
-            <h1 class="text-lg font-medium">{{ $t("account.settings") }}</h1>
-            <UButton
-              color="neutral"
-              variant="ghost"
-              icon="i-heroicons-x-mark-20-solid"
-              class="-my-1"
-              @click="isOpen = false"
-            />
-          </div>
-        </template>
-        <div class="space-y-4">
-          <p class="text-sm text-gray-600 dark:text-gray-400">
-            {{ $t("argument.new.addSource") }}
-          </p>
-          <input type="file" @change="handleFileChange" class="w-full" />
-        </div>
-      </UCard>
-    </UModal>
-
-    <UModal v-model="finishArgumentModalIsOpen">
-      <UCard
-        :ui="{
-          ring: '',
-          divide: 'divide-y divide-gray-100 dark:divide-gray-800',
-        }"
-      >
-        <template #header>
-          <div class="flex justify-between items-center">
-            <h1 class="text-lg font-medium">
-              {{ $t("argument.endArgument") }}
-            </h1>
-            <UButton
-              color="neutral"
-              variant="ghost"
-              icon="i-heroicons-x-mark-20-solid"
-              class="-my-1"
-              @click="finishArgumentModalIsOpen = false"
-            />
-          </div>
-        </template>
-        <p class="text-sm text-gray-600 dark:text-gray-400">
-          {{ $t("argument.endArgumentConfirm") }}
-        </p>
-        <template #footer>
-          <UButton
-            color="error"
-            size="sm"
-            @click="onArgumentFinishRequest"
-            :disabled="
-              data.argumentTrees[0]?.userRequestingFinish?.id === data?.user?.id
-            "
-          >
-            {{ $t("argument.iWantToEndArgument") }}
-          </UButton>
-        </template>
-      </UCard>
-    </UModal>
   </div>
 </template>
 <script setup lang="ts">

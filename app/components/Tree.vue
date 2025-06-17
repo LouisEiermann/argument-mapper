@@ -31,12 +31,6 @@
       <div v-if="node.Thesis" class="badge">Thesis</div>
       <div v-if="node.Axiom" class="badge">Axiom</div>
       <p>{{ node.title }}</p>
-      <UButton
-        v-if="node.owner?.id === ownUser?.id"
-        class="absolute top-[11.5rem] left-[8.5rem]"
-        icon="i-heroicons-plus-circle-16-solid"
-        @click.stop="isOpen = true"
-      />
     </UCard>
     <UDropdownMenu
       v-if="
@@ -83,42 +77,30 @@
       @click="isOpen = true"
       >Objection</UButton
     >
-    <UButton
-      v-if="node.owner?.id !== ownUser?.id && !node.thesis"
-      color="primary"
-      @click="isTaggingOpen = true"
-      >Tagging</UButton
-    >
     <UModal
-      v-model="isOpen"
       :description="
         node.owner.id === ownUser?.id
           ? $t('argument.support.add')
           : $t('argument.objection.add')
       "
+      :title="
+        node.owner.id === ownUser?.id
+          ? $t('argument.support.add')
+          : $t('argument.objection.add')
+      "
+      :close="{
+        color: 'neutral',
+        variant: 'ghost',
+        icon: 'i-heroicons-x-mark-20-solid',
+      }"
     >
-      <UCard
-        :ui="{
-          ring: '',
-          divide: 'divide-y divide-gray-100 dark:divide-gray-800',
-        }"
-      >
-        <template #header>
-          <div class="flex justify-between">
-            <h1 v-if="node.owner.id === ownUser?.id">
-              {{ $t("argument.support.add") }}
-            </h1>
-            <h1 v-else>{{ $t("argument.objection.add") }}</h1>
-            <UButton
-              color="neutral"
-              variant="ghost"
-              icon="i-heroicons-x-mark-20-solid"
-              class="-my-1"
-              @click="isOpen = false"
-            />
-          </div>
-        </template>
+      <UButton
+        v-if="node.owner?.id === ownUser?.id"
+        class="absolute top-[11.5rem] left-[8.5rem]"
+        icon="i-heroicons-plus-circle-16-solid"
+      />
 
+      <template #body>
         <div class="space-y-6">
           <UInput
             v-model="premise"
@@ -138,75 +120,66 @@
             :placeholder="$t('argument.new.secondCoPremise')"
           />
         </div>
+      </template>
 
-        <template #footer>
-          <UButton @click="addReasons(node?.id)">{{
-            $t("argument.new.add")
-          }}</UButton>
-        </template>
-      </UCard>
+      <template #footer>
+        <UButton @click="addReasons(node?.id)">{{
+          $t("argument.new.add")
+        }}</UButton>
+      </template>
     </UModal>
-    <UModal v-model="isTaggingOpen" :description="$t('argument.tagging')">
-      <UCard
-        :ui="{
-          ring: '',
-          divide: 'divide-y divide-gray-100 dark:divide-gray-800',
-        }"
+    <UModal
+      :description="$t('argument.tagging')"
+      :title="$t('argument.tagging')"
+      :close="{
+        color: 'neutral',
+        variant: 'ghost',
+        icon: 'i-heroicons-x-mark-20-solid',
+      }"
+    >
+      <UButton
+        v-if="node.owner?.id !== ownUser?.id && !node.thesis"
+        color="primary"
+        >Tagging</UButton
       >
-        <template #header>
-          <div class="flex justify-between">
-            <h1>
-              {{ $t("argument.tagging") }}
-            </h1>
-            <UButton
-              color="neutral"
-              variant="ghost"
-              icon="i-heroicons-x-mark-20-solid"
-              class="-my-1"
-              @click="isTaggingOpen = false"
-            />
-          </div>
-        </template>
+      <template #body>
+        <USelectMenu
+          v-model="selectedFormalFellacies"
+          type="text"
+          :options="premiseGroupData?.formalFellacies"
+          :placeholder="$t('argument.formalFallacies')"
+          multiple
+          searchable
+          option-attribute="name"
+          value-attribute="id"
+        />
+        <USelectMenu
+          v-model="selectedInformalFellacies"
+          type="text"
+          :options="premiseGroupData?.informalFellacies"
+          :placeholder="$t('argument.informalFallacies')"
+          multiple
+          searchable
+          option-attribute="name"
+          value-attribute="id"
+        />
+        <USelectMenu
+          v-model="selectedCommonPatterns"
+          type="text"
+          :options="premiseGroupData?.commonPatterns"
+          :placeholder="$t('argument.commonPatterns')"
+          multiple
+          searchable
+          option-attribute="name"
+          value-attribute="id"
+        />
+      </template>
 
-        <div class="space-y-6">
-          <USelectMenu
-            v-model="selectedFormalFellacies"
-            type="text"
-            :options="premiseGroupData?.formalFellacies"
-            :placeholder="$t('argument.formalFallacies')"
-            multiple
-            searchable
-            option-attribute="name"
-            value-attribute="id"
-          />
-          <USelectMenu
-            v-model="selectedInformalFellacies"
-            type="text"
-            :options="premiseGroupData?.informalFellacies"
-            :placeholder="$t('argument.informalFallacies')"
-            multiple
-            searchable
-            option-attribute="name"
-            value-attribute="id"
-          />
-          <USelectMenu
-            v-model="selectedCommonPatterns"
-            type="text"
-            :options="premiseGroupData?.commonPatterns"
-            :placeholder="$t('argument.commonPatterns')"
-            multiple
-            searchable
-            option-attribute="name"
-            value-attribute="id"
-          />
-        </div>
-
-        <template #footer>
-          <UButton @click="addPremiseGroupTag(node.premiseGroup.id)">{{
-            $t("argument.new.add")
-          }}</UButton>
-        </template>
-      </UCard>
+      <template #footer>
+        <UButton @click="addPremiseGroupTag(node.premiseGroup.id)">{{
+          $t("argument.new.add")
+        }}</UButton>
+      </template>
     </UModal>
     <div
       v-if="
@@ -232,8 +205,6 @@
   />
 </template>
 <script setup lang="ts">
-import { UDropdownMenu } from "#components";
-
 const props = defineProps([
   "node",
   "isNotValid",

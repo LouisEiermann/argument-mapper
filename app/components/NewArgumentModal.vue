@@ -129,22 +129,21 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted } from "vue";
-
 const emit = defineEmits<{
   "update:isOpen": [value: boolean];
   refresh: [];
 }>();
 
 const props = defineProps<{
-  otherUser: any;
+  otherUser?: any;
 }>();
 
 const isDebate = ref(false);
 
 const { find, create, update, delete: _delete } = useStrapi();
 const tagsStore = useArgumentTagsStore();
-const userStore = useUserStore();
+const toast = useToast();
+const { t } = useI18n();
 
 const conclusion = ref("");
 const premise = ref("");
@@ -162,20 +161,17 @@ const premiseGroupNodes = ref([]);
 
 const tags = computed(() => {
   const formattedTags = tagsStore.getTags.map((tag) => {
-    console.log("Raw tag:", tag); // Debug log
     return {
       label: tag.name,
       value: tag.id,
     };
   });
-  console.log("Formatted tags:", formattedTags); // Debug log
   return formattedTags;
 });
 const selectedTags = ref([]);
 
 onMounted(async () => {
   await tagsStore.fetchTags();
-  console.log("Store tags:", tagsStore.getTags); // Debug log
 });
 
 const user = await find("users/me", {
@@ -195,7 +191,7 @@ const onNewThesis = async () => {
         owner: user.id,
       })
     ).data;
-    console.log(1);
+    console.log("Created thesis:", thesis);
 
     // Then create the argument tree
     if (isDebate.value) {
@@ -214,7 +210,7 @@ const onNewThesis = async () => {
         tags: selectedTags.value,
       });
     }
-    console.log(2);
+    console.log("Created argument tree:", argumentTree.value);
 
     const argumentId = argumentTree.value.data.id;
 
@@ -225,8 +221,6 @@ const onNewThesis = async () => {
       owner: user.id,
       argument: argumentId,
     });
-
-    console.log(3);
 
     createdPremiseId.value = createdPremise.data.id;
 
@@ -241,8 +235,6 @@ const onNewThesis = async () => {
       createdCoPremiseId.value = createdCoPremise.data.id;
     }
 
-    console.log(4);
-
     if (secondCoPremise.value !== "") {
       const createdSecondCoPremise = await create("nodes", {
         title: secondCoPremise.value,
@@ -254,8 +246,6 @@ const onNewThesis = async () => {
       createdSecondCoPremiseId.value = createdSecondCoPremise.data.id;
     }
 
-    console.log(5);
-
     // Create premise group
     premiseGroupNodes.value.push(createdPremiseId.value);
     if (createdCoPremiseId.value) {
@@ -264,10 +254,6 @@ const onNewThesis = async () => {
     if (createdSecondCoPremiseId.value) {
       premiseGroupNodes.value.push(createdSecondCoPremiseId.value);
     }
-
-    await create("premise-groups", {
-      nodes: premiseGroupNodes.value,
-    });
 
     // Finally update the thesis node with the argument ID
     await update("nodes", thesis.id, {
@@ -278,6 +264,11 @@ const onNewThesis = async () => {
     emit("update:isOpen", false);
   } catch (error) {
     console.error("Error creating argument:", error);
+    toast.add({
+      title: t("notification.error"),
+      description: error.message || t("notification.errorDescription"),
+      color: "error",
+    });
   } finally {
     loading.value = false;
   }

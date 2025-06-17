@@ -32,16 +32,13 @@ export const useArgumentTagsStore = defineStore("tags", {
         });
 
         if (response?.data) {
-          console.log("Raw response:", response.data); // Debug log
           this.tags = response.data.map((tag: any) => {
-            console.log("Processing tag:", tag); // Debug log
             return {
               id: tag.id,
               name: tag.name || "",
               defaultMood: tag.defaultMood,
             };
           });
-          console.log("Processed tags:", this.tags); // Debug log
         }
       } catch (err) {
         console.error("Error fetching tags:", err);

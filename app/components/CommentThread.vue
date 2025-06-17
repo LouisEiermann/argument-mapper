@@ -48,36 +48,31 @@
       />
     </div>
 
-    <UModal v-model="isOpen" :description="$t('argument.discussion.reply')">
-      <UCard
-        :ui="{
-          ring: '',
-          divide: 'divide-y divide-gray-100 dark:divide-gray-800',
-        }"
-      >
-        <template #header>
-          <div class="flex justify-between">
-            <h1>{{ $t("argument.discussion.reply") }}</h1>
-            <UButton
-              color="neutral"
-              variant="ghost"
-              icon="i-heroicons-x-mark-20-solid"
-              class="-my-1"
-              @click="isOpen = false"
-            />
-          </div>
-        </template>
+    <UModal
+      :description="$t('argument.discussion.reply')"
+      :title="$t('argument.discussion.reply')"
+      :close="{
+        color: 'neutral',
+        variant: 'ghost',
+        icon: 'i-heroicons-x-mark-20-solid',
+      }"
+    >
+      <UButton
+        class="absolute top-[11.5rem] left-[8.5rem]"
+        icon="i-heroicons-plus-circle-16-solid"
+      />
 
+      <template #body>
         <div class="space-y-6">
           <UInput v-model="reply" />
         </div>
+      </template>
 
-        <template #footer>
-          <UButton @click="addNewComment(node.id, currentCommentToReplyTo)">
-            {{ $t("argument.discussion.reply") }}
-          </UButton>
-        </template>
-      </UCard>
+      <template #footer>
+        <UButton @click="addNewComment(node.id, currentCommentToReplyTo)">
+          {{ $t("argument.discussion.reply") }}
+        </UButton>
+      </template>
     </UModal>
   </UCard>
 </template>
