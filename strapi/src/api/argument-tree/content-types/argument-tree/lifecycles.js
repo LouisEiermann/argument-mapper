@@ -2,7 +2,9 @@ module.exports = {
   async beforeCreate(event) {
     const { data } = event.params;
 
-    if (data.tags.length === 0) {
+    console.log(data.tags.set.length);
+
+    if (data.tags.set.length === 0) {
       const defaultTag = await strapi.entityService.findMany("api::tag.tag", {
         filters: {
           name: {
@@ -15,13 +17,19 @@ module.exports = {
     }
   },
 
-  async afterDelete() {
-    await strapi.entityService.deleteMany("api::node.node", {
+  async afterDelete(event) {
+    const { result } = event;
+
+    // Find all nodes associated with the deleted argument tree
+    const nodes = await strapi.entityService.findMany("api::node.node", {
       filters: {
-        argument: {
-          $exists: false,
-        },
+        argument: result.id,
       },
     });
+
+    // Delete each node individually
+    for (const node of nodes) {
+      await strapi.entityService.delete("api::node.node", node.id);
+    }
   },
 };

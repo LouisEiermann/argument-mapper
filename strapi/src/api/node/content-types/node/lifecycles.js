@@ -7,11 +7,13 @@
 module.exports = {
   async beforeCreate(event) {
     const { data } = event.params;
-    if (data.parent) {
+
+    if (data?.parent?.set[0].id) {
+      const parentId = data.parent.set[0].id;
       const parent = await strapi.entityService.findOne(
         "api::node.node",
-        data.parent,
-        { fields: ["level"] }
+        parentId,
+        { fields: ["level"] },
       );
       data.level = parent.level + 1;
     } else {
@@ -20,11 +22,12 @@ module.exports = {
   },
   async beforeUpdate(event) {
     const { data } = event.params;
-    if (data.parent) {
+    if (data?.parent?.set[0].id) {
+      const parentId = data.parent.set[0].id;
       const parent = await strapi.entityService.findOne(
         "api::node.node",
-        data.parent,
-        { fields: ["level"] }
+        parentId,
+        { fields: ["level"] },
       );
       data.level = parent.level + 1;
     }

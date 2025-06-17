@@ -1,0 +1,6 @@
+---
+description: 
+globs: .vue
+alwaysApply: false
+---
+Always use Tailwind for styling

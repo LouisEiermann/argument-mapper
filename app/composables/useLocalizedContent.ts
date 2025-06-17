@@ -3,7 +3,7 @@ export const useLocalizedContent = () => {
 
   const localizedVersion = (field: string, content: any) => {
     if (locale.value === "en") {
-      return content.attributes[field];
+      return content[field];
     } else {
       return content.attributes.localizations.data.find(
         (e: { attributes: { locale: string } }) => {

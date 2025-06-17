@@ -56,7 +56,7 @@
       <USeparator label="Diskussion" />
       <Discussion :node="node" />
     </div>
-    <UModal v-model="openNewSource">
+    <UModal v-model="openNewSource" :description="$t('argument.new.addSource')">
       <UCard
         :ui="{
           ring: '',

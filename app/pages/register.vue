@@ -36,6 +36,8 @@
 </template>
 <script setup lang="ts">
 const { register } = useStrapiAuth();
+const toast = useToast();
+const { t } = useI18n();
 
 const username = ref();
 const email = ref();
@@ -49,10 +51,10 @@ const onSubmit = async () => {
       email: email.value,
       password: password.value,
     });
-
-    await navigateTo("/account");
-  } catch (e) {
-    console.log(e);
+    await navigateTo("/feed");
+  } catch (error) {
+    console.log(error);
+    toast.add({ title: t("notification.registerFailed"), color: "error" });
   }
 };
 </script>

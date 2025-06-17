@@ -21,10 +21,26 @@
     "toBelief": "To Belief",
     "friends": "Friends",
     "addFriends": "Add Friends",
+    "addFriendsDescription": "Find and connect with other users",
     "userProfile": "User Profile",
     "chat": "Chat",
     "learn": "Learn",
-    "achievements": "Achievements"
+    "achievements": "Achievements",
+    "withdrawArgumentRequest": "Withdraw argument request",
+    "acceptArgumentRequest": "Accept argument request",
+    "rejectArgumentRequest": "Reject argument request"
+  },
+  "friends": {
+    "suggestions": "Suggestions:",
+    "requests": "Requests",
+    "searchFriends": "Search Friends",
+    "profile": "Profile",
+    "sendRequest": "Send Request",
+    "accept": "Accept",
+    "reject": "Reject",
+    "pending": "Pending...",
+    "enterUsername": "Enter username",
+    "search": "Search"
   },
   "argument": {
     "new": {
@@ -34,12 +50,15 @@
       "premise": "Premise",
       "coPremise": "Co-Premise",
       "secondCoPremise": "Second Co-Premise",
-      "add": "Add",
       "selectTags": "Select Tags",
       "newDebate": "New Debate",
       "newBelief": "New Belief",
       "addSource": "Add New Source",
-      "sourceUrl": "Source URL"
+      "sourceUrl": "Source URL",
+      "newDebateDescription": "Start a new debate with another user",
+      "newBeliefDescription": "Share your belief with the community",
+      "switchToBelief": "Switch to Belief",
+      "switchToDebate": "Switch to Debate"
     },
     "objection": {
       "add": "Add new counterargument"
@@ -76,6 +95,9 @@
     "newChatMessage": "New chat message",
     "daysAgo": "{days} days ago",
     "hoursAgo": "{hours} hours ago",
-    "minutesAgo": "{minutes} minutes ago"
+    "minutesAgo": "{minutes} minutes ago",
+    "toArgument": "To Argument",
+    "pending": "Pending...",
+    "nothingHere": "Nothing Here!"
   }
 }

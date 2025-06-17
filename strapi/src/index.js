@@ -7,7 +7,16 @@ module.exports = {
    *
    * This gives you an opportunity to extend code.
    */
-  register(/*{ strapi }*/) {},
+  register({ strapi }) {
+    // Override fetchAuthenticatedUser to always populate friends and role
+    strapi.service("plugin::users-permissions.user").fetchAuthenticatedUser = (
+      id,
+    ) => {
+      return strapi
+        .query("plugin::users-permissions.user")
+        .findOne({ where: { id }, populate: ["role", "friends"] });
+    };
+  },
 
   /**
    * An asynchronous bootstrap function that runs before
@@ -36,7 +45,7 @@ module.exports = {
                 level: 0,
                 completed: false,
               },
-            }
+            },
           );
         } catch (error) {
           console.error("Error creating userProgress:", error);

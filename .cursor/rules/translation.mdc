@@ -1,0 +1,6 @@
+---
+description: 
+globs: .vue,.ts,.js
+alwaysApply: false
+---
+Always use Translations for all languages in /i18n and look for untranslated values and fix those

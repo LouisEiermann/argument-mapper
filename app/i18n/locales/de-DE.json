@@ -1,14 +1,5 @@
 {
   "welcome": "Willkommen bei Appname",
-  "general": {
-    "cancel": "Abbrechen",
-    "unknown": "Unbekannt",
-    "send": "Senden",
-    "newChatMessage": "Neue Chatnachricht",
-    "daysAgo": "vor {days} Tagen",
-    "hoursAgo": "vor {hours} Stunden",
-    "minutesAgo": "vor {minutes} Minuten"
-  },
   "account": {
     "register": "Registrieren",
     "login": "Einloggen",
@@ -30,10 +21,26 @@
     "toBelief": "Zum Standpunkt",
     "friends": "Freunde",
     "addFriends": "Freunde hinzufügen",
+    "addFriendsDescription": "Andere Nutzer finden und vernetzen",
     "userProfile": "Nutzerprofil",
     "chat": "Chat",
     "learn": "Lernen",
-    "achievements": "Achievements"
+    "achievements": "Achievements",
+    "withdrawArgumentRequest": "Argumentanfrage zurückziehen",
+    "acceptArgumentRequest": "Argumentanfrage annehmen",
+    "rejectArgumentRequest": "Argumentanfrage ablehnen"
+  },
+  "friends": {
+    "suggestions": "Vorschläge:",
+    "requests": "Anfragen",
+    "searchFriends": "Freunde suchen",
+    "profile": "Profil",
+    "sendRequest": "Anfrage senden",
+    "accept": "Annehmen",
+    "reject": "Ablehnen",
+    "pending": "Ausstehend...",
+    "enterUsername": "Nutzernamen eingeben",
+    "search": "Suchen"
   },
   "argument": {
     "new": {
@@ -43,12 +50,15 @@
       "premise": "Prämisse",
       "coPremise": "Co-Prämisse",
       "secondCoPremise": "Zweite Co-Prämisse",
-      "add": "Hinzufügen",
       "selectTags": "Tags auswählen",
       "newDebate": "Neue Debatte",
       "newBelief": "Neue Überzeugung",
       "addSource": "Neue Quelle hinzufügen",
-      "sourceUrl": "URL zur Quelle"
+      "sourceUrl": "Quellen-URL",
+      "newDebateDescription": "Starte eine neue Debatte mit einem anderen Nutzer",
+      "newBeliefDescription": "Teile deine Überzeugung mit der Community",
+      "switchToBelief": "Zu Überzeugung wechseln",
+      "switchToDebate": "Zu Debatte wechseln"
     },
     "objection": {
       "add": "Neues Gegenargument hinzufügen"
@@ -67,8 +77,8 @@
     "iWantToEndArgument": "Ich will das Argument beenden",
     "markAsSound": "Als Sound markieren",
     "tagging": "Tagging",
-    "formalFellacies": "Formale Fehlschlüsse",
-    "informalFellacies": "Informelle Fehlschlüsse",
+    "formalFallacies": "Formale Fehlschlüsse",
+    "informalFallacies": "Informelle Fehlschlüsse",
     "commonPatterns": "Häufige Muster",
     "closed": "Geschlossen",
     "standpoint": "Standpunkt"
@@ -77,5 +87,18 @@
     "loginFailed": "Login fehlgeschlagen. Bitte überprüfe deinen Benutzernamen und dein Passwort.",
     "saved": "Gespeichert.",
     "argumentFinished": "Argument geschlossen."
+  },
+  "general": {
+    "cancel": "Abbrechen",
+    "unknown": "Unbekannt",
+    "send": "Senden",
+    "newChatMessage": "Neue Chatnachricht",
+    "daysAgo": "vor {days} Tagen",
+    "hoursAgo": "vor {hours} Stunden",
+    "minutesAgo": "vor {minutes} Minuten",
+    "toArgument": "Zum Argument",
+    "pending": "Ausstehend...",
+    "nothingHere": "Nichts hier!",
+    "vote": "Abstimmen"
   }
 }

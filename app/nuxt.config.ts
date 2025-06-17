@@ -10,7 +10,6 @@ export default defineNuxtConfig({
     "@pinia/nuxt",
     "nuxt-anchorscroll",
     "nuxt-security",
-    "nuxt-booster",
     "@nuxt/devtools",
   ],
 
@@ -60,4 +59,11 @@ export default defineNuxtConfig({
   },
 
   compatibilityDate: "2024-10-12",
+
+  // Use Nuxt's built-in preloading
+  experimental: {
+    payloadExtraction: true,
+    renderJsonPayloads: true,
+    asyncContext: true,
+  },
 });

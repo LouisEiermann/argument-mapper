@@ -10,11 +10,7 @@
       @click="navigate(node.id)"
     >
       <span>{{ node.title }}</span>
-      <UAvatar
-        v-if="node.owner.avatar?.url"
-        :src="useStrapi().resolveMedia(node.owner.avatar?.url)"
-        class="absolute -top-4 right-4"
-      />
+      <UAvatar v-if="node.owner.avatar?.url" class="absolute -top-4 right-4" />
       <UAvatar
         v-else
         :alt="node.owner.username"

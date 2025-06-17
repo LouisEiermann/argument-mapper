@@ -1,29 +1,60 @@
+import { defineStore } from "pinia";
+
+interface Tag {
+  id: number;
+  name: string;
+  defaultMood?: {
+    url: string;
+  };
+}
+
 export const useArgumentTagsStore = defineStore("tags", {
   state: () => ({
-    tags: [],
+    tags: [] as Tag[],
+    isLoading: false,
+    error: null as string | null,
   }),
 
   actions: {
     async fetchTags() {
-      const { find } = useStrapi();
+      if (this.tags.length > 0) return;
 
-      if (this.tags.length === 0) {
-        const tags = (await find("tags", {})).data.map((e) => {
-          return { id: e.id, name: e.attributes.name };
+      this.isLoading = true;
+      this.error = null;
+
+      try {
+        const { find } = useStrapi();
+        const response = await find("tags", {
+          populate: {
+            localizations: true,
+            defaultMood: true,
+          },
         });
 
-        Array.prototype.push.apply(this.tags, tags);
+        if (response?.data) {
+          console.log("Raw response:", response.data); // Debug log
+          this.tags = response.data.map((tag: any) => {
+            console.log("Processing tag:", tag); // Debug log
+            return {
+              id: tag.id,
+              name: tag.name || "",
+              defaultMood: tag.defaultMood,
+            };
+          });
+          console.log("Processed tags:", this.tags); // Debug log
+        }
+      } catch (err) {
+        console.error("Error fetching tags:", err);
+        this.error = "Failed to fetch tags";
+      } finally {
+        this.isLoading = false;
       }
     },
   },
 
   getters: {
-    getTags(state) {
-      if (this.tags.length === 0) {
-        this.fetchTags();
-      }
-
-      return state.tags;
-    },
+    getTags: (state) => state.tags,
+    getTagById: (state) => (id: number) =>
+      state.tags.find((tag) => tag.id === id),
   },
 });

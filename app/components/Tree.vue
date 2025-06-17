@@ -38,7 +38,7 @@
         @click.stop="isOpen = true"
       />
     </UCard>
-    <UDropdown
+    <UDropdownMenu
       v-if="
         node.children?.length > 0 && !userIsCreator && !node.FormalFellacyBelow
       "
@@ -52,7 +52,7 @@
         label="Doubt Validity"
         trailing-icon="i-heroicons-chevron-down-20-solid"
       />
-    </UDropdown>
+    </UDropdownMenu>
     <UButton
       v-else-if="
         !userIsCreator &&
@@ -89,7 +89,14 @@
       @click="isTaggingOpen = true"
       >Tagging</UButton
     >
-    <UModal v-model="isOpen">
+    <UModal
+      v-model="isOpen"
+      :description="
+        node.owner.id === ownUser?.id
+          ? $t('argument.support.add')
+          : $t('argument.objection.add')
+      "
+    >
       <UCard
         :ui="{
           ring: '',
@@ -139,7 +146,7 @@
         </template>
       </UCard>
     </UModal>
-    <UModal v-model="isTaggingOpen">
+    <UModal v-model="isTaggingOpen" :description="$t('argument.tagging')">
       <UCard
         :ui="{
           ring: '',
@@ -149,7 +156,7 @@
         <template #header>
           <div class="flex justify-between">
             <h1>
-              {{ $t("Tagging") }}
+              {{ $t("argument.tagging") }}
             </h1>
             <UButton
               color="neutral"
@@ -166,7 +173,7 @@
             v-model="selectedFormalFellacies"
             type="text"
             :options="premiseGroupData?.formalFellacies"
-            :placeholder="$t('Formal Fellacies')"
+            :placeholder="$t('argument.formalFallacies')"
             multiple
             searchable
             option-attribute="name"
@@ -176,7 +183,7 @@
             v-model="selectedInformalFellacies"
             type="text"
             :options="premiseGroupData?.informalFellacies"
-            :placeholder="$t('Informal Fellacies')"
+            :placeholder="$t('argument.informalFallacies')"
             multiple
             searchable
             option-attribute="name"
@@ -186,7 +193,7 @@
             v-model="selectedCommonPatterns"
             type="text"
             :options="premiseGroupData?.commonPatterns"
-            :placeholder="$t('Common Pattern')"
+            :placeholder="$t('argument.commonPatterns')"
             multiple
             searchable
             option-attribute="name"
@@ -225,6 +232,8 @@
   />
 </template>
 <script setup lang="ts">
+import { UDropdownMenu } from "#components";
+
 const props = defineProps([
   "node",
   "isNotValid",
@@ -268,17 +277,14 @@ const { data: premiseGroupData } = useAsyncData(
 
     const formalFellacies = computed(() => {
       return premiseGroupTags
-        .filter(
-          (premiseGroupTag) =>
-            premiseGroupTag.attributes.type === "formalFellacy"
-        )
+        .filter((premiseGroupTag) => premiseGroupTag.type === "formalFellacy")
         .map(({ id, attributes }) => ({ id, ...attributes }));
     });
 
     const informalFellacies = computed(() => {
       return premiseGroupTags
         .filter((premiseGroupTag) => {
-          return premiseGroupTag.attributes.type === "informalFellacy";
+          return premiseGroupTag.type === "informalFellacy";
         })
         .map(({ id, attributes }) => ({ id, ...attributes }));
     });
@@ -286,7 +292,7 @@ const { data: premiseGroupData } = useAsyncData(
     const commonPatterns = computed(() => {
       return premiseGroupTags
         .filter((premiseGroupTag) => {
-          return premiseGroupTag.attributes.type === "commonPattern";
+          return premiseGroupTag.type === "commonPattern";
         })
         .map(({ id, attributes }) => ({ id, ...attributes }));
     });

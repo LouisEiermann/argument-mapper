@@ -48,7 +48,7 @@
       />
     </div>
 
-    <UModal v-model="isOpen">
+    <UModal v-model="isOpen" :description="$t('argument.discussion.reply')">
       <UCard
         :ui="{
           ring: '',

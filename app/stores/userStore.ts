@@ -1,25 +1,26 @@
+import { ref } from "vue";
+import type { Ref } from "vue";
+const { find } = useStrapi();
+
 export const useUserStore = defineStore("user", {
   state: () => ({
-    user: null,
+    user: ref(null) as Ref<any>,
   }),
 
   actions: {
     async fetchUser() {
-      const { fetchUser: fetchUserFromStrapi } = useStrapiAuth();
-
-      if (!this.user) {
-        this.user = await fetchUserFromStrapi();
-      }
+      const user = await find("users/me", {
+        populate: {
+          friends: true,
+        },
+      });
+      this.user.value = user;
     },
   },
 
   getters: {
     getUser(state) {
-      if (!state.user) {
-        this.fetchUser();
-      }
-
-      return state.user;
+      return state.user?.value || null;
     },
   },
 });
