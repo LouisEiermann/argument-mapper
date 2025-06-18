@@ -80,7 +80,7 @@
           >{{ $t("general.toArgument") }}</UButton
         >
         <div v-else>
-          <UButton @click="acceptArgumentRequest(argument.id)">{{
+          <UButton @click="acceptArgumentRequest(argument.documentId)">{{
             $t("account.acceptArgumentRequest")
           }}</UButton>
           <UButton color="error" @click="rejectArgumentRequest(argument.id)">{{

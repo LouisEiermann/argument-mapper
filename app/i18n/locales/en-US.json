@@ -85,6 +85,7 @@
   },
   "notification": {
     "loginFailed": "Login failed. Please check your username and your password.",
+    "registerFailed": "Registration failed. Please check your information and try again.",
     "saved": "Saved.",
     "argumentFinished": "Argument closed."
   },
@@ -98,6 +99,19 @@
     "minutesAgo": "{minutes} minutes ago",
     "toArgument": "To Argument",
     "pending": "Pending...",
-    "nothingHere": "Nothing Here!"
+    "nothingHere": "Nothing Here!",
+    "vote": "Vote",
+    "thesis": "Thesis",
+    "leaf": "Leaf",
+    "doubtValidity": "Doubt Validity",
+    "contact": "Contact",
+    "submitBug": "Submit a Bug"
+  },
+  "discussion": {
+    "newComment": "New comment"
+  },
+  "legal": {
+    "privacyPolicy": "I have read and understood the privacy policy.",
+    "disclaimer": "Disclaimer"
   }
 }

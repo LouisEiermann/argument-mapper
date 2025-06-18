@@ -11,7 +11,7 @@
       <h1>Reason App</h1>
       <div>
         <h2>Support</h2>
-        <NuxtLink to="/contact">Submit a Bug</NuxtLink>
+        <NuxtLink to="/contact">{{ $t("general.submitBug") }}</NuxtLink>
       </div>
     </footer>
   </UContainer>

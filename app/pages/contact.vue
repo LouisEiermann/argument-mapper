@@ -1,1 +1,3 @@
-<template><h1>Contact</h1></template>
+<template>
+  <h1>{{ $t("general.contact") }}</h1>
+</template>

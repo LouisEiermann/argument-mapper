@@ -81,7 +81,6 @@
                     data.userIsCreator ||
                     data.argumentTrees[0]?.opponentAccepted
                   "
-                  @click="finishArgumentModalIsOpen = true"
                 >
                   {{ $t("argument.endArgument") }}
                 </UButton>
@@ -252,7 +251,6 @@ const toast = useToast();
 const { t } = useI18n();
 const route = useRoute();
 const currentLevel = computed(() => Number(route.query.level) || 1);
-const isOpen = ref(false);
 const finishArgumentModalIsOpen = ref(false);
 const { localizedVersion } = useLocalizedContent();
 const { fetchUser } = useStrapiAuth();

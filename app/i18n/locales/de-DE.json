@@ -85,6 +85,7 @@
   },
   "notification": {
     "loginFailed": "Login fehlgeschlagen. Bitte überprüfe deinen Benutzernamen und dein Passwort.",
+    "registerFailed": "Registrierung fehlgeschlagen. Bitte überprüfe deine Informationen und versuche es erneut.",
     "saved": "Gespeichert.",
     "argumentFinished": "Argument geschlossen."
   },
@@ -99,6 +100,18 @@
     "toArgument": "Zum Argument",
     "pending": "Ausstehend...",
     "nothingHere": "Nichts hier!",
-    "vote": "Abstimmen"
+    "vote": "Abstimmen",
+    "thesis": "These",
+    "leaf": "Blatt",
+    "doubtValidity": "Gültigkeit bezweifeln",
+    "contact": "Kontakt",
+    "submitBug": "Bug melden"
+  },
+  "discussion": {
+    "newComment": "Neuer Kommentar"
+  },
+  "legal": {
+    "privacyPolicy": "Ich habe die Datenschutzbestimmungen zur Kenntnis genommen.",
+    "disclaimer": "Haftungsausschluss"
   }
 }

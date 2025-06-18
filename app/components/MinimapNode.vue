@@ -5,7 +5,14 @@
         'text-yellow-300':
           currentLevel === node.id || (node.thesis && currentLevel === null),
         'bg-red-500': node?.owner.id !== node?.parent?.owner.id && node.parent,
-        'bg-green-500 text-white cursor-pointer relative': true,
+        'bg-green-500': !(
+          node?.owner.id !== node?.parent?.owner.id && node.parent
+        ),
+        'text-white': !(
+          currentLevel === node.id ||
+          (node.thesis && currentLevel === null)
+        ),
+        'cursor-pointer relative': true,
       }"
       @click="navigate(node.id)"
     >

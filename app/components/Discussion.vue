@@ -1,6 +1,9 @@
 <template>
   <div class="flex flex-col gap-4 mb-4 mt-4">
-    <UTextarea v-model="newComment" placeholder="Neuer Kommentar" />
+    <UTextarea
+      v-model="newComment"
+      :placeholder="$t('discussion.newComment')"
+    />
     <UButton @click="addNewComment(node.id)" class="self-start inline-block"
       >Send</UButton
     >

@@ -17,10 +17,8 @@
 
       <template #footer>
         <div class="flex flex-col gap-6 py-2">
-          <UCheckbox
-            label="Ich habe die Datenschutzbestimmungen zur Kenntnis genommen. "
-          />
-          <p>Disclaimer</p>
+          <UCheckbox :label="$t('legal.privacyPolicy')" />
+          <p>{{ $t("legal.disclaimer") }}</p>
           <UButton
             size="xl"
             class="w-fit"

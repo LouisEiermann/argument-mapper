@@ -28,15 +28,20 @@
         icon="i-heroicons-arrow-up-16-solid"
         @click.stop="ascendLevel(node.parent?.id)"
       />
-      <UBadge v-if="node.thesis" class="badge" color="secondary">Thesis</UBadge>
-      <UBadge v-if="node.children.length === 0" class="badge" color="secondary"
-        >Axiom</UBadge
+      <UBadge v-if="node.thesis" class="badge" color="secondary">{{
+        $t("general.thesis")
+      }}</UBadge>
+      <UBadge
+        v-if="node.children.length === 0"
+        class="badge"
+        color="secondary"
+        >{{ $t("general.leaf") }}</UBadge
       >
       <p>{{ node.title }}</p>
     </UCard>
     <UDropdownMenu
       v-if="
-        node.children?.length > 0 && !userIsCreator && !node.FormalFellacyBelow
+        node.children?.length > 0 && !userIsCreator && !node.formalFellacyBelow
       "
       color="yellow"
       :items="formalFallacies"
@@ -45,7 +50,7 @@
     >
       <UButton
         color="secondary"
-        label="Doubt Validity"
+        label="{{ $t('general.doubtValidity') }}"
         trailing-icon="i-heroicons-chevron-down-20-solid"
       />
     </UDropdownMenu>
@@ -53,7 +58,7 @@
       v-else-if="
         !userIsCreator &&
         node.children.length === 0 &&
-        node.parent.FormalFellacyBelow
+        node.parent.formalFellacyBelow
       "
       color="primary"
       @click="markAsValidAgain"
@@ -64,21 +69,15 @@
         !userIsCreator && node.children.length === 0 && !node.SoundnessDoubted
       "
       color="primary"
-      @click="markAsNotSound(node?.id)"
+      @click="markAsNotSound(node.documentId)"
       >Doubt Soundness
     </UButton>
     <UButton
       v-else-if="!userIsCreator && node.children.length === 0"
       color="primary"
-      @click="markAsSound(node?.id)"
+      @click="markAsSound(node.documentId)"
       >Mark as Sound again
     </UButton>
-    <UButton
-      v-if="node.owner?.id !== ownUser?.id"
-      color="error"
-      @click="isOpen = true"
-      >Objection</UButton
-    >
     <UModal
       :description="
         node.owner.id === ownUser?.id
@@ -95,12 +94,12 @@
         variant: 'ghost',
         icon: 'i-heroicons-x-mark-20-solid',
       }"
+      v-model:open="isOpen"
     >
-      <UButton
-        v-if="node.owner?.id === ownUser?.id"
-        class="absolute top-[11.5rem] left-[8.5rem]"
-        icon="i-heroicons-plus-circle-16-solid"
-      />
+      <UButton v-if="node.owner?.id !== ownUser?.id" color="error"
+        >{{ $t("argument.objection.add") }}
+      </UButton>
+      <UButton v-else color="error">{{ $t("argument.support.add") }} </UButton>
 
       <template #body>
         <div class="space-y-6">
@@ -125,8 +124,13 @@
       </template>
 
       <template #footer>
-        <UButton @click="addReasons(node?.id)">{{
-          $t("argument.new.add")
+        <UButton
+          v-if="node.owner?.id !== ownUser?.id"
+          @click="addReasons(node?.id)"
+          >{{ $t("argument.objection.add") }}</UButton
+        >
+        <UButton v-else @click="addReasons(node?.id)">{{
+          $t("argument.support.add")
         }}</UButton>
       </template>
     </UModal>
@@ -194,7 +198,7 @@
     >
       <Slider
         :slider-items="itemsGroupedByCoPremises"
-        :is-not-valid="node.FormalFellacyBelow || isNotValid"
+        :is-not-valid="node.formalFellacyBelow || isNotValid"
         :user-is-creator="userIsCreator"
       />
     </div>
@@ -222,7 +226,6 @@ const isOpen = ref(false);
 const isTaggingOpen = ref(false);
 const isSlideoverOpen = ref(false);
 const currentDropdownNode = ref();
-const { t } = useI18n();
 const route = useRoute();
 const currentLevel = computed(() => Number(route.query.level) || 1);
 const { fetchUser } = useStrapiAuth();
@@ -348,18 +351,18 @@ const deleteReason = async (id: string) => {
 };
 
 const markAsNotSound = async (id: string) => {
-  await update("nodes", id, { SoundnessDoubted: true });
+  await update("nodes", id, { soundnessDoubted: true });
   refresh();
 };
 
 const markAsSound = async (id: string) => {
-  await update("nodes", id, { SoundnessDoubted: false });
+  await update("nodes", id, { soundnessDoubted: false });
   refresh();
 };
 
 const markAsValidAgain = async () => {
   await update("nodes", props.parent.documentId, {
-    FormalFellacyBelow: "",
+    formalFellacyBelow: "",
   });
   refresh();
 };
@@ -445,7 +448,7 @@ const formalFallacies = [
       label: "Affirming the Consequent",
       click: async () => {
         await update("nodes", currentDropdownNode.value, {
-          FormalFellacyBelow: "Affirming the Consequent",
+          formalFellacyBelow: "Affirming the Consequent",
         });
         refresh();
       },
@@ -454,7 +457,7 @@ const formalFallacies = [
       label: "Denying the Antecedent",
       click: async () => {
         await update("nodes", currentDropdownNode.value, {
-          FormalFellacyBelow: "Denying the Antecedent",
+          formalFellacyBelow: "Denying the Antecedent",
         });
         refresh();
       },
@@ -466,7 +469,7 @@ const formalFallacies = [
         "Affirmative Conclusion from a Negative Premise (Illicit Negative)",
       click: async () => {
         await update("nodes", currentDropdownNode.value, {
-          FormalFellacyBelow:
+          formalFellacyBelow:
             "Affirmative Conclusion from a Negative Premise (Illicit Negative)",
         });
         refresh();
@@ -477,7 +480,7 @@ const formalFallacies = [
         "Negative Conclusion from Affirmative Premises (Illicit Affirmative)",
       click: async () => {
         await update("nodes", currentDropdownNode.value, {
-          FormalFellacyBelow:
+          formalFellacyBelow:
             "Negative Conclusion from Affirmative Premises (Illicit Affirmative)",
         });
         refresh();
@@ -489,7 +492,7 @@ const formalFallacies = [
       label: "Undistributed Middle",
       click: async () => {
         await update("nodes", currentDropdownNode.value, {
-          FormalFellacyBelow: "Undistributed Middle",
+          formalFellacyBelow: "Undistributed Middle",
         });
         refresh();
       },
@@ -498,7 +501,7 @@ const formalFallacies = [
       label: "Illicit Major",
       click: async () => {
         await update("nodes", currentDropdownNode.value, {
-          FormalFellacyBelow: "Illicit Major",
+          formalFellacyBelow: "Illicit Major",
         });
         refresh();
       },
@@ -507,7 +510,7 @@ const formalFallacies = [
       label: "Illicit Minor",
       click: async () => {
         await update("nodes", currentDropdownNode.value, {
-          FormalFellacyBelow: "Illicit Minor",
+          formalFellacyBelow: "Illicit Minor",
         });
         refresh();
       },
@@ -519,7 +522,7 @@ const formalFallacies = [
         "Fallacy of Exclusive Premises (Drawing an Affirmative Conclusion from Negative Premises)",
       click: async () => {
         await update("nodes", currentDropdownNode.value, {
-          FormalFellacyBelow:
+          formalFellacyBelow:
             "Fallacy of Exclusive Premises (Drawing an Affirmative Conclusion from Negative Premises)",
         });
         refresh();
@@ -529,7 +532,7 @@ const formalFallacies = [
       label: "Existential Fallacy",
       click: async () => {
         await update("nodes", currentDropdownNode.value, {
-          FormalFellacyBelow: "Existential Fallacy",
+          formalFellacyBelow: "Existential Fallacy",
         });
         refresh();
       },
@@ -540,7 +543,7 @@ const formalFallacies = [
       label: "Fallacy of Four Terms (Quaternio Terminorum)",
       click: async () => {
         await update("nodes", currentDropdownNode.value, {
-          FormalFellacyBelow: "Fallacy of Four Terms (Quaternio Terminorum)",
+          formalFellacyBelow: "Fallacy of Four Terms (Quaternio Terminorum)",
         });
         refresh();
       },
@@ -549,7 +552,7 @@ const formalFallacies = [
       label: "Fallacy of the Undistributed Middle (Infima Species)",
       click: async () => {
         await update("nodes", currentDropdownNode.value, {
-          FormalFellacyBelow:
+          formalFellacyBelow:
             "Fallacy of the Undistributed Middle (Infima Species)",
         });
         refresh();
@@ -560,7 +563,7 @@ const formalFallacies = [
         "Fallacy of Illicit Process (Fallacy of the Illicit Major/Minor Term)",
       click: async () => {
         await update("nodes", currentDropdownNode.value, {
-          FormalFellacyBelow:
+          formalFellacyBelow:
             "Fallacy of Illicit Process (Fallacy of the Illicit Major/Minor Term)",
         });
         refresh();
@@ -572,7 +575,7 @@ const formalFallacies = [
       label: "Modal Fallacy",
       click: async () => {
         await update("nodes", currentDropdownNode.value, {
-          FormalFellacyBelow: "Modal Fallacy",
+          formalFellacyBelow: "Modal Fallacy",
         });
         refresh();
       },
