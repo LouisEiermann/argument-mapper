@@ -36,6 +36,7 @@ export default defineNuxtConfig({
       { code: "de", name: "German", file: "de.json" },
     ],
     defaultLocale: "en",
+    strategy: "no_prefix",
   },
 
   security: {
