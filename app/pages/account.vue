@@ -1,6 +1,6 @@
 <template>
   <UContainer class="flex flex-col gap-8 justify-center items-center">
-    <UContainer class="flex justify-center items-center mt-12 flex-col">
+    <UContainer class="flex justify-center items-center flex-col">
       <UAvatar
         v-if="socialData?.currentUser?.avatar"
         :src="useStrapiMedia(socialData?.currentUser?.avatar?.url)"
