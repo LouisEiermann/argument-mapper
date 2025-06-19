@@ -12,17 +12,16 @@
           v-for="node of item.items"
           class="relative min-w-[150px] w-[300px] h-[200px] mb-8"
           :class="{
-            'soundness-doubted': node.SoundnessDoubted,
-            'not-valid': isNotValid,
+            'shadow-[5px_5px_5px_rgb(239,68,68)]': node.soundnessDoubted,
+            'opacity-50': isNotValid,
           }"
-          @click="isSlideroverOpen = true"
         >
           <UButton
             v-if="node.owner?.id === ownUser?.id && !node.thesis"
             class="absolute -top-4 right-4"
             icon="i-heroicons-x-circle-20-solid"
             color="error"
-            @click="deleteReason(node?.id)"
+            @click="deleteReason(node.documentId)"
           />
 
           <p>{{ node.title }}</p>
@@ -30,7 +29,7 @@
           <UButton
             class="absolute top-[11.5rem] left-[8.5rem]"
             icon="i-heroicons-arrow-down-16-solid"
-            @click="descendLevel(node?.id)"
+            @click="descendLevel(node.id)"
           />
         </UCard>
       </div>
@@ -41,7 +40,6 @@
 defineProps(["sliderItems", "userIsCreator", "isNotValid"]);
 
 const { delete: deleteStrapi } = useStrapi();
-const isSlideroverOpen = ref(false);
 const { fetchUser } = useStrapiAuth();
 const ownUser = await fetchUser();
 

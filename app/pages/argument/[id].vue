@@ -9,7 +9,7 @@
     >
       <p>{{ $t("general.nothingHere") }}</p>
     </div>
-    <div v-else class="space-y-6">
+    <div v-else class="space-y-6 flex flex-col">
       <!-- Header Section -->
       <div class="flex gap-6 items-start">
         <div class="relative w-[200px] flex-shrink-0">

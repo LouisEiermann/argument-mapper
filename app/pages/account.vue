@@ -1,6 +1,6 @@
 <template>
-  <UContainer>
-    <UContainer class="flex justify-center items-center mt-12">
+  <UContainer class="flex flex-col gap-8 justify-center items-center">
+    <UContainer class="flex justify-center items-center mt-12 flex-col">
       <UAvatar
         v-if="socialData?.currentUser?.avatar"
         :src="useStrapiMedia(socialData?.currentUser?.avatar?.url)"
@@ -8,16 +8,24 @@
         size="3xl"
         class="shadow-2xl relative"
       />
+      <UContainer>
+        <h1 class="text-center mt-2 text-4xl">
+          {{ socialData?.currentUser?.username }}
+        </h1>
+        <p
+          v-if="socialData?.currentUser?.createdAt"
+          class="text-center text-sm"
+        >
+          {{ $t("account.joined") }} :
+          {{ formatDate(socialData.currentUser.createdAt, locale) }}
+        </p>
+      </UContainer>
     </UContainer>
-    <UContainer>
-      <h1 class="text-center mt-8 text-2xl">
-        {{ socialData?.currentUser?.username }}
-      </h1>
-      <p v-if="socialData?.currentUser?.createdAt" class="text-center text-sm">
-        {{ $t("account.joined") }} :
-        {{ formatDate(socialData.currentUser.createdAt, locale) }}
-      </p>
-    </UContainer>
+    <NewArgumentModal
+      :is-open="isNewArgumentModalOpen"
+      @refresh="refresh"
+      @update:is-open="isNewArgumentModalOpen = $event"
+    />
     <USeparator
       class="my-8"
       :label="$t('account.myBeliefs')"
@@ -37,7 +45,7 @@
     </div>
     <USeparator
       class="my-8"
-      :label="$t('account.myArguments')"
+      :label="$t('account.myDebates')"
       :ui="{ label: 'text-4xl' }"
     />
     <div
@@ -97,11 +105,6 @@
         <UAlert type="warning" :title="$t('general.nothingHere')" />
       </UCard>
     </div>
-    <NewArgumentModal
-      :is-open="isNewArgumentModalOpen"
-      @refresh="refresh"
-      @update:is-open="isNewArgumentModalOpen = $event"
-    />
     <UModal
       :title="$t('account.settings')"
       :close="{
@@ -113,7 +116,7 @@
       <UButton icon="heroicons:cog">{{ $t("account.settings") }}</UButton>
 
       <template #body>
-        <div class="space-y-6">
+        <div class="space-y-6 flex flex-col">
           <div>
             <h4 class="text-sm font-medium text-gray-900 dark:text-white mb-4">
               {{ $t("account.changeAvatar") }}
@@ -155,7 +158,7 @@
             v-for="friend in socialData?.currentUser?.friends"
             :key="friend.id"
           >
-            <div class="flex">
+            <div class="flex items-center gap-4">
               {{ friend.username }}
               <UButton @click="navigateTo(`/users/${friend.id}`)">
                 {{ $t("account.userProfile") }}

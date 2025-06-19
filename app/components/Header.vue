@@ -1,34 +1,35 @@
 <template>
   <header class="mb-10">
     <UContainer>
-      <div class="flex flex-col sm:flex-row py-8 gap-4 items-center">
-        <div class="hidden sm:block basis-1/4" />
+      <div class="flex flex-col sm:flex-row py-8 gap-4 justify-between">
         <NuxtLink
           href="/"
-          class="text-2xl sm:text-3xl font-bold basis-1/2 text-center hover:text-primary-500 transition-colors"
-          >Reason App</NuxtLink
+          class="text-2xl sm:text-3xl font-bold text-center sm:text-left hover:text-primary-500 transition-colors"
         >
+          Reason App
+        </NuxtLink>
         <div
-          class="basis-1/4 flex gap-4 sm:gap-8 justify-center sm:justify-end items-center"
+          class="flex gap-4 sm:gap-8 justify-center sm:justify-end items-center"
         >
-          <UButton v-for="locale in locales" @click="setLocale(locale.code)">
+          <UButton
+            v-for="locale in locales"
+            :key="locale.code"
+            @click="setLocale(locale.code)"
+          >
             {{ locale.name }}
           </UButton>
-          <UButton v-if="!user" to="login" class="whitespace-nowrap">{{
-            t("account.login")
-          }}</UButton>
+          <UButton v-if="!user" to="login" class="whitespace-nowrap">
+            {{ t("account.login") }}
+          </UButton>
           <div v-else class="flex gap-4 sm:gap-8">
-            <UButton
-              color="error"
-              @click="onLogout"
-              class="whitespace-nowrap"
-              >{{ t("account.logout") }}</UButton
-            >
+            <UButton color="error" @click="onLogout" class="whitespace-nowrap">
+              {{ t("account.logout") }}
+            </UButton>
             <UButton
               icon="i-heroicons-user-20-solid"
               label="Account"
               to="/account"
-              class="hidden sm:flex"
+              class="sm:flex"
             />
           </div>
         </div>

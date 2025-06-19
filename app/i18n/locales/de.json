@@ -17,7 +17,7 @@
     "dangerZone": "Danger Zone",
     "deleteAccount": "Konto löschen",
     "myBeliefs": "Meine Überzeugungen",
-    "myArguments": "Meine Argumente",
+    "myDebates": "Meine Debatten",
     "toBelief": "Zum Standpunkt",
     "friends": "Freunde",
     "addFriends": "Freunde hinzufügen",
@@ -46,6 +46,7 @@
     "slideover": {
       "elaboratePremise": "Erkäre diese Prämisse"
     },
+    "doubtValidity": "Gültigkeit bezweifeln",
     "new": {
       "title": "Titel",
       "thesis": "These",
@@ -82,12 +83,19 @@
     "endArgumentConfirm": "Bekunde deinen Willen, das Argument zu beenden. Stimmt dein Partner dem Ende des Arguments zu, wird das Argument als geschlossen markiert und Ihr könnt beide nichts mehr daran ändern.\n\nGeschlossene Argumente können von anderen Nutzern bewertet werden.",
     "iWantToEndArgument": "Ich will das Argument beenden",
     "markAsSound": "Als Sound markieren",
-    "tagging": "Tagging",
+    "tagging": {
+      "title": "Tagging",
+      "description": "Kennzeichne diese Prämisse mit einem formalen oder informellen Fehlschluss oder einem häufigen Muster"
+    },
     "formalFallacies": "Formale Fehlschlüsse",
     "informalFallacies": "Informelle Fehlschlüsse",
     "commonPatterns": "Häufige Muster",
     "closed": "Geschlossen",
-    "standpoint": "Standpunkt"
+    "standpoint": "Standpunkt",
+    "markAsNotSound": "Als nicht stichhaltig markieren",
+    "markAsSound": "Als stichhaltig markieren",
+    "markAsNotValid": "Als ungültig markieren",
+    "markAsValid": "Als gültig markieren"
   },
   "notification": {
     "loginFailed": "Login fehlgeschlagen. Bitte überprüfe deinen Benutzernamen und dein Passwort.",
@@ -111,8 +119,7 @@
     "nothingHere": "Nichts hier!",
     "vote": "Abstimmen",
     "thesis": "These",
-    "leaf": "Blatt",
-    "doubtValidity": "Gültigkeit bezweifeln",
+    "leaf": "Axiom",
     "contact": "Kontakt",
     "submitBug": "Bug melden"
   },

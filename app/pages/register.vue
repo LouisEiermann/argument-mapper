@@ -5,7 +5,7 @@
         <h1>{{ $t("account.register") }}</h1>
       </template>
 
-      <div class="space-y-6">
+      <div class="space-y-6 flex flex-col">
         <UInput v-model="username" :placeholder="$t('account.username')" />
         <UInput v-model="email" :placeholder="$t('account.email')" />
         <UInput v-model="password" :placeholder="$t('account.password')" />

@@ -17,7 +17,7 @@
     "dangerZone": "Danger Zone",
     "deleteAccount": "Delete Account",
     "myBeliefs": "My Beliefs",
-    "myArguments": "My Arguments",
+    "myDebates": "My Debates",
     "toBelief": "To Belief",
     "friends": "Friends",
     "addFriends": "Add Friends",
@@ -46,6 +46,7 @@
     "slideover": {
       "elaboratePremise": "Elaborate on this premise"
     },
+    "doubtValidity": "Doubt Validity",
     "new": {
       "title": "Title",
       "thesis": "Thesis",
@@ -81,13 +82,19 @@
     "endArgument": "End Argument",
     "endArgumentConfirm": "Declare your intention to end the argument. If your partner agrees to end the argument, it will be marked as closed and neither of you will be able to modify it anymore.\n\nClosed arguments can be rated by other users.",
     "iWantToEndArgument": "I want to end the argument",
-    "markAsSound": "Mark as Sound again",
-    "tagging": "Tagging",
+    "tagging": {
+      "title": "Tagging",
+      "description": "Tag this premise with a formal or informal fallacy or a common pattern"
+    },
     "formalFellacies": "Formal Fallacies",
     "informalFellacies": "Informal Fallacies",
     "commonPatterns": "Common Patterns",
     "closed": "Closed",
-    "standpoint": "Standpoint"
+    "standpoint": "Standpoint",
+    "markAsNotSound": "Mark as not sound",
+    "markAsSound": "Mark as sound",
+    "markAsNotValid": "Mark as not valid",
+    "markAsValid": "Mark as valid"
   },
   "notification": {
     "loginFailed": "Login failed. Please check your username and your password.",
@@ -112,7 +119,6 @@
     "vote": "Vote",
     "thesis": "Thesis",
     "leaf": "Leaf",
-    "doubtValidity": "Doubt Validity",
     "contact": "Contact",
     "submitBug": "Submit a Bug"
   },

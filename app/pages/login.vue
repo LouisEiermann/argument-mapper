@@ -5,7 +5,7 @@
         <h1>{{ $t("account.login") }}</h1>
       </template>
 
-      <div class="space-y-6">
+      <div class="space-y-6 flex flex-col">
         <UButton @click="signIn('github', { callbackUrl: '/account' })"
           >Github</UButton
         >

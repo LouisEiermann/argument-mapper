@@ -63,7 +63,7 @@
       />
 
       <template #body>
-        <div class="space-y-6">
+        <div class="space-y-6 flex flex-col">
           <UInput v-model="reply" />
         </div>
       </template>

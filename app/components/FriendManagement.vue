@@ -12,8 +12,7 @@
       $t("account.addFriends")
     }}</UButton>
     <template #body>
-      <div class="space-y-6">
-        <!-- Suggested Friends Section -->
+      <div class="space-y-6 flex flex-col">
         <div>
           <h4 class="text-sm font-medium text-gray-900 dark:text-white mb-4">
             {{ $t("friends.suggestions") }}

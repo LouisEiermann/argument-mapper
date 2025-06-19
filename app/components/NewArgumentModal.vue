@@ -14,7 +14,7 @@
         : $t('argument.new.newBeliefDescription')
     "
   >
-    <UButton icon="i-heroicons-user-group">
+    <UButton icon="i-heroicons-user-group" size="xl" class="text-2xl">
       {{
         isDebate ? $t("argument.new.newDebate") : $t("argument.new.newBelief")
       }}
