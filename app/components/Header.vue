@@ -11,7 +11,9 @@
         <div
           class="basis-1/4 flex gap-4 sm:gap-8 justify-center sm:justify-end items-center"
         >
-          <USelectMenu v-model="locale" :options="languages" class="w-24" />
+          <UButton v-for="locale in locales" @click="setLocale(locale.code)">
+            {{ locale.name }}
+          </UButton>
           <UButton v-if="!user" to="login" class="whitespace-nowrap">{{
             t("account.login")
           }}</UButton>
@@ -53,14 +55,12 @@
   </header>
 </template>
 <script setup lang="ts">
-const { locale, t } = useI18n();
+const { locales, t, setLocale } = useI18n();
 const colorMode = useColorMode();
 
 const { logout, fetchUser } = useStrapiAuth();
 
 const user = await fetchUser();
-
-const languages = ref(["de", "en"]);
 
 const isDark = computed({
   get() {
