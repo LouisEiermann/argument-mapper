@@ -43,6 +43,9 @@
     "search": "Search"
   },
   "argument": {
+    "slideover": {
+      "elaboratePremise": "Elaborate on this premise"
+    },
     "new": {
       "title": "Title",
       "thesis": "Thesis",
@@ -54,11 +57,14 @@
       "newDebate": "New Debate",
       "newBelief": "New Belief",
       "addSource": "Add New Source",
+      "addSourceDescription": "Support your premise with a source",
+      "sources": "Sources",
       "sourceUrl": "Source URL",
       "newDebateDescription": "Start a new debate with another user",
       "newBeliefDescription": "Share your belief with the community",
       "switchToBelief": "Switch to Belief",
-      "switchToDebate": "Switch to Debate"
+      "switchToDebate": "Switch to Debate",
+      "noSources": "No sources yet"
     },
     "objection": {
       "add": "Add new counterargument"
@@ -87,12 +93,15 @@
     "loginFailed": "Login failed. Please check your username and your password.",
     "registerFailed": "Registration failed. Please check your information and try again.",
     "saved": "Saved.",
-    "argumentFinished": "Argument closed."
+    "argumentFinished": "Argument closed.",
+    "wrongUrlPattern": "Wrong URL pattern! Example: 'https://www.my-source.com'"
   },
   "general": {
     "cancel": "Cancel",
     "unknown": "Unknown",
     "send": "Send",
+    "save": "Save",
+    "delete": "Delete",
     "newChatMessage": "New chat message",
     "daysAgo": "{days} days ago",
     "hoursAgo": "{hours} hours ago",

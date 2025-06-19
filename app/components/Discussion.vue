@@ -2,11 +2,11 @@
   <div class="flex flex-col gap-4 mb-4 mt-4">
     <UTextarea
       v-model="newComment"
-      :placeholder="$t('discussion.newComment')"
+      :placeholder="$t('argument.discussion.newComment')"
     />
-    <UButton @click="addNewComment(node.id)" class="self-start inline-block"
-      >Send</UButton
-    >
+    <UButton @click="addNewComment(node.id)" class="self-start inline-block">{{
+      $t("general.send")
+    }}</UButton>
   </div>
   <div>
     <CommentThread

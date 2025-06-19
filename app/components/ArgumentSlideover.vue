@@ -8,18 +8,18 @@
         >
           <UInput
             v-model="node.title"
-            placeholder="Elaborate on this premise"
+            :placeholder="$t('argument.new.title')"
           />
           <UTextarea
             v-model="node.description"
             v-if="node.owner.id === ownUser?.id"
-            placeholder="Elaborate on this premise"
+            :placeholder="$t('argument.slideover.elaboratePremise')"
           />
           <UButton
             @click="save()"
             v-if="node.owner.id === ownUser?.id"
             class="self-start inline-block"
-            >Speichern</UButton
+            >{{ $t("general.save") }}</UButton
           >
         </div>
         <div v-else>
@@ -27,61 +27,64 @@
           <p>{{ node.description }}</p>
         </div>
 
-        <USeparator label="Quellen" />
+        <USeparator :label="$t('argument.new.sources')" />
         <div class="flex flex-col items-start gap-4 my-4">
           <UModal
-            :description="$t('argument.new.addSource')"
+            :description="$t('argument.new.addSourceDescription')"
             :title="$t('argument.new.addSource')"
             :close="{
               color: 'neutral',
               variant: 'ghost',
               icon: 'i-heroicons-x-mark-20-solid',
             }"
+            v-model:open="openNewSource"
           >
-            <UButton v-if="node.owner.id === ownUser?.id"
-              >Neue Quelle hinzufügen</UButton
-            >
+            <UButton v-if="node.owner.id === ownUser?.id">{{
+              $t("argument.new.addSource")
+            }}</UButton>
 
             <template #body>
               <div class="space-y-6">
                 <UInput
                   type="text"
                   v-model="sourceUrl"
-                  placeholder="URL zur Quelle"
+                  :placeholder="$t('argument.new.sourceUrl')"
                 />
               </div>
             </template>
 
             <template #footer>
-              <UButton @click="addSource(node?.id)">{{
-                $t("argument.new.add")
-              }}</UButton>
+              <UButton @click="addSource()">{{ $t("general.save") }}</UButton>
             </template>
           </UModal>
           <div v-for="source of node.sources" class="flex items-start gap-4">
             <UInput
               v-model="source.url"
               v-if="node.owner.id === ownUser?.id"
-              placeholder="https://source.com"
+              :placeholder="$t('argument.new.sourceUrl')"
             />
             <UButton
-              @click="(update('sources', source.id, source), refresh())"
+              @click="
+                update('sources', source.documentId, {
+                  url: source.url,
+                })
+              "
               v-if="node.owner.id === ownUser?.id"
-              >Speichern</UButton
+              >{{ $t("general.save") }}</UButton
             >
             <UButton
-              @click="(strapiDelete('sources', source.id), refresh())"
+              @click="(strapiDelete('sources', source.documentId), refresh())"
               v-if="node.owner.id === ownUser?.id"
               color="error"
-              >Löschen</UButton
+              >{{ $t("general.delete") }}</UButton
             >
             <p v-else>{{ source.url }}</p>
           </div>
           <p v-if="!node.sources.length && node.owner.id !== ownUser?.id">
-            Noch keine Quellen
+            {{ $t("argument.new.noSources") }}
           </p>
         </div>
-        <USeparator label="Diskussion" />
+        <USeparator :label="$t('argument.discussion.title')" />
         <Discussion :node="node" />
       </div>
     </template>
@@ -120,12 +123,16 @@ const save = async () => {
 };
 
 const addSource = async () => {
+  console.log(props.node.documentId);
   if (isUrlValid(sourceUrl.value)) {
     const newSource = await create("sources", {
       url: sourceUrl.value,
     });
 
-    const updatedSources = [...(props.node.sources || []), newSource.data.id];
+    const updatedSources = [
+      ...(props.node.sources.map((source) => source.documentId) || []),
+      newSource.data.documentId,
+    ];
 
     await update("nodes", props.node.documentId, { sources: updatedSources });
 
@@ -136,9 +143,7 @@ const addSource = async () => {
     openNewSource.value = false;
   } else {
     toast.add({
-      title: t(
-        "Wrong URL Pattern! Try something like: 'https://my-source.com'"
-      ),
+      title: t("notification.wrongUrlPattern"),
     });
   }
 };

@@ -43,6 +43,9 @@
     "search": "Suchen"
   },
   "argument": {
+    "slideover": {
+      "elaboratePremise": "Erkäre diese Prämisse"
+    },
     "new": {
       "title": "Titel",
       "thesis": "These",
@@ -54,11 +57,14 @@
       "newDebate": "Neue Debatte",
       "newBelief": "Neue Überzeugung",
       "addSource": "Neue Quelle hinzufügen",
+      "sources": "Quellen",
       "sourceUrl": "Quellen-URL",
+      "addSourceDescription": "Untermauere deine Prämisse mit einer Quelle",
       "newDebateDescription": "Starte eine neue Debatte mit einem anderen Nutzer",
       "newBeliefDescription": "Teile deine Überzeugung mit der Community",
       "switchToBelief": "Zu Überzeugung wechseln",
-      "switchToDebate": "Zu Debatte wechseln"
+      "switchToDebate": "Zu Debatte wechseln",
+      "noSources": "Noch keine Quellen"
     },
     "objection": {
       "add": "Neues Gegenargument hinzufügen"
@@ -87,12 +93,15 @@
     "loginFailed": "Login fehlgeschlagen. Bitte überprüfe deinen Benutzernamen und dein Passwort.",
     "registerFailed": "Registrierung fehlgeschlagen. Bitte überprüfe deine Informationen und versuche es erneut.",
     "saved": "Gespeichert.",
-    "argumentFinished": "Argument geschlossen."
+    "argumentFinished": "Argument geschlossen.",
+    "wrongUrlPattern": "Falsches URL-Format! Beispiel: 'https://www.meine-quelle.de'"
   },
   "general": {
     "cancel": "Abbrechen",
     "unknown": "Unbekannt",
     "send": "Senden",
+    "save": "Speichern",
+    "delete": "Löschen",
     "newChatMessage": "Neue Chatnachricht",
     "daysAgo": "vor {days} Tagen",
     "hoursAgo": "vor {hours} Stunden",

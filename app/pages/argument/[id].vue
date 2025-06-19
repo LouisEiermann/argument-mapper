@@ -284,8 +284,6 @@ const { data, refresh } = await useAsyncData("data", async () => {
     const argumentTree = response.data[0];
     const user = await fetchUser();
 
-    console.log("User:", user.value);
-
     const nodeTree = await find("node-tree", {
       filters: {
         id: {

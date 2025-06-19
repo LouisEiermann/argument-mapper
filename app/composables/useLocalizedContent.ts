@@ -5,11 +5,9 @@ export const useLocalizedContent = () => {
     if (locale.value === "en") {
       return content[field];
     } else {
-      return content.attributes.localizations.data.find(
-        (e: { attributes: { locale: string } }) => {
-          return e.attributes.locale === locale.value;
-        }
-      ).attributes[field];
+      return content.localizations.find((e: { locale: string }) => {
+        return e.locale === locale.value;
+      })[field];
     }
   };
 

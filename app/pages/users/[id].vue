@@ -40,7 +40,6 @@ const { fetchUser } = useStrapiAuth();
 const { formatDate } = useDateFormatter();
 const { params } = useRoute();
 
-const isModalOpen = ref();
 const { locale } = useI18n();
 
 const { data, refresh } = useAsyncData("data", async () => {
