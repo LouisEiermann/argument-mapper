@@ -11,30 +11,46 @@
     >
       <UTextarea v-model="comment.content" />
       <div class="flex gap-4">
-        <UButton @click="updateComment(node.id, comment.id, comment.content)">
+        <UButton
+          @click="updateComment(node.documentId, comment.id, comment.content)"
+        >
           Update Comment
         </UButton>
         <UButton
           color="error"
           class="absolute -top-4 right-4"
           icon="i-heroicons-x-circle-20-solid"
-          @click="deleteComment(node.id, comment.id, comment.author.id)"
+          @click="deleteComment(node.documentId, comment.id, comment.author.id)"
         />
-        <UButton
-          @click="((isOpen = true), (currentCommentToReplyTo = comment.id))"
-        >
-          {{ $t("argument.discussion.reply") }}
-        </UButton>
       </div>
     </div>
     <div v-else>
       <p>{{ comment.content }}</p>
-      <UButton
-        class="m-4"
-        @click="((isOpen = true), (currentCommentToReplyTo = comment.id))"
+      <UModal
+        :title="$t('argument.discussion.reply')"
+        :close="{
+          color: 'neutral',
+          variant: 'ghost',
+          icon: 'i-heroicons-x-mark-20-solid',
+        }"
+        v-model:open="isOpen"
       >
-        {{ $t("argument.discussion.reply") }}
-      </UButton>
+        <UButton>
+          {{ $t("argument.discussion.reply") }}
+        </UButton>
+
+        <template #body>
+          <div class="space-y-6 flex flex-col">
+            <UInput v-model="reply" />
+          </div>
+        </template>
+
+        <template #footer>
+          <UButton @click="addNewComment(node.documentId, comment.id)">
+            {{ $t("argument.discussion.reply") }}
+          </UButton>
+        </template>
+      </UModal>
     </div>
 
     <div v-if="comment.children && comment.children.length > 0" class="ml-4">
@@ -47,33 +63,6 @@
         @refresh="refresh"
       />
     </div>
-
-    <UModal
-      :description="$t('argument.discussion.reply')"
-      :title="$t('argument.discussion.reply')"
-      :close="{
-        color: 'neutral',
-        variant: 'ghost',
-        icon: 'i-heroicons-x-mark-20-solid',
-      }"
-    >
-      <UButton
-        class="absolute top-[11.5rem] left-[8.5rem]"
-        icon="i-heroicons-plus-circle-16-solid"
-      />
-
-      <template #body>
-        <div class="space-y-6 flex flex-col">
-          <UInput v-model="reply" />
-        </div>
-      </template>
-
-      <template #footer>
-        <UButton @click="addNewComment(node.id, currentCommentToReplyTo)">
-          {{ $t("argument.discussion.reply") }}
-        </UButton>
-      </template>
-    </UModal>
   </UCard>
 </template>
 
@@ -83,13 +72,13 @@ const emit = defineEmits(["refresh"]);
 
 const reply = ref<string | null>(null);
 const isOpen = ref<boolean>(false);
-const currentCommentToReplyTo = ref<number>();
 
 const client = useStrapiClient();
 const { t } = useI18n();
 const toast = useToast();
 
 const addNewComment = async (id: string, threadOf?: number) => {
+  console.log(id, threadOf);
   if (threadOf) {
     await client(`/comments/api::node.node:${id}`, {
       method: "POST",

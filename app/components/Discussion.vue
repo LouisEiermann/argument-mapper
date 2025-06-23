@@ -4,9 +4,11 @@
       v-model="newComment"
       :placeholder="$t('argument.discussion.newComment')"
     />
-    <UButton @click="addNewComment(node.id)" class="self-start inline-block">{{
-      $t("general.send")
-    }}</UButton>
+    <UButton
+      @click="addNewComment(node.documentId)"
+      class="self-start inline-block"
+      >{{ $t("general.send") }}</UButton
+    >
   </div>
   <div>
     <CommentThread
@@ -30,9 +32,12 @@ const { fetchUser } = useStrapiAuth();
 const ownUser = await fetchUser();
 
 const { data, refresh } = useAsyncData("comments", async () => {
-  const comments = await client(`/comments/api::node.node:${props.node.id}`, {
-    method: "GET",
-  });
+  const comments = await client(
+    `/comments/api::node.node:${props.node.documentId}`,
+    {
+      method: "GET",
+    }
+  );
   return { comments };
 });
 

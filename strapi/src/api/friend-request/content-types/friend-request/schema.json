@@ -10,6 +10,7 @@
   "options": {
     "draftAndPublish": false
   },
+  "pluginOptions": {},
   "attributes": {
     "sender": {
       "type": "relation",
@@ -23,13 +24,9 @@
       "target": "plugin::users-permissions.user",
       "inversedBy": "receivedRequests"
     },
-    "status": {
-      "type": "string",
-      "enum": [
-        "pending",
-        "accepted",
-        "rejected"
-      ],
+    "requestStatus": {
+      "type": "enumeration",
+      "enum": ["pending", "accepted", "rejected"],
       "default": "pending"
     }
   }

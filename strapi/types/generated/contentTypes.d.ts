@@ -529,11 +529,14 @@ export interface ApiFriendRequestFriendRequest
       'manyToOne',
       'plugin::users-permissions.user'
     >;
+    requestStatus: Schema.Attribute.Enumeration<
+      ['pending', 'accepted', 'rejected']
+    > &
+      Schema.Attribute.DefaultTo<'pending'>;
     sender: Schema.Attribute.Relation<
       'manyToOne',
       'plugin::users-permissions.user'
     >;
-    status: Schema.Attribute.String & Schema.Attribute.DefaultTo<'pending'>;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;

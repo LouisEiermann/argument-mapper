@@ -17,7 +17,7 @@ module.exports = createCoreController(
         "api::friend-request.friend-request",
         {
           filters: { sender: senderId, receiver: receiverId },
-        }
+        },
       );
 
       if (existingRequest.length > 0) {
@@ -30,9 +30,9 @@ module.exports = createCoreController(
           data: {
             sender: senderId,
             receiver: receiverId,
-            status: "pending",
+            requestStatus: "pending",
           },
-        }
+        },
       );
 
       return ctx.send(friendRequest);
@@ -47,7 +47,7 @@ module.exports = createCoreController(
         id,
         {
           populate: { sender: true, receiver: true },
-        }
+        },
       );
 
       if (!friendRequest) {
@@ -63,10 +63,10 @@ module.exports = createCoreController(
         id,
         {
           data: {
-            status: "accepted",
+            requestStatus: "accepted",
             responseAt: new Date(),
           },
-        }
+        },
       );
 
       await strapi.entityService.update(
@@ -79,7 +79,7 @@ module.exports = createCoreController(
               friendRequest.receiver.id,
             ],
           },
-        }
+        },
       );
 
       await strapi.entityService.update(
@@ -92,7 +92,7 @@ module.exports = createCoreController(
               friendRequest.sender.id,
             ],
           },
-        }
+        },
       );
 
       return ctx.send({ status: "Friend request accepted." });
@@ -107,7 +107,7 @@ module.exports = createCoreController(
         id,
         {
           populate: { sender: true, receiver: true },
-        }
+        },
       );
 
       if (!friendRequest) {
@@ -123,13 +123,13 @@ module.exports = createCoreController(
         id,
         {
           data: {
-            status: "rejected",
+            requestStatus: "rejected",
             responseAt: new Date(),
           },
-        }
+        },
       );
 
       return ctx.send({ status: "Friend request rejected." });
     },
-  })
+  }),
 );

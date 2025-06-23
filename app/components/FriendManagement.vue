@@ -120,28 +120,16 @@
               <div class="flex items-center justify-between gap-4">
                 <div class="flex items-center gap-3">
                   <UAvatar
-                    v-if="
-                      receivedFriendRequest.attributes.sender.data.attributes
-                        .avatar
-                    "
+                    v-if="receivedFriendRequest.sender.avatar"
                     :src="
-                      useStrapiMedia(
-                        receivedFriendRequest.attributes.sender.data.attributes
-                          .avatar.url
-                      )
+                      useStrapiMedia(receivedFriendRequest.sender.avatar.url)
                     "
-                    :alt="
-                      receivedFriendRequest.attributes.sender.data.attributes
-                        .username
-                    "
+                    :alt="receivedFriendRequest.sender.username"
                   />
                   <span
                     class="text-sm font-medium text-gray-900 dark:text-white"
                   >
-                    {{
-                      receivedFriendRequest.attributes.sender.data.attributes
-                        .username
-                    }}
+                    {{ receivedFriendRequest.sender.username }}
                   </span>
                 </div>
                 <div class="flex items-center gap-2">
@@ -259,7 +247,7 @@ const user = useStrapiUser();
 
 const { data, refresh } = useAsyncData("data", async () => {
   const currentUserId = user.value?.id;
-  const friendIds = currentUser?.friends?.map((friend) => friend.id) || [];
+  const friendIds = user.value?.friends?.map((friend) => friend.id) || [];
   const excludeIds = [currentUserId, ...friendIds];
 
   // Fetch friend requests where the current user is either sender or receiver
@@ -278,7 +266,7 @@ const { data, refresh } = useAsyncData("data", async () => {
   );
 
   const receivedFriendRequests = friendRequests.data.filter(
-    (e) => e.receiver.id === currentUserId && e.status === "pending"
+    (e) => e.receiver.id === currentUserId && e.requestStatus === "pending"
   );
 
   const suggestedFriends = await find("users", {
@@ -301,19 +289,18 @@ const { data, refresh } = useAsyncData("data", async () => {
 });
 
 const acceptFriendRequest = async (documentId: number) => {
-  await update("friend-requests", documentId, { status: "accepted" });
+  await update("friend-requests", documentId, { requestStatus: "accepted" });
   refresh();
 };
 
 const rejectFriendRequest = async (documentId: number) => {
-  await update("friend-requests", documentId, { status: "rejected" });
+  await update("friend-requests", documentId, { requestStatus: "rejected" });
   refresh();
 };
 
 const sendFriendRequest = async (receiverId: any) => {
-  const currentUser = await find("users/me");
   await create("friend-requests", {
-    sender: currentUser.data.id,
+    sender: user.value?.id,
     receiver: receiverId,
   });
   refresh();
@@ -326,15 +313,8 @@ const searchFriends = async () => {
   foundUsers.value = [];
 
   try {
-    const currentUser = await find("users/me", {
-      populate: {
-        friends: true,
-      },
-    });
-
-    const currentUserId = currentUser?.data?.id;
-    const friendIds =
-      currentUser?.data?.friends?.map((friend) => friend.id) || [];
+    const currentUserId = user.value?.id;
+    const friendIds = user.value?.friends?.map((friend) => friend.id) || [];
     const excludeIds = [currentUserId, ...friendIds];
 
     const result = await find("users", {

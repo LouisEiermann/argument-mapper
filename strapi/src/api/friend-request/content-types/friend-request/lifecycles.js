@@ -3,13 +3,13 @@ module.exports = {
     const { result, params } = event;
 
     // Check if the friend request status was changed to 'accepted'
-    if (result.status === "accepted") {
+    if (result.requestStatus === "accepted") {
       const friendRequest = await strapi.entityService.findOne(
         "api::friend-request.friend-request",
         result.id,
         {
           populate: ["sender", "receiver"],
-        }
+        },
       );
 
       // Add the receiver to the sender's friends list
@@ -18,7 +18,7 @@ module.exports = {
         friendRequest.sender.id,
         {
           populate: ["friends"],
-        }
+        },
       );
 
       await strapi.entityService.update(
@@ -31,7 +31,7 @@ module.exports = {
               friendRequest.receiver.id,
             ],
           },
-        }
+        },
       );
 
       // Add the sender to the receiver's friends list
@@ -40,7 +40,7 @@ module.exports = {
         friendRequest.receiver.id,
         {
           populate: ["friends"],
-        }
+        },
       );
 
       await strapi.entityService.update(
@@ -53,7 +53,7 @@ module.exports = {
               friendRequest.sender.id,
             ],
           },
-        }
+        },
       );
 
       // Check if a chat between these two users already exists
@@ -65,7 +65,7 @@ module.exports = {
               $and: [{ id: senderUser.id }, { id: receiverUser.id }],
             },
           },
-        }
+        },
       );
 
       // If no existing chat is found, create a new one
