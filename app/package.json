@@ -15,7 +15,6 @@
     "@nuxt/ui": "^3.0.2",
     "@nuxtjs/i18n": "^9.3.0",
     "@nuxtjs/strapi": "^2.0.0",
-    "@pinia/nuxt": "^0.5.5",
     "nuxt": "^3.16.1",
     "nuxt-booster": "^3.2.6",
     "nuxt-security": "^2.2.0",

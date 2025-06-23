@@ -245,7 +245,6 @@ definePageMeta({
 const { find, delete: strapiDelete, create, update } = useStrapi();
 const { params } = useRoute();
 const client = useStrapiClient();
-const userStore = useUserStore();
 
 const toast = useToast();
 const { t } = useI18n();
@@ -253,7 +252,7 @@ const route = useRoute();
 const currentLevel = computed(() => Number(route.query.level) || 1);
 const finishArgumentModalIsOpen = ref(false);
 const { localizedVersion } = useLocalizedContent();
-const { fetchUser } = useStrapiAuth();
+const user = useStrapiUser();
 
 const { data, refresh } = await useAsyncData("data", async () => {
   try {
@@ -282,7 +281,6 @@ const { data, refresh } = await useAsyncData("data", async () => {
     }
 
     const argumentTree = response.data[0];
-    const user = await fetchUser();
 
     const nodeTree = await find("node-tree", {
       filters: {
@@ -324,7 +322,9 @@ const { data, refresh } = await useAsyncData("data", async () => {
 
 provide("refresh", refresh);
 
-const handleFileChange = async (event) => {
+const handleFileChange = async (event: {
+  target: { files: (string | Blob)[] };
+}) => {
   const formData = new FormData();
 
   formData.append("files", event.target.files[0]);

@@ -102,7 +102,6 @@
               multiple
               :placeholder="$t('argument.new.selectTags')"
               icon="i-heroicons-tag"
-              :loading="tagsStore.isLoading"
             />
           </UFormField>
         </div>
@@ -142,7 +141,6 @@ const props = defineProps<{
 const isDebate = ref(props.isDebate || false);
 
 const { find, create, update, delete: _delete } = useStrapi();
-const tagsStore = useArgumentTagsStore();
 const toast = useToast();
 const { t } = useI18n();
 
@@ -160,26 +158,28 @@ const createdSecondCoPremiseId = ref<number | null>(null);
 
 const premiseGroupNodes = ref([]);
 
-const tags = computed(() => {
-  const formattedTags = tagsStore.getTags.map((tag) => {
-    return {
-      label: tag.name,
-      value: tag.id,
-    };
+const { data: tagsData } = await useAsyncData("tags", async () => {
+  const response = await find("tags", {
+    populate: {
+      localizations: true,
+      defaultMood: true,
+    },
   });
-  return formattedTags;
+  return response?.data || [];
 });
+
+const tags = computed(() => {
+  return (
+    tagsData.value?.map((tag: any) => ({
+      label: tag.name || "",
+      value: tag.id,
+    })) || []
+  );
+});
+
 const selectedTags = ref([]);
 
-onMounted(async () => {
-  await tagsStore.fetchTags();
-});
-
-const user = await find("users/me", {
-  populate: {
-    friends: true,
-  },
-});
+const user = useStrapiUser();
 
 const onNewThesis = async () => {
   loading.value = true;
@@ -189,7 +189,7 @@ const onNewThesis = async () => {
       await create("nodes", {
         title: conclusion.value,
         thesis: true,
-        owner: user.id,
+        owner: user.value?.id,
       })
     ).data;
     console.log("Created thesis:", thesis);
@@ -199,7 +199,7 @@ const onNewThesis = async () => {
       argumentTree.value = await create("argument-trees", {
         title: title.value,
         nodes: thesis.id,
-        creator: user.id,
+        creator: user.value?.id,
         opponent: props.otherUser.id,
         tags: selectedTags.value,
       });
@@ -207,7 +207,7 @@ const onNewThesis = async () => {
       argumentTree.value = await create("argument-trees", {
         title: title.value,
         nodes: thesis.id,
-        creator: user.id,
+        creator: user.value?.id,
         tags: selectedTags.value,
       });
     }
@@ -219,7 +219,7 @@ const onNewThesis = async () => {
     const createdPremise = await create("nodes", {
       title: premise.value,
       parent: thesis.id,
-      owner: user.id,
+      owner: user.value?.id,
       argument: argumentId,
     });
 
@@ -229,7 +229,7 @@ const onNewThesis = async () => {
       const createdCoPremise = await create("nodes", {
         title: coPremise.value,
         parent: thesis.id,
-        owner: user.id,
+        owner: user.value?.id,
         argument: argumentId,
       });
 
@@ -240,7 +240,7 @@ const onNewThesis = async () => {
       const createdSecondCoPremise = await create("nodes", {
         title: secondCoPremise.value,
         parent: thesis.id,
-        owner: user.id,
+        owner: user.value?.id,
         argument: argumentId,
       });
 

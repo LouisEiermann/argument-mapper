@@ -252,19 +252,13 @@
 
 <script lang="ts" setup>
 const { find, create, update, delete: _delete } = useStrapi();
-const userStore = useUserStore();
 const foundUsers = ref([]);
 const searchForFriendsSearchTerm = ref("");
 const searching = ref(false);
+const user = useStrapiUser();
 
 const { data, refresh } = useAsyncData("data", async () => {
-  const currentUser = await find("users/me", {
-    populate: {
-      friends: true,
-    },
-  });
-
-  const currentUserId = currentUser?.id;
+  const currentUserId = user.value?.id;
   const friendIds = currentUser?.friends?.map((friend) => friend.id) || [];
   const excludeIds = [currentUserId, ...friendIds];
 

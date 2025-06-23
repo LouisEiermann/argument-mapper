@@ -219,17 +219,9 @@ const isFriendsManagementModalOpen = ref(false);
 const isNewArgumentModalOpen = ref(false);
 
 const { data: socialData, refresh } = useAsyncData("socialData", async () => {
-  const currentUser = await find("users/me", {
-    populate: {
-      friends: true,
-      created: { populate: { opponent: true, tags: true } },
-      isOpponent: true,
-      avatar: true,
-      achievements: true,
-    },
-  });
+  const currentUser = useStrapiUser();
 
-  const currentUserId = currentUser?.data?.id;
+  const currentUserId = currentUser.value?.id;
 
   const friendIds =
     currentUser?.data?.friends?.map((friend) => friend.id) || [];
