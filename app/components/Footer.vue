@@ -3,15 +3,15 @@
     <footer class="mt-10">
       <USeparator>
         Made with ❤️ by&nbsp;
-        <NuxtLink to="https://github.com/LouisEiermann">
-          Louis Eiermann</NuxtLink
-        >
+        <ULink to="https://github.com/LouisEiermann" external>
+          Louis Eiermann
+        </ULink>
       </USeparator>
 
       <h1>Reason App</h1>
       <div>
         <h2>Support</h2>
-        <NuxtLink to="/contact">{{ $t("general.submitBug") }}</NuxtLink>
+        <ULink to="/contact">{{ $t("general.submitBug") }}</ULink>
       </div>
     </footer>
   </UContainer>

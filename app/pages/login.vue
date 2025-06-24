@@ -23,7 +23,7 @@
             {{ $t("account.passwordForgotten") }}
           </UButton>
         </div>
-        <NuxtLink to="/register">{{ $t("account.noAccount") }}</NuxtLink>
+        <ULink to="/register">{{ $t("account.noAccount") }}</ULink>
       </template>
     </UCard>
   </div>

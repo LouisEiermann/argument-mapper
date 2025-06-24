@@ -2,12 +2,12 @@
   <header class="mb-10">
     <UContainer>
       <div class="flex flex-col sm:flex-row py-8 gap-4 justify-between">
-        <NuxtLink
-          href="/"
+        <ULink
+          to="/"
           class="text-2xl sm:text-3xl font-bold text-center sm:text-left hover:text-primary-500 transition-colors"
         >
           Reason App
-        </NuxtLink>
+        </ULink>
         <div
           class="flex gap-4 sm:gap-8 justify-center sm:justify-end items-center"
         >
