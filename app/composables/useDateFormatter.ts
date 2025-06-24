@@ -1,7 +1,7 @@
 export const useDateFormatter = () => {
   const { t } = useI18n();
 
-  const formatDate = (dateString: Date, locale = "en-US") => {
+  const formatDate = (dateString: Date | string, locale = "en-US") => {
     const date = new Date(dateString);
     const formatter = new Intl.DateTimeFormat(locale, {
       year: "numeric",

@@ -2,22 +2,19 @@
   <UContainer class="flex flex-col gap-8 justify-center items-center">
     <UContainer class="flex justify-center items-center flex-col">
       <UAvatar
-        v-if="socialData?.currentUser?.avatar"
-        :src="useStrapiMedia(socialData?.currentUser?.avatar?.url)"
-        :alt="socialData?.currentUser?.username"
+        v-if="user?.avatar"
+        :src="useStrapiMedia(user?.avatar?.url)"
+        :alt="user?.username"
         size="3xl"
         class="shadow-2xl relative"
       />
       <UContainer>
         <h1 class="text-center mt-2 text-4xl">
-          {{ socialData?.currentUser?.username }}
+          {{ user?.username }}
         </h1>
-        <p
-          v-if="socialData?.currentUser?.createdAt"
-          class="text-center text-sm"
-        >
+        <p v-if="user?.createdAt" class="text-center text-sm">
           {{ $t("account.joined") }} :
-          {{ formatDate(socialData.currentUser.createdAt, locale) }}
+          {{ formatDate(user.createdAt, locale) }}
         </p>
       </UContainer>
     </UContainer>
@@ -146,38 +143,24 @@
       @refresh="refresh"
       @update:is-open="isFriendsManagementModalOpen = $event"
     />
-    <div class="flex items-start gap-4 mt-32">
-      <div class="flex-1">
-        <USeparator
-          :label="$t('account.friends')"
-          :ui="{ label: 'text-4xl' }"
-          class="mb-4"
-        />
-        <UContainer>
-          <div
-            v-for="friend in socialData?.currentUser?.friends"
-            :key="friend.id"
-          >
-            <div class="flex items-center gap-4">
-              {{ friend.username }}
-              <UButton @click="navigateTo(`/users/${friend.id}`)">
-                {{ $t("account.userProfile") }}
-              </UButton>
-              <UButton @click="navigateTo(`/users/${friend.id}/chat`)">
-                {{ $t("account.chat") }}
-              </UButton>
-            </div>
-          </div>
-        </UContainer>
+    <USeparator
+      :label="$t('account.friends')"
+      :ui="{ label: 'text-4xl' }"
+      class="mb-4 my-8"
+    />
+    <UContainer>
+      <div v-for="friend in user?.friends" :key="friend.id">
+        <div class="flex items-center gap-4">
+          {{ friend.username }}
+          <UButton @click="navigateTo(`/users/${friend.id}`)">
+            {{ $t("account.userProfile") }}
+          </UButton>
+          <UButton @click="navigateTo(`/users/${friend.id}/chat`)">
+            {{ $t("account.chat") }}
+          </UButton>
+        </div>
       </div>
-      <UButton
-        color="primary"
-        class="basis-1/2 ml-4 h-14 px-6 text-lg font-semibold flex items-center justify-center"
-        @click="isFriendsManagementModalOpen = true"
-      >
-        {{ $t("account.addFriends") }}
-      </UButton>
-    </div>
+    </UContainer>
     <div class="flex items-start gap-4">
       <div class="flex-1">
         <USeparator
@@ -186,10 +169,8 @@
           class="mb-4"
         />
         <UContainer>
-          <div
-            v-for="achievement in socialData?.currentUser?.achievements"
-            :key="achievement.id"
-          >
+          <div v-for="achievement in user?.achievements" :key="achievement.id">
+            <UAvatar :src="useStrapiMedia(achievement.image.url)" />
             {{ achievement.name }}
           </div>
         </UContainer>
@@ -214,26 +195,21 @@ const { find, update, delete: _delete } = useStrapi();
 const client = useStrapiClient();
 const { formatDate } = useDateFormatter();
 const { locale } = useI18n();
+const user = useStrapiUser();
 
 const isFriendsManagementModalOpen = ref(false);
 const isNewArgumentModalOpen = ref(false);
 
 const { data: socialData, refresh } = useAsyncData("socialData", async () => {
-  const currentUser = useStrapiUser();
-
-  const currentUserId = currentUser.value?.id;
-
-  const friendIds =
-    currentUser?.data?.friends?.map((friend) => friend.id) || [];
-
-  const excludeIds = [currentUserId, ...friendIds];
+  const friendIds = user.value?.friends?.map((friend: any) => friend.id) || [];
+  const excludeIds = [user.value?.id, ...friendIds];
 
   const friendRequests = await find("friend-requests", {
     populate: ["sender", "receiver"],
     filters: {
       $or: [
-        { sender: { id: { $eq: currentUserId } } },
-        { receiver: { id: { $eq: currentUserId } } },
+        { sender: { id: { $eq: user.value?.id } } },
+        { receiver: { id: { $eq: user.value?.id } } },
       ],
     },
   });
@@ -251,47 +227,41 @@ const { data: socialData, refresh } = useAsyncData("socialData", async () => {
   });
 
   return {
-    currentUserId,
     friendRequests,
     suggestedFriends,
-    currentUser,
   };
 });
 
 const sentArgumentRequests = computed(() => {
-  return (
-    socialData.value?.currentUser?.created?.filter((e) => e.opponent) || []
-  );
+  return user.value?.created?.filter((e: any) => e.opponent) || [];
 });
 
 const receivedArgumentRequests = computed(() => {
-  return socialData.value?.currentUser?.isOpponent || [];
+  return user.value?.isOpponent || [];
 });
 
 const standpoints = computed(() => {
-  return (
-    socialData.value?.currentUser?.created?.filter((e) => !e.opponent) || []
-  );
+  return user.value?.created?.filter((e: any) => !e.opponent) || [];
 });
 
-const acceptArgumentRequest = async (id) => {
+const acceptArgumentRequest = async (id: string) => {
   await update("argument-trees", id, { opponentAccepted: true });
   refresh();
 };
 
-const rejectArgumentRequest = async (id) => {
+const rejectArgumentRequest = async (id: string) => {
   await _delete("argument-trees", id);
   refresh();
 };
 
-const withdrawArgumentRequest = async (id) => {
+const withdrawArgumentRequest = async (id: string) => {
   await _delete("argument-trees", id);
   refresh();
 };
 
 const onDeleteUser = async () => {
   try {
-    await client(`/users/${socialData.value?.currentUser.id}`, {
+    await client(`/users/${user.value?.id}`, {
       method: "DELETE",
     });
 
@@ -306,7 +276,7 @@ const handleFileChange = async (event) => {
 
   formData.append("files", event.target.files[0]);
   formData.append("ref", "plugin::users-permissions.user");
-  formData.append("refId", socialData.value?.currentUser.id);
+  formData.append("refId", user.value?.id);
   formData.append("field", "avatar");
 
   await client("/upload", {
@@ -315,12 +285,4 @@ const handleFileChange = async (event) => {
   });
   refresh();
 };
-
-function openNewBeliefModal() {
-  isNewArgumentModalOpen.value = true;
-}
-
-function openNewArgumentModal() {
-  isNewArgumentModalOpen.value = true;
-}
 </script>

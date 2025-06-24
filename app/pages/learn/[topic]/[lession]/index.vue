@@ -4,7 +4,7 @@
       <template #header>
         <h1>{{ data?.user.questionSession.currentQuestion.content }}</h1>
         <UBadge class="mt-2">{{
-          data?.user.questionSession.currentQuestion.fellacyType
+          data?.user.questionSession.currentQuestion.fallacyType
         }}</UBadge>
       </template>
 

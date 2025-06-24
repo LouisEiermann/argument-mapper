@@ -38,7 +38,7 @@
     </UCard>
     <div
       v-if="
-        node.children?.length > 0 && !userIsCreator && !node.formalFellacyBelow
+        node.children?.length > 0 && !userIsCreator && !node.formalFallacyBelow
       "
       class="flex flex-col gap-2"
     >
@@ -67,7 +67,7 @@
       v-if="
         !userIsCreator &&
         node.children.length === 0 &&
-        node.parent?.formalFellacyBelow
+        node.parent?.formalFallacyBelow
       "
       color="primary"
       @click="markAsValid"
@@ -78,7 +78,7 @@
         !userIsCreator &&
         node.children.length === 0 &&
         !node.soundnessDoubted &&
-        !node.parent?.formalFellacyBelow
+        !node.parent?.formalFallacyBelow
       "
       color="primary"
       @click="markAsNotSound(node.documentId)"
@@ -168,7 +168,7 @@
           <USelectMenu
             v-model="selectedFormalFellacies"
             type="text"
-            :items="formalFellacies"
+            :items="formalFallacies"
             :placeholder="$t('argument.formalFallacies')"
             multiple
           />
@@ -214,7 +214,7 @@
     >
       <Slider
         :slider-items="itemsGroupedByCoPremises"
-        :is-not-valid="node.formalFellacyBelow || isNotValid"
+        :is-not-valid="node.formalFallacyBelow || isNotValid"
         :user-is-creator="userIsCreator"
       />
     </div>
@@ -271,7 +271,7 @@ const { data: premiseGroupData } = useAsyncData(
   }
 );
 
-const formalFellacies = [
+const formalFallacies = [
   { label: "Affirming the Consequent", value: "affirming_consequent" },
   { label: "Denying the Antecedent", value: "denying_antecedent" },
   {
@@ -312,7 +312,7 @@ const informalFellacies = computed(() => {
   if (!premiseGroupData.value?.premiseGroupTags) return [];
 
   return premiseGroupData.value.premiseGroupTags
-    .filter((tag: any) => tag.type === "informalFellacy")
+    .filter((tag: any) => tag.type === "informalFallacy")
     .map((tag: any) => ({
       label: tag.name,
       value: tag.id,
@@ -413,7 +413,7 @@ const markAsSound = async (id: string) => {
 
 const markAsValid = async () => {
   await update("nodes", props.node.documentId, {
-    formalFellacyBelow: "",
+    formalFallacyBelow: "",
   });
   refresh();
 };
@@ -497,7 +497,7 @@ const onFormalFallacySelected = async (fallacy: any) => {
   console.log("Formal fallacy selected:", fallacy);
   if (fallacy && currentDropdownNode.value) {
     await update("nodes", currentDropdownNode.value, {
-      formalFellacyBelow: fallacy.label,
+      formalFallacyBelow: fallacy.label,
     });
     refresh();
     selectedFormalFallacy.value = null; // Reset selection

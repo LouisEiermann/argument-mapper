@@ -59,9 +59,9 @@
 const { locales, t, setLocale } = useI18n();
 const colorMode = useColorMode();
 
-const { logout, fetchUser } = useStrapiAuth();
+const { logout } = useStrapiAuth();
 
-const user = await fetchUser();
+const user = useStrapiUser();
 
 const isDark = computed({
   get() {

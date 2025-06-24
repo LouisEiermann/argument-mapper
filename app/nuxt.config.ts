@@ -25,7 +25,7 @@ export default defineNuxtConfig({
         created: { populate: { opponent: true, tags: true } },
         isOpponent: true,
         avatar: true,
-        achievements: true,
+        achievements: { populate: { image: true, localizations: true } },
       },
     },
   },

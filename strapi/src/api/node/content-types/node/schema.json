@@ -37,7 +37,7 @@
       "type": "boolean",
       "default": false
     },
-    "formalFellacyBelow": {
+    "formalFallacyBelow": {
       "type": "string"
     },
     "level": {

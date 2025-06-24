@@ -598,7 +598,7 @@ export interface ApiNodeNode extends Struct.CollectionTypeSchema {
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
     description: Schema.Attribute.Text;
-    formalFellacyBelow: Schema.Attribute.String;
+    formalFallacyBelow: Schema.Attribute.String;
     level: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<'oneToMany', 'api::node.node'> &
@@ -676,7 +676,7 @@ export interface ApiPremiseGroupTagPremiseGroupTag
     >;
     publishedAt: Schema.Attribute.DateTime;
     type: Schema.Attribute.Enumeration<
-      ['formalFellacy', 'informalFellacy', 'commonPattern']
+      ['formalFallacy', 'informalFallacy', 'commonPattern']
     > &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
@@ -825,7 +825,7 @@ export interface ApiQuestionQuestion extends Struct.CollectionTypeSchema {
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    fellacyType: Schema.Attribute.Enumeration<['Affirming the Consequent']> &
+    fallacyType: Schema.Attribute.Enumeration<['Affirming the Consequent']> &
       Schema.Attribute.Required &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
