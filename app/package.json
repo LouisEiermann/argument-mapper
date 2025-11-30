@@ -12,10 +12,10 @@
   },
   "dependencies": {
     "@dargmuesli/nuxt-cookie-control": "^8.6.1",
-    "@nuxt/ui": "^3.0.2",
+    "@nuxt/ui": "^4.2.1",
     "@nuxtjs/i18n": "^9.3.0",
     "@nuxtjs/strapi": "^2.0.0",
-    "nuxt": "^3.16.1",
+    "nuxt": "^4.2.1",
     "nuxt-booster": "^3.2.6",
     "nuxt-security": "^2.2.0",
     "socket.io-client": "^4.8.1",
