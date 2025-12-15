@@ -11,6 +11,7 @@
     "passwordForgotten": "Passwort vergessen",
     "or": "Oder",
     "settings": "Einstellungen",
+    "settingsDescription": "Profil- und Kontoeinstellungen verwalten",
     "joined": "Beigetreten",
     "noAccount": "Noch kein Konto? Hier Registrieren",
     "changeAvatar": "Avatar ändern",
@@ -44,7 +45,9 @@
   },
   "argument": {
     "slideover": {
-      "elaboratePremise": "Erkäre diese Prämisse"
+      "title": "Details zur Prämisse",
+      "description": "Diese Prämisse bearbeiten und ansehen.",
+      "elaboratePremise": "Erkläre diese Prämisse"
     },
     "doubtValidity": "Gültigkeit bezweifeln",
     "new": {
@@ -76,16 +79,26 @@
     "discussion": {
       "title": "Diskussion",
       "newComment": "Neuer Kommentar",
-      "reply": "Antworten"
+      "reply": "Antworten",
+      "replyDescription": "Schreibe eine Antwort auf diesen Kommentar."
     },
     "settings": "Einstellungen",
     "endArgument": "Argument beenden",
     "endArgumentConfirm": "Bekunde deinen Willen, das Argument zu beenden. Stimmt dein Partner dem Ende des Arguments zu, wird das Argument als geschlossen markiert und Ihr könnt beide nichts mehr daran ändern.\n\nGeschlossene Argumente können von anderen Nutzern bewertet werden.",
     "iWantToEndArgument": "Ich will das Argument beenden",
-    "markAsSound": "Als Sound markieren",
     "tagging": {
       "title": "Tagging",
       "description": "Kennzeichne diese Prämisse mit einem formalen oder informellen Fehlschluss oder einem häufigen Muster"
+    },
+    "formalFallacyLabels": {
+      "four_terms": "Vier-Terme-Fehlschluss (quaternio terminorum)",
+      "undistributed_middle": "Unverteiltes Mittel",
+      "illicit_major": "Unzulässiger Oberbegriff",
+      "illicit_minor": "Unzulässiger Unterbegriff",
+      "exclusive_premises": "Zwei negative Prämissen",
+      "illicit_negative": "Affirmative Konklusion aus negativer Prämisse",
+      "illicit_affirmative": "Negative Konklusion aus affirmativen Prämissen",
+      "existential_fallacy": "Existenzfehlschluss"
     },
     "formalFallacies": "Formale Fehlschlüsse",
     "informalFallacies": "Informelle Fehlschlüsse",
@@ -95,7 +108,11 @@
     "markAsNotSound": "Als nicht stichhaltig markieren",
     "markAsSound": "Als stichhaltig markieren",
     "markAsNotValid": "Als ungültig markieren",
-    "markAsValid": "Als gültig markieren"
+    "markAsValid": "Als gültig markieren",
+    "viewMap": "Übersicht",
+    "minimapView": "Minimap",
+    "treeView": "Baumliste",
+    "visual": "Visuell"
   },
   "notification": {
     "loginFailed": "Login fehlgeschlagen. Bitte überprüfe deinen Benutzernamen und dein Passwort.",
@@ -106,7 +123,9 @@
   },
   "general": {
     "cancel": "Abbrechen",
+    "error": "Etwas ist schiefgelaufen",
     "unknown": "Unbekannt",
+    "none": "Keine",
     "send": "Senden",
     "save": "Speichern",
     "delete": "Löschen",

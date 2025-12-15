@@ -35,15 +35,23 @@ export default defineNuxtConfig({
   },
 
   i18n: {
+    strategy: "no_prefix",
+    detectBrowserLanguage: {
+      useCookie: true,
+      cookieKey: "i18n_redirected",
+      redirectOn: "root",
+    },
     locales: [
       { code: "en", name: "English", file: "en.json" },
-      { code: "de", name: "German", file: "de.json" },
+      { code: "de", name: "Deutsch", file: "de.json" },
     ],
-    defaultLocale: "en",
-    strategy: "no_prefix",
+    defaultLocale: "de",
   },
 
   security: {
+    // `nuxt-security` defaults to `sri: true`, which adds `integrity` to some `<link rel="preload">` tags.
+    // Chromium-based browsers log a noisy warning for preload destinations that don't support SRI (e.g. some fonts).
+    sri: process.env.NODE_ENV !== "development",
     headers: {
       crossOriginEmbedderPolicy:
         process.env.NODE_ENV === "development" ? "unsafe-none" : "require-corp",
@@ -56,6 +64,9 @@ export default defineNuxtConfig({
           "http://localhost:1337",
           "ws://localhost:1337",
         ],
+        "frame-src": process.env.NODE_ENV === "development"
+          ? ["'self'", "blob:", "data:"]
+          : ["'self'"],
       },
     },
   },

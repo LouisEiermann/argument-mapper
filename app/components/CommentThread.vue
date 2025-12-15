@@ -1,84 +1,141 @@
 <template>
-  <UCard class="mb-4">
-    <template #header>
-      <h1 class="rounded-md">{{ comment.author.name }}</h1>
-      <p>{{ comment.createdAt }}</p>
-    </template>
-
-    <div
-      v-if="comment.author.id === ownUser?.id"
-      class="relative flex flex-col gap-4 mb-4"
-    >
-      <UTextarea v-model="comment.content" />
-      <div class="flex gap-4">
+  <div class="mb-4">
+    <div v-if="isEditing" class="flex flex-col gap-2">
+      <UTextarea v-model="editContent" />
+      <div class="flex gap-2 justify-end">
         <UButton
-          @click="updateComment(node.documentId, comment.id, comment.content)"
+          size="xs"
+          color="neutral"
+          variant="ghost"
+          @click="isEditing = false"
         >
-          Update Comment
+          {{ $t("general.cancel") }}
         </UButton>
         <UButton
-          color="error"
-          class="absolute -top-4 right-4"
-          icon="i-heroicons-x-circle-20-solid"
-          @click="deleteComment(node.documentId, comment.id, comment.author.id)"
-        />
+          size="xs"
+          @click="saveEdit"
+        >
+          {{ $t("general.save") }}
+        </UButton>
       </div>
     </div>
-    <div v-else>
-      <p>{{ comment.content }}</p>
-      <UModal
-        :title="$t('argument.discussion.reply')"
-        :close="{
-          color: 'neutral',
-          variant: 'ghost',
-          icon: 'i-heroicons-x-mark-20-solid',
-        }"
-        v-model:open="isOpen"
+    <div v-else class="group relative">
+      <div
+        class="mb-1 flex items-center gap-2 text-xs"
+        :class="isOwnComment ? 'justify-end' : 'justify-start'"
       >
-        <UButton>
-          {{ $t("argument.discussion.reply") }}
-        </UButton>
-
-        <template #body>
-          <div class="space-y-6 flex flex-col">
-            <UInput v-model="reply" />
+        <span class="font-bold text-gray-700 dark:text-gray-300">
+          {{ comment.author?.name || comment.authorUser?.username || $t("general.unknown") }}
+        </span>
+        <span class="text-gray-400">
+          {{ new Date(comment.createdAt).toLocaleString() }}
+        </span>
+      </div>
+      <UChatMessage
+        :id="String(comment.id)"
+        role="user"
+        :parts="[]"
+        :content="comment.content"
+        :avatar="{ src: getAuthorAvatar(comment.author) }"
+        :side="isOwnComment ? 'right' : 'left'"
+      >
+        <template #actions>
+          <div class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            <UButton
+              size="xs"
+              variant="ghost"
+              icon="i-heroicons-arrow-turn-down-left"
+              @click="isOpen = true"
+            >
+              {{ $t("argument.discussion.reply") }}
+            </UButton>
+            <template v-if="isOwnComment">
+              <UButton
+                size="xs"
+                variant="ghost"
+                icon="i-heroicons-pencil"
+                @click="startEdit"
+              />
+              <UButton
+                size="xs"
+                variant="ghost"
+                color="error"
+                icon="i-heroicons-trash"
+                @click="deleteComment(nodeKey, comment.id)"
+              />
+            </template>
           </div>
         </template>
+      </UChatMessage>
 
+      <!-- Reply Modal -->
+      <UModal
+        :title="$t('argument.discussion.reply')"
+        :description="$t('argument.discussion.replyDescription')"
+        v-model:open="isOpen"
+      >
+        <template #body>
+          <div class="space-y-4">
+             <UTextarea v-model="reply" :placeholder="$t('argument.discussion.newComment')" />
+          </div>
+        </template>
         <template #footer>
-          <UButton @click="addNewComment(node.documentId, comment.id)">
-            {{ $t("argument.discussion.reply") }}
-          </UButton>
+          <div class="flex justify-end gap-2">
+            <UButton color="neutral" variant="ghost" @click="isOpen = false">
+              {{ $t("general.cancel") }}
+            </UButton>
+            <UButton @click="addNewComment(node.documentId, comment.id)">
+               {{ $t("argument.discussion.reply") }}
+            </UButton>
+          </div>
         </template>
       </UModal>
     </div>
 
-    <div v-if="comment.children && comment.children.length > 0" class="ml-4">
+    <!-- Children -->
+    <div v-if="comment.children && comment.children.length > 0" class="ml-8 mt-2 pl-4 border-l border-gray-200 dark:border-gray-800">
       <CommentThread
         v-for="child in comment.children"
         :key="child.id"
         :comment="child"
         :node="node"
         :own-user="ownUser"
-        @refresh="refresh"
+        @refresh="$emit('refresh')"
       />
     </div>
-  </UCard>
+  </div>
 </template>
 
 <script lang="ts" setup>
-defineProps(["comment", "node", "ownUser", "refresh"]);
+const props = defineProps(["comment", "node", "ownUser", "refresh"]);
 const emit = defineEmits(["refresh"]);
 
+const nodeKey = computed(() => props.node?.documentId || props.node?.id);
+const commentAuthorId = computed(() => props.comment?.authorUser?.id ?? props.comment?.author?.id);
+const isOwnComment = computed(() => {
+  if (!props.ownUser?.id || !commentAuthorId.value) return false;
+  return String(commentAuthorId.value) === String(props.ownUser.id);
+});
 const reply = ref<string | null>(null);
 const isOpen = ref<boolean>(false);
+const isEditing = ref(false);
+const editContent = ref("");
 
 const client = useStrapiClient();
 const { t } = useI18n();
 const toast = useToast();
 
-const addNewComment = async (id: string, threadOf?: number) => {
-  console.log(id, threadOf);
+const startEdit = () => {
+  editContent.value = props.comment.content;
+  isEditing.value = true;
+};
+
+const saveEdit = async () => {
+    await updateComment(nodeKey.value, props.comment.id, editContent.value);
+    isEditing.value = false;
+};
+
+const addNewComment = async (id: string | number, threadOf?: number) => {
   if (threadOf) {
     await client(`/comments/api::node.node:${id}`, {
       method: "POST",
@@ -92,29 +149,49 @@ const addNewComment = async (id: string, threadOf?: number) => {
 };
 
 const updateComment = async (
-  nodeId: string,
+  nodeId: string | number,
   commentId: string,
   content: string
 ) => {
-  await client(`/comments/api::node.node:${nodeId}/comment/${commentId}`, {
-    method: "PUT",
-    body: { content: content },
-  });
-  toast.add({ title: t("notification.saved") });
-  emit("refresh");
+  try {
+    await client(`/comments/api::node.node:${nodeId}/comment/${commentId}`, {
+      method: "PUT",
+      body: { content: content },
+    });
+    toast.add({ title: t("notification.saved") });
+    emit("refresh");
+  } catch (e) {
+    console.error("Error updating comment:", e);
+    toast.add({ title: t("general.error"), color: "error" });
+  }
 };
 
 const deleteComment = async (
-  nodeId: string,
-  commentId: string,
-  authorId: string
+  nodeId: string | number,
+  commentId: string
 ) => {
-  await client(
-    `/comments/api::node.node:${nodeId}/comment/${commentId}?authorId=${authorId}`,
-    {
+  const authorId = props.ownUser?.id;
+  if (!authorId) {
+    toast.add({ title: t("general.error"), color: "error" });
+    return;
+  }
+  try {
+    await client(`/comments/api::node.node:${nodeId}/comment/${commentId}`, {
       method: "DELETE",
-    }
-  );
-  emit("refresh");
+      params: { authorId },
+    });
+    emit("refresh");
+  } catch (e) {
+    console.error("Error deleting comment:", e);
+    toast.add({ title: t("general.error"), color: "error" });
+  }
+};
+
+const getAuthorAvatar = (author: any) => {
+  let url = author?.avatar?.url;
+  if (!url && author?.id === props.ownUser?.id) {
+    url = props.ownUser?.avatar?.url;
+  }
+  return url ? useStrapiMedia(url) : undefined;
 };
 </script>

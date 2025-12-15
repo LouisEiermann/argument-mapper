@@ -170,21 +170,47 @@
         </div>
       </UCard>
 
+      <!-- View Toggle Controls -->
+      <UCard class="max-w-4xl mx-auto">
+        <div class="flex items-center gap-6">
+          <h2 class="text-lg font-semibold">{{ $t('argument.viewMap') }}</h2>
+          <div class="flex gap-4 items-center">
+             <div class="flex gap-2">
+                <UButton
+                  :variant="minimapMode === 'visual' ? 'solid' : 'outline'"
+                  size="xs"
+                  @click="minimapMode = 'visual'"
+                >
+                  {{ $t('argument.visual') }}
+                </UButton>
+                <UButton
+                  :variant="minimapMode === 'tree' ? 'solid' : 'outline'"
+                  size="xs"
+                  @click="minimapMode = 'tree'"
+                >
+                  {{ $t('argument.treeView') }}
+                </UButton>
+                <UButton
+                  :variant="minimapMode === 'none' ? 'solid' : 'outline'"
+                  size="xs"
+                  @click="minimapMode = 'none'"
+                >
+                  {{ $t('general.none') }}
+                </UButton>
+             </div>
+          </div>
+        </div>
+      </UCard>
+
       <!-- Tree Component -->
       <div class="max-w-4xl mx-auto">
-        <Tree
-          v-if="data?.nodeTree"
-          :node="
-            findNodeByIdAtLevel(data.nodeTree, currentLevel) || data.nodeTree
-          "
-          :user-is-creator="data?.userIsCreator"
-          :parent="
-            findNodeByIdAtLevel(data.nodeTree.children, currentLevel) ||
-            data.argumentTrees[0]?.parent
-          "
-          :whole-tree="data.nodeTree"
-          :argument="data.argumentTrees[0]"
-        />
+          <Tree
+            :node="findNodeByIdAtLevel(data.nodeTree, currentLevel) || data.nodeTree"
+            :whole-tree="data.nodeTree"
+            :argument="data.argumentTrees[0]"
+            :user-is-creator="data.userIsCreator"
+            :minimap-type="minimapMode"
+          />
       </div>
     </div>
   </div>
@@ -253,8 +279,9 @@ const currentLevel = computed(() => Number(route.query.level) || 1);
 const finishArgumentModalIsOpen = ref(false);
 const { localizedVersion } = useLocalizedContent();
 const user = useStrapiUser();
+const minimapMode = ref<'visual' | 'text' | null>('visual');
 
-const { data, refresh } = await useAsyncData("data", async () => {
+const { data, refresh } = await useAsyncData(`argument-${params.id}`, async () => {
   try {
     const response = await find<StrapiResponse<ArgumentTreeData>>(
       "argument-trees",

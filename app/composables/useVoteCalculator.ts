@@ -1,13 +1,13 @@
 export const useVoteCalculator = (votes) => {
   const votesForCreator = computed(() => {
     return votes.data.filter((vote) => {
-      return vote.attributes.for === "creator";
+      return vote.for === "creator";
     }).length;
   });
 
   const votesForOpponent = computed(() => {
     return votes.data.filter((vote) => {
-      return vote.attributes.for === "opponent";
+      return vote.for === "opponent";
     }).length;
   });
 

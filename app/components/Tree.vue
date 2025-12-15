@@ -1,8 +1,10 @@
 <template>
   <div
+    v-if="minimapType && minimapType !== 'none'"
     class="flex flex-col items-center relative min-h-[368px] min-w-[664px] justify-center m-8"
   >
-    <Minimap :node="wholeTree" />
+    <Minimap v-if="minimapType === 'visual'" :node="wholeTree" />
+    <ArgumentTreeView v-if="minimapType === 'tree'" :node="wholeTree" />
   </div>
   <div
     class="flex flex-col items-center relative min-h-[368px] min-w-[664px] justify-center m-8"
@@ -58,7 +60,7 @@
       />
       <USelect
         v-model="selectedFormalFallacy"
-        :items="formalFallacies"
+        :items="formalFallacySelectItems"
         :placeholder="$t('argument.doubtValidity')"
         @update:model-value="onFormalFallacySelected"
       />
@@ -123,16 +125,9 @@
             :placeholder="$t('argument.new.premise')"
           />
           <UInput
-            v-if="premise != ''"
             v-model="coPremise"
             type="text"
             :placeholder="$t('argument.new.coPremise')"
-          />
-          <UInput
-            v-if="coPremise != ''"
-            v-model="secondCoPremise"
-            type="text"
-            :placeholder="$t('argument.new.secondCoPremise')"
           />
         </div>
       </template>
@@ -141,10 +136,11 @@
         <UButton
           v-if="node.owner?.id !== ownUser?.id"
           @click="addReasons(node?.id)"
+          :disabled="!canAddReasons"
           color="error"
           >{{ $t("argument.objection.add") }}</UButton
         >
-        <UButton v-else @click="addReasons(node?.id)">{{
+        <UButton v-else @click="addReasons(node?.id)" :disabled="!canAddReasons">{{
           $t("argument.support.add")
         }}</UButton>
       </template>
@@ -157,10 +153,12 @@
         variant: 'ghost',
         icon: 'i-heroicons-x-mark-20-solid',
       }"
+      v-model:open="isTaggingOpen"
     >
       <UButton
         v-if="node.owner?.id !== ownUser?.id && !node.thesis"
         color="primary"
+        @click="openTaggingModal"
         >{{ $t("argument.tagging.title") }}</UButton
       >
       <template #body>
@@ -168,7 +166,7 @@
           <USelectMenu
             v-model="selectedFormalFellacies"
             type="text"
-            :items="formalFallacies"
+            :items="formalFallacyTagItemsWithLegacy"
             :placeholder="$t('argument.formalFallacies')"
             multiple
           />
@@ -194,11 +192,7 @@
       <template #footer>
         <UButton
           @click="addPremiseGroupTag(node.premiseGroup.documentId)"
-          :disabled="
-            selectedFormalFellacies.length === 0 &&
-            selectedInformalFellacies.length === 0 &&
-            selectedCommonPatterns.length === 0
-          "
+          :disabled="!taggingIsDirty"
           >{{ $t("general.save") }}</UButton
         >
       </template>
@@ -227,174 +221,233 @@
   />
 </template>
 <script setup lang="ts">
-const props = defineProps([
-  "node",
-  "isNotValid",
-  "userIsCreator",
+	const props = defineProps([
+	  "node",
+	  "isNotValid",
+	  "userIsCreator",
   "parent",
   "end",
   "wholeTree",
   "argument",
+  "minimapType",
 ]);
 
 const { create, delete: deleteStrapi, update, find } = useStrapi();
 const isOpen = ref(false);
-const isTaggingOpen = ref(false);
-const isSlideoverOpen = ref(false);
-const currentDropdownNode = ref();
-const route = useRoute();
-const currentLevel = computed(() => Number(route.query.level) || 1);
-const { fetchUser } = useStrapiAuth();
-const ownUser = await fetchUser();
-const refresh = inject("refresh");
+	const isTaggingOpen = ref(false);
+	const isSlideoverOpen = ref(false);
+	const currentDropdownNode = ref();
+	const route = useRoute();
+	const currentLevel = computed(() => Number(route.query.level) || 1);
+	const { t } = useI18n();
+	const { fetchUser } = useStrapiAuth();
+	const ownUser = await fetchUser();
+	const refresh = inject("refresh");
 
-const premise = ref("");
-const coPremise = ref("");
-const secondCoPremise = ref("");
+	const premise = ref("");
+	const coPremise = ref("");
+	const canAddReasons = computed(() => {
+	  return premise.value.trim().length > 0 && coPremise.value.trim().length > 0;
+	});
 
-const selectedFormalFellacies = ref([]);
-const selectedInformalFellacies = ref([]);
-const selectedCommonPatterns = ref([]);
-const selectedFormalFallacy = ref(null);
+	const selectedFormalFellacies = ref([]);
+	const selectedInformalFellacies = ref([]);
+	const selectedCommonPatterns = ref([]);
+	const selectedFormalFallacy = ref(null);
 
-const createdPremiseId = ref<number | null>(null);
-const createdCoPremiseId = ref<number | null>(null);
-const createdSecondCoPremiseId = ref<number | null>(null);
+	const { data: premiseGroupData } = useAsyncData(
+	  "premiseGroupData",
+	  async () => {
+	    const premiseGroupTags = (
+	      await find("premise-group-tags", {
+	        pagination: { pageSize: 1000 },
+	        fields: ["id", "name", "type", "key", "documentId", "locale"],
+	      })
+	    ).data;
+	    return { premiseGroupTags };
+	  }
+	);
 
-const premiseGroupNodes = ref([]);
+	const SYLLOGISM_FORMAL_FALLACY_KEYS = [
+	  "four_terms",
+	  "undistributed_middle",
+	  "illicit_major",
+	  "illicit_minor",
+	  "exclusive_premises",
+	  "illicit_negative",
+	  "illicit_affirmative",
+	  "existential_fallacy",
+	] as const;
 
-const { data: premiseGroupData } = useAsyncData(
-  "premiseGroupData",
-  async () => {
-    const premiseGroupTags = (await find("premise-group-tags")).data;
-    return { premiseGroupTags };
-  }
-);
+	const premiseGroupTagValue = (tag: any) => {
+	  const value = tag?.id ?? null;
+	  if (value === null || value === undefined) return null;
+	  const num = Number(value);
+	  return Number.isFinite(num) ? num : null;
+	};
 
-const formalFallacies = [
-  { label: "Affirming the Consequent", value: "affirming_consequent" },
-  { label: "Denying the Antecedent", value: "denying_antecedent" },
-  {
-    label: "Affirmative Conclusion from a Negative Premise (Illicit Negative)",
-    value: "illicit_negative",
-  },
-  {
-    label:
-      "Negative Conclusion from Affirmative Premises (Illicit Affirmative)",
-    value: "illicit_affirmative",
-  },
-  { label: "Undistributed Middle", value: "undistributed_middle" },
-  { label: "Illicit Major", value: "illicit_major" },
-  { label: "Illicit Minor", value: "illicit_minor" },
-  {
-    label:
-      "Fallacy of Exclusive Premises (Drawing an Affirmative Conclusion from Negative Premises)",
-    value: "exclusive_premises",
-  },
-  { label: "Existential Fallacy", value: "existential_fallacy" },
-  {
-    label: "Fallacy of Four Terms (Quaternio Terminorum)",
-    value: "four_terms",
-  },
-  {
-    label: "Fallacy of the Undistributed Middle (Infima Species)",
-    value: "undistributed_middle_infima",
-  },
-  {
-    label:
-      "Fallacy of Illicit Process (Fallacy of the Illicit Major/Minor Term)",
-    value: "illicit_process",
-  },
-  { label: "Modal Fallacy", value: "modal_fallacy" },
-];
+	const formalFallacyTagItems = computed(() => {
+	  const premiseGroupTags = premiseGroupData.value?.premiseGroupTags || [];
+	  const byKey = new Map(
+	    premiseGroupTags
+	      .filter((tag: any) => tag.type === "formalFallacy" && tag.key)
+	      .map((tag: any) => [tag.key, tag])
+	  );
 
-const informalFellacies = computed(() => {
-  if (!premiseGroupData.value?.premiseGroupTags) return [];
+	  return SYLLOGISM_FORMAL_FALLACY_KEYS.map((key) => {
+	    const tag = byKey.get(key);
+	    if (!tag) return null;
 
-  return premiseGroupData.value.premiseGroupTags
-    .filter((tag: any) => tag.type === "informalFallacy")
-    .map((tag: any) => ({
-      label: tag.name,
-      value: tag.id,
-    }));
-});
+	    return {
+	      label: t(`argument.formalFallacyLabels.${key}`),
+	      value: premiseGroupTagValue(tag),
+	      key,
+	    };
+	  }).filter(Boolean);
+	});
 
-const commonPatterns = computed(() => {
-  if (!premiseGroupData.value?.premiseGroupTags) return [];
+	const formalFallacyTagItemsWithLegacy = formalFallacyTagItems;
 
-  return premiseGroupData.value.premiseGroupTags
-    .filter((tag: any) => tag.type === "commonPattern")
-    .map((tag: any) => ({
-      label: tag.name,
-      value: tag.id,
-    }));
-});
+	const formalFallacySelectItems = computed(() => {
+	  return SYLLOGISM_FORMAL_FALLACY_KEYS.map((key) => ({
+	    label: t(`argument.formalFallacyLabels.${key}`),
+	    value: key,
+	  }));
+	});
 
-const addReasons = async (parentId: any) => {
-  const createdPremise = await create("nodes", {
-    title: premise.value,
-    parent: parentId,
-    owner: ownUser.value?.id,
-    argument: props.argument.id,
-  });
+	const informalFellacies = computed(() => {
+	  if (!premiseGroupData.value?.premiseGroupTags) return [];
 
-  createdPremiseId.value = createdPremise.data.id;
+	  return premiseGroupData.value.premiseGroupTags
+	    .filter((tag: any) => tag.type === "informalFallacy")
+	    .map((tag: any) => ({
+	      label: tag.name,
+	      value: premiseGroupTagValue(tag),
+	    }));
+	});
 
-  if (coPremise.value !== "") {
-    const createdCoPremise = await create("nodes", {
-      title: coPremise.value,
-      parent: parentId,
-      owner: ownUser.value?.id,
-      argument: props.argument.id,
-    });
+	const commonPatterns = computed(() => {
+	  if (!premiseGroupData.value?.premiseGroupTags) return [];
 
-    createdCoPremiseId.value = createdCoPremise.data.id;
-  }
+	  return premiseGroupData.value.premiseGroupTags
+	    .filter((tag: any) => tag.type === "commonPattern")
+	    .map((tag: any) => ({
+	      label: tag.name,
+	      value: premiseGroupTagValue(tag),
+	    }));
+	});
 
-  if (secondCoPremise.value !== "") {
-    const createdSecondCoPremise = await create("nodes", {
-      title: secondCoPremise.value,
-      parent: parentId,
-      owner: ownUser.value?.id,
-      argument: props.argument.id,
-    });
+	const validPremiseGroupTagIds = computed(() => {
+	  const values = [
+	    ...formalFallacyTagItemsWithLegacy.value.map((i: any) => i.value),
+	    ...informalFellacies.value.map((i: any) => i.value),
+	    ...commonPatterns.value.map((i: any) => i.value),
+	  ].filter(Boolean);
+	  return new Set(values);
+	});
 
-    createdSecondCoPremiseId.value = createdSecondCoPremise.data.id;
-  }
+	const currentPremiseGroupTagIds = computed(() => {
+	  const selectedIds = [
+	    ...selectedFormalFellacies.value.map((item: any) => item.value),
+	    ...selectedInformalFellacies.value.map((item: any) => item.value),
+	    ...selectedCommonPatterns.value.map((item: any) => item.value),
+	  ]
+	    .map((value: any) => Number(value))
+	    .filter((value: number) => Number.isFinite(value))
+	    .filter((value: number) => validPremiseGroupTagIds.value.has(value));
 
-  premiseGroupNodes.value.push(createdPremiseId.value);
+	  return Array.from(new Set(selectedIds));
+	});
 
-  if (createdCoPremiseId.value) {
-    premiseGroupNodes.value.push(createdCoPremiseId.value);
-  }
+	const initialPremiseGroupTagIds = ref<string[]>([]);
 
-  if (createdSecondCoPremiseId.value) {
-    premiseGroupNodes.value.push(createdSecondCoPremiseId.value);
-  }
+	const taggingIsDirty = computed(() => {
+	  const a = new Set(initialPremiseGroupTagIds.value);
+	  const b = new Set(currentPremiseGroupTagIds.value);
+	  if (a.size !== b.size) return true;
+	  for (const id of a) {
+	    if (!b.has(id)) return true;
+	  }
+	  return false;
+	});
 
-  await create("premise-groups", {
-    nodes: premiseGroupNodes.value,
-  });
+	const syncTaggingSelectionsFromNode = () => {
+	  const existing = props.node?.premiseGroup?.premiseGroupTags || [];
 
-  refresh();
-  isOpen.value = false;
-};
+	  const formalExisting = existing
+	    .filter((tag: any) => tag.type === "formalFallacy")
+	    .map(premiseGroupTagValue);
+	  const informalExisting = existing
+	    .filter((tag: any) => tag.type === "informalFallacy")
+	    .map(premiseGroupTagValue);
+	  const commonExisting = existing
+	    .filter((tag: any) => tag.type === "commonPattern")
+	    .map(premiseGroupTagValue);
 
-const addPremiseGroupTag = async (premiseGroup: string) => {
-  // Extract only the IDs from the selected items
-  const selectedIds = [
-    ...selectedFormalFellacies.value.map((item: any) => item.value),
-    ...selectedInformalFellacies.value.map((item: any) => item.value),
-    ...selectedCommonPatterns.value.map((item: any) => item.value),
-  ];
+	  selectedFormalFellacies.value = formalFallacyTagItemsWithLegacy.value.filter((item: any) =>
+	    formalExisting.includes(item.value)
+	  );
+	  selectedInformalFellacies.value = informalFellacies.value.filter((item: any) =>
+	    informalExisting.includes(item.value)
+	  );
+	  selectedCommonPatterns.value = commonPatterns.value.filter((item: any) =>
+	    commonExisting.includes(item.value)
+	  );
 
-  await update("premise-groups", premiseGroup, {
-    premiseGroupTags: selectedIds,
-  });
+	  initialPremiseGroupTagIds.value = currentPremiseGroupTagIds.value;
+	};
 
-  refresh();
-  isTaggingOpen.value = false;
-};
+	const openTaggingModal = () => {
+	  isTaggingOpen.value = true;
+	  syncTaggingSelectionsFromNode();
+	};
+
+	watch(
+	  () => [isTaggingOpen.value, premiseGroupData.value?.premiseGroupTags],
+	  ([open]) => {
+	    if (!open) return;
+	    syncTaggingSelectionsFromNode();
+	  }
+	);
+
+	const addReasons = async (parentId: any) => {
+	  if (!canAddReasons.value) return;
+	
+	  const createdPremise = await create("nodes", {
+	    title: premise.value.trim(),
+	    parent: parentId,
+	    owner: ownUser.value?.id,
+	    argument: props.argument.id,
+	  });
+
+	  const createdCoPremise = await create("nodes", {
+	    title: coPremise.value.trim(),
+	    parent: parentId,
+	    owner: ownUser.value?.id,
+	    argument: props.argument.id,
+	  });
+
+		  await create("premise-groups", {
+		    nodes: [
+		      createdPremise.data.documentId ?? createdPremise.data.id,
+		      createdCoPremise.data.documentId ?? createdCoPremise.data.id,
+		    ],
+		  });
+
+	  premise.value = "";
+	  coPremise.value = "";
+	  refresh();
+	  isOpen.value = false;
+	};
+
+	const addPremiseGroupTag = async (premiseGroup: string) => {
+	  await update("premise-groups", premiseGroup, {
+	    premiseGroupTags: currentPremiseGroupTagIds.value,
+	  });
+
+	  refresh();
+	  isTaggingOpen.value = false;
+	};
 
 const deleteReason = async (id: string) => {
   await deleteStrapi("nodes", id);
@@ -493,14 +546,18 @@ const itemsGroupedByCoPremises = computed(() => {
   return groupItemsByPremiseGroup(props.node.children);
 });
 
-const onFormalFallacySelected = async (fallacy: any) => {
-  console.log("Formal fallacy selected:", fallacy);
-  if (fallacy && currentDropdownNode.value) {
-    await update("nodes", currentDropdownNode.value, {
-      formalFallacyBelow: fallacy.label,
-    });
-    refresh();
-    selectedFormalFallacy.value = null; // Reset selection
-  }
-};
+	const onFormalFallacySelected = async (fallacy: any) => {
+	  console.log("Formal fallacy selected:", fallacy);
+	  if (fallacy && currentDropdownNode.value) {
+	    const selectedKey =
+	      typeof fallacy === "string"
+	        ? fallacy
+	        : (fallacy.value ?? fallacy.key ?? fallacy.label);
+	    await update("nodes", currentDropdownNode.value, {
+	      formalFallacyBelow: selectedKey,
+	    });
+	    refresh();
+	    selectedFormalFallacy.value = null; // Reset selection
+	  }
+	};
 </script>

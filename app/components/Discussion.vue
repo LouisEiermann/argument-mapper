@@ -31,15 +31,27 @@ const route = useRoute();
 const { fetchUser } = useStrapiAuth();
 const ownUser = await fetchUser();
 
-const { data, refresh } = useAsyncData("comments", async () => {
-  const comments = await client(
-    `/comments/api::node.node:${props.node.documentId}`,
-    {
-      method: "GET",
+const { data, refresh } = useAsyncData(
+  () => `comments-${props.node.documentId || props.node.id}`,
+  async () => {
+    if (!props.node.documentId && !props.node.id) return { comments: [] };
+    try {
+      const comments = await client(
+        `/comments/api::node.node:${props.node.documentId || props.node.id}`,
+        {
+          method: "GET",
+        }
+      );
+      return { comments };
+    } catch (e) {
+      console.error("Error fetching comments:", e);
+      return { comments: [] };
     }
-  );
-  return { comments };
-});
+  },
+  {
+    watch: [() => props.node.documentId, () => props.node.id],
+  }
+);
 
 watchEffect(() => {
   const level = route.query.level;

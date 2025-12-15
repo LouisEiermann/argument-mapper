@@ -245,7 +245,7 @@ const searchForFriendsSearchTerm = ref("");
 const searching = ref(false);
 const user = useStrapiUser();
 
-const { data, refresh } = useAsyncData("data", async () => {
+const { data, refresh } = useAsyncData("friendManagement", async () => {
   const currentUserId = user.value?.id;
   const friendIds = user.value?.friends?.map((friend) => friend.id) || [];
   const excludeIds = [currentUserId, ...friendIds];

@@ -38,17 +38,25 @@ definePageMeta({
 const { findOne } = useStrapi();
 const { fetchUser } = useStrapiAuth();
 const { formatDate } = useDateFormatter();
-const { params } = useRoute();
+const route = useRoute();
+const userId = computed(() => {
+  const id = route.params.id;
+  return Array.isArray(id) ? id[0] : String(id);
+});
 
 const { locale } = useI18n();
 
-const { data, refresh } = useAsyncData("data", async () => {
-  const user = await findOne("users", params.id, {
-    populate: ["friends", "created", "isOpponent", "avatar"],
-  });
+const { data, refresh } = useAsyncData(
+  `user:${userId.value}`,
+  async () => {
+    const user = await findOne("users", userId.value, {
+      populate: ["friends", "created", "isOpponent", "avatar"],
+    });
 
-  const ownUser = await fetchUser();
+    const ownUser = await fetchUser();
 
-  return { ownUser, user };
-});
+    return { ownUser, user };
+  },
+  { watch: [userId] },
+);
 </script>

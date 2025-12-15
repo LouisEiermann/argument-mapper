@@ -1,6 +1,6 @@
 <template>
   <UCard v-for="topic of data?.topics?.data" class="m-4">
-    <ULink :to="'learn/' + topic.id">{{ topic.attributes.name }}</ULink>
+    <ULink :to="'learn/' + topic.id">{{ topic.name }}</ULink>
     <template #footer>
       <UProgress :value="0" indicator />
     </template>
@@ -13,7 +13,7 @@ definePageMeta({
 
 const { find } = useStrapi();
 
-const { data } = useAsyncData("data", async () => {
+const { data } = useAsyncData("learnTopics", async () => {
   const topics = await find("topics");
 
   return {

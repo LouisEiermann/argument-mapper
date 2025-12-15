@@ -40,7 +40,17 @@ const { create, find } = useStrapi();
 const client = useStrapiClient();
 const route = useRoute();
 
-const { data, refresh } = useAsyncData("data", async () => {
+const asyncKey = computed(() => {
+  const topic = Array.isArray(route.params.topic)
+    ? route.params.topic[0]
+    : String(route.params.topic);
+  const lession = Array.isArray(route.params.lession)
+    ? route.params.lession[0]
+    : String(route.params.lession);
+  return `learnLesson:${topic}:${lession}`;
+});
+
+const { data, refresh } = useAsyncData(asyncKey.value, async () => {
   const questions = await find("questions", {
     pagination: {
       start: 0,

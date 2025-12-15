@@ -69,25 +69,11 @@
         </div>
 
         <!-- Co-Premise Input -->
-        <div v-if="premise">
+        <div>
           <UFormField :label="$t('argument.new.coPremise')" name="coPremise">
             <UInput
               v-model="coPremise"
               :placeholder="$t('argument.new.coPremise')"
-              icon="i-heroicons-arrow-path"
-            />
-          </UFormField>
-        </div>
-
-        <!-- Second Co-Premise Input -->
-        <div v-if="coPremise">
-          <UFormField
-            :label="$t('argument.new.secondCoPremise')"
-            name="secondCoPremise"
-          >
-            <UInput
-              v-model="secondCoPremise"
-              :placeholder="$t('argument.new.secondCoPremise')"
               icon="i-heroicons-arrow-path"
             />
           </UFormField>
@@ -113,7 +99,7 @@
         <UButton
           color="primary"
           :loading="loading"
-          :disabled="!premise || loading"
+          :disabled="!canCreateArgument || loading"
           @click="onNewThesis"
         >
           {{
@@ -147,16 +133,17 @@ const { t } = useI18n();
 const conclusion = ref("");
 const premise = ref("");
 const coPremise = ref("");
-const secondCoPremise = ref("");
 const title = ref("");
 const argumentTree = ref();
 const loading = ref(false);
 
-const createdPremiseId = ref<number | null>(null);
-const createdCoPremiseId = ref<number | null>(null);
-const createdSecondCoPremiseId = ref<number | null>(null);
-
-const premiseGroupNodes = ref([]);
+const canCreateArgument = computed(() => {
+  return (
+    conclusion.value.trim().length > 0 &&
+    premise.value.trim().length > 0 &&
+    coPremise.value.trim().length > 0
+  );
+});
 
 const { data: tagsData } = await useAsyncData("tags", async () => {
   const response = await find("tags", {
@@ -182,12 +169,13 @@ const selectedTags = ref([]);
 const user = useStrapiUser();
 
 const onNewThesis = async () => {
+  if (!canCreateArgument.value) return;
   loading.value = true;
   try {
     // First create the thesis node
     const thesis = (
       await create("nodes", {
-        title: conclusion.value,
+        title: conclusion.value.trim(),
         thesis: true,
         owner: user.value?.id,
       })
@@ -217,52 +205,44 @@ const onNewThesis = async () => {
 
     // Create all premises first
     const createdPremise = await create("nodes", {
-      title: premise.value,
+      title: premise.value.trim(),
       parent: thesis.id,
       owner: user.value?.id,
       argument: argumentId,
     });
 
-    createdPremiseId.value = createdPremise.data.id;
+    const createdCoPremise = await create("nodes", {
+      title: coPremise.value.trim(),
+      parent: thesis.id,
+      owner: user.value?.id,
+      argument: argumentId,
+    });
 
-    if (coPremise.value !== "") {
-      const createdCoPremise = await create("nodes", {
-        title: coPremise.value,
-        parent: thesis.id,
-        owner: user.value?.id,
-        argument: argumentId,
-      });
-
-      createdCoPremiseId.value = createdCoPremise.data.id;
-    }
-
-    if (secondCoPremise.value !== "") {
-      const createdSecondCoPremise = await create("nodes", {
-        title: secondCoPremise.value,
-        parent: thesis.id,
-        owner: user.value?.id,
-        argument: argumentId,
-      });
-
-      createdSecondCoPremiseId.value = createdSecondCoPremise.data.id;
-    }
-
-    // Create premise group
-    premiseGroupNodes.value.push(createdPremiseId.value);
-    if (createdCoPremiseId.value) {
-      premiseGroupNodes.value.push(createdCoPremiseId.value);
-    }
-    if (createdSecondCoPremiseId.value) {
-      premiseGroupNodes.value.push(createdSecondCoPremiseId.value);
-    }
+    await create("premise-groups", {
+      nodes: [
+        createdPremise.data.documentId ?? createdPremise.data.id,
+        createdCoPremise.data.documentId ?? createdCoPremise.data.id,
+      ],
+    });
 
     // Finally update the thesis node with the argument ID
     await update("nodes", thesis.documentId, {
       argument: argumentId,
     });
 
+    // Navigate to the new argument view
+    await navigateTo({
+      name: "argument-id",
+      params: { id: argumentId },
+    });
+
     emit("refresh");
     emit("update:isOpen", false);
+    conclusion.value = "";
+    premise.value = "";
+    coPremise.value = "";
+    title.value = "";
+    selectedTags.value = [];
   } catch (error) {
     console.error("Error creating argument:", error);
     toast.add({

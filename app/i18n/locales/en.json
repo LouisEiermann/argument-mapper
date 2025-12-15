@@ -11,6 +11,7 @@
     "passwordForgotten": "Password forgotten",
     "or": "Or",
     "settings": "Settings",
+    "settingsDescription": "Manage your profile and account settings",
     "joined": "Joined",
     "noAccount": "No account yet? Register here",
     "changeAvatar": "Change Avatar",
@@ -44,6 +45,8 @@
   },
   "argument": {
     "slideover": {
+      "title": "Premise details",
+      "description": "Edit and review this premise.",
       "elaboratePremise": "Elaborate on this premise"
     },
     "doubtValidity": "Doubt Validity",
@@ -76,7 +79,8 @@
     "discussion": {
       "title": "Discussion",
       "newComment": "New comment",
-      "reply": "Reply"
+      "reply": "Reply",
+      "replyDescription": "Write a reply to this comment."
     },
     "settings": "Settings",
     "endArgument": "End Argument",
@@ -86,15 +90,30 @@
       "title": "Tagging",
       "description": "Tag this premise with a formal or informal fallacy or a common pattern"
     },
-    "formalFellacies": "Formal Fallacies",
-    "informalFellacies": "Informal Fallacies",
+    "formalFallacyLabels": {
+      "four_terms": "Four-term fallacy (quaternio terminorum)",
+      "undistributed_middle": "Undistributed middle",
+      "illicit_major": "Illicit major",
+      "illicit_minor": "Illicit minor",
+      "exclusive_premises": "Exclusive premises (two negative premises)",
+      "illicit_negative": "Affirmative conclusion from a negative premise",
+      "illicit_affirmative": "Negative conclusion from affirmative premises",
+      "existential_fallacy": "Existential fallacy"
+    },
+    "formalFallacies": "Formal Fallacies",
+    "informalFallacies": "Informal Fallacies",
     "commonPatterns": "Common Patterns",
     "closed": "Closed",
     "standpoint": "Standpoint",
     "markAsNotSound": "Mark as not sound",
     "markAsSound": "Mark as sound",
     "markAsNotValid": "Mark as not valid",
-    "markAsValid": "Mark as valid"
+    "markAsValid": "Mark as valid",
+    "viewMap": "Overview",
+    "minimapView": "Minimap",
+    "treeView": "Tree List",
+    "visual": "Visual",
+    "text": "Text"
   },
   "notification": {
     "loginFailed": "Login failed. Please check your username and your password.",
@@ -105,7 +124,9 @@
   },
   "general": {
     "cancel": "Cancel",
+    "error": "Something went wrong",
     "unknown": "Unknown",
+    "none": "None",
     "send": "Send",
     "save": "Save",
     "delete": "Delete",

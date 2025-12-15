@@ -1,5 +1,9 @@
 <template>
-  <USlideover v-model:open="open">
+  <USlideover
+    v-model:open="open"
+    :title="node?.title || $t('argument.slideover.title')"
+    :description="$t('argument.slideover.description')"
+  >
     <template #content
       ><div class="p-4 flex-1 overflow-scroll">
         <div

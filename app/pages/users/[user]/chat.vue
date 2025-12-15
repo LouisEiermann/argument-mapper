@@ -1,33 +1,53 @@
 <template>
-  <UCard>
-    <div v-if="messages.length">
-      <div
-        v-for="message in messages"
-        :key="message.id"
-        class="p-4"
-        v-bind:class="{ 'text-right': message.sender.id == params.user }"
-      >
-        <p class="font-bold">
-          {{ message.sender?.username || $t("general.unknown") }}
-        </p>
-        <p>{{ message.content }}</p>
-        <span class="text-xs">{{ formatDate(message.createdAt) }}</span>
-        <p>{{ message.sender.id }}</p>
-      </div>
+  <div class="h-[calc(100vh-140px)] mt-4 flex flex-col ring-1 ring-gray-200 dark:ring-gray-800 rounded-lg overflow-hidden bg-white dark:bg-gray-900 shadow">
+    <div class="flex-1 overflow-y-auto p-4 space-y-4">
+      <ClientOnly>
+        <div 
+          v-for="message in messages" 
+          :key="message.id"
+          class="flex flex-col"
+        >
+          <div class="mb-1 flex items-center gap-2 text-xs" :class="message.sender?.id == data?.currentUser?.id ? 'justify-end' : 'justify-start'">
+            <span class="font-bold text-gray-700 dark:text-gray-300">
+              {{ message.sender?.username || $t('general.unknown') }}
+            </span>
+            <span class="text-gray-400">
+              {{ formatDate(message.createdAt || new Date().toISOString()) }}
+            </span>
+          </div>
+          <UChatMessage
+            :id="String(message.id)"
+            role="user"
+            :parts="[]"
+            :content="message.content || ''"
+            :avatar="{ src: message.sender?.avatar?.url ? useStrapiMedia(message.sender.avatar.url) : undefined, alt: message.sender?.username }"
+            :side="message.sender?.id == data?.currentUser?.id ? 'right' : 'left'"
+          />
+        </div>
+        <template #fallback>
+          <div class="flex h-full items-center justify-center">
+            <UIcon name="i-heroicons-arrow-path" class="animate-spin text-2xl" />
+          </div>
+        </template>
+      </ClientOnly>
     </div>
 
-    <template #footer>
-      <div class="flex">
-        <UInput
-          v-model="newMessage"
-          type="text"
-          :placeholder="$t('general.newChatMessage')"
-          variant="none"
-        />
-        <UButton @click="sendMessage">{{ $t("general.send") }}</UButton>
+    <div class="p-2 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800 shrink-0">
+      <div class="flex gap-2">
+          <UTextarea
+            v-model="newMessage"
+            :rows="1"
+            autoresize
+            class="flex-1 w-full"
+            :placeholder="$t('general.newChatMessage')"
+            @keydown.enter.prevent="sendMessage"
+          />
+          <UButton icon="i-heroicons-paper-airplane" @click="sendMessage">
+              {{ $t("general.send") }}
+          </UButton>
       </div>
-    </template>
-  </UCard>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -38,21 +58,20 @@ definePageMeta({
   middleware: "auth",
 });
 
-const messages = ref([]);
+const messages = ref<any[]>([]);
 const newMessage = ref("");
-const socket = io("http://localhost:1337");
+let socket: any = null;
 const { create, find } = useStrapi();
 const { params } = useRoute();
 
-// Async data fetch with proper error handling
-const { data } = useAsyncData("data", async () => {
+const { data } = useAsyncData("chat-user-data", async () => {
   try {
     const currentUser = await find("users/me", {
       populate: {
         chats: {
           populate: {
-            participants: true,
-            messages: { populate: { sender: true } },
+            participants: { populate: "avatar" },
+            messages: { populate: { sender: { populate: "avatar" } } },
           },
         },
       },
@@ -60,35 +79,39 @@ const { data } = useAsyncData("data", async () => {
     return { currentUser };
   } catch (err) {
     console.error("Error fetching user data:", err);
-    return { currentUser: null }; // Return a fallback object
+    return { currentUser: null };
   }
-});
+}, { server: false, lazy: true });
 
-// Computed property with defensive coding to prevent errors
 const currentChat = computed(() => {
-  if (!data.value?.currentUser) return null; // Ensure currentUser is loaded
-  return data.value.currentUser.chats?.find((e) =>
-    e.participants.some((participant) => participant.id == params.user)
+  const chats = data.value?.currentUser?.chats;
+  if (!Array.isArray(chats)) return null;
+  
+  return chats.find((e: any) =>
+    e.participants?.some((participant: any) => participant.id == params.user)
   );
 });
 
-// Watch effect to update messages list when the current chat changes
 watchEffect(() => {
-  if (currentChat.value && currentChat.value.messages) {
-    messages.value = [...currentChat.value.messages].sort(
-      (a, b) => new Date(a.createdAt) - new Date(b.createdAt) // Sort messages by timestamp
+  const msgs = currentChat.value?.messages;
+  if (Array.isArray(msgs)) {
+    messages.value = [...msgs].sort(
+      (a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     );
+  } else {
+    // Keep existing messages or reset? 
+    // If pulling fresh data, reset.
+    if (data.value) messages.value = [];
   }
 });
 
-// Function to send a new message
 const sendMessage = async () => {
   if (!newMessage.value.trim() || !currentChat.value) return;
 
   try {
     await create("messages", {
       content: newMessage.value,
-      sender: data.value?.currentUser.id,
+      sender: (data.value?.currentUser as any)?.id,
       chat: currentChat.value.id,
     });
 
@@ -99,14 +122,32 @@ const sendMessage = async () => {
 };
 
 onMounted(() => {
-  socket.on("test", (message) => {
+  socket = io("http://localhost:1337");
+  socket.on("test", (message: any) => {
+    // Patch sender info if incomplete (e.g. missing avatar)
+    const senderId = message.sender?.id || message.sender;
+    
+    let fullSender = null;
+    if (currentChat.value?.participants) {
+      fullSender = currentChat.value.participants.find((p: any) => String(p.id) === String(senderId));
+    }
+
+    if (fullSender) {
+        if (typeof message.sender !== 'object' || message.sender === null) {
+            message.sender = {};
+        }
+        // Ensure we have username and avatar
+        message.sender.username = message.sender.username || fullSender.username;
+        message.sender.avatar = message.sender.avatar || fullSender.avatar;
+        message.sender.id = senderId;
+    }
+
     messages.value.push(message);
     messages.value.sort(
-      (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
+      (a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     );
   });
 });
 
-// Utility to format message timestamps
-const formatDate = (date) => new Date(date).toLocaleTimeString();
+const formatDate = (date: string) => new Date(date).toLocaleTimeString();
 </script>

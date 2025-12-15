@@ -8,63 +8,48 @@
         <template #header>
           <div class="flex items-center gap-4">
             <UAvatar
-              v-if="
-                item.attributes.creator.data.attributes.avatar.data?.attributes
-                  .url
-              "
-              :src="
-                useStrapiMedia(
-                  item.attributes.creator.data.attributes.avatar.data
-                    ?.attributes.url
-                )
-              "
+              v-if="item.creator?.avatar?.url"
+              :src="useStrapiMedia(item.creator.avatar.url)"
             />
             <UAvatar
               v-else
               :src="null"
-              :alt="item.attributes.creator.data.attributes.username"
+              :alt="item.creator?.username || $t('general.unknown')"
             />
-            <div v-if="item.attributes.opponent.data">vs</div>
+            
+            <div v-if="item.opponent">vs</div>
+            
             <UAvatar
-              v-if="
-                item.attributes.opponent.data &&
-                item.attributes.opponent.data.attributes.avatar.data?.attributes
-                  .url
-              "
-              :src="
-                useStrapiMedia(
-                  item.attributes.opponent.data.attributes.avatar.data
-                    ?.attributes.url
-                )
-              "
+              v-if="item.opponent?.avatar?.url"
+              :src="useStrapiMedia(item.opponent.avatar.url)"
             />
             <UAvatar
-              v-else-if="item.attributes.opponent.data"
+              v-else-if="item.opponent"
               :src="null"
-              :alt="item.attributes.opponent.data.attributes.username"
+              :alt="item.opponent.username || $t('general.unknown')"
             />
 
-            <p>{{ item.attributes.title }}</p>
+            <p>{{ item.title }}</p>
             <p class="text-sm ml-auto">
-              {{ timeSincePosted(item.attributes.createdAt) }}
+              {{ timeSincePosted(item.createdAt) }}
             </p>
           </div>
         </template>
-        {{ item.attributes.title }}
+        {{ item.title }}
         <div class="flex gap-2">
-          <UBadge v-if="item.attributes.finished" color="error"
-            >Geschlossen</UBadge
-          >
-          <UBadge v-if="!item.attributes.opponent.data" color="primary"
-            >Standpunkt</UBadge
-          >
+          <UBadge v-if="item.finished" color="error">
+            {{ $t("argument.closed") }}
+          </UBadge>
+          <UBadge v-if="!item.opponent" color="primary">
+            {{ $t("argument.standpoint") }}
+          </UBadge>
         </div>
         <template #footer>
           <div class="flex flex-col gap-4">
             <UProgress
-              v-if="item.opponent"
+              v-if="item.opponent && item.votes"
               :value="
-                useVoteCalculator(item.attributes.votes).creatorPercentage
+                useVoteCalculator(item.votes).creatorPercentage
               "
             />
             <div class="flex justify-between">

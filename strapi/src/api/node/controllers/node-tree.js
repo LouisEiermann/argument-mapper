@@ -25,7 +25,13 @@ module.exports = {
           },
         },
         sources: true,
-        premiseGroup: true,
+        premiseGroup: {
+          populate: {
+            premiseGroupTags: {
+              fields: ["id", "name", "type", "key", "documentId", "locale"],
+            },
+          },
+        },
       },
     });
 

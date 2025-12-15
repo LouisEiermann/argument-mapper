@@ -1,18 +1,26 @@
 <template>
-  <UContainer>
-    <footer class="mt-10">
-      <USeparator>
+  <UFooter>
+    <template #left>
+      <p class="text-sm text-muted">
         Made with ❤️ by&nbsp;
         <ULink to="https://github.com/LouisEiermann" external>
           Louis Eiermann
         </ULink>
-      </USeparator>
+      </p>
+    </template>
 
-      <h1>Reason App</h1>
-      <div>
-        <h2>Support</h2>
-        <ULink to="/contact">{{ $t("general.submitBug") }}</ULink>
-      </div>
-    </footer>
-  </UContainer>
+    <UNavigationMenu
+      :items="[
+        {
+          label: 'Reason App',
+          to: '/',
+        },
+        {
+          label: $t('general.submitBug'),
+          to: '/contact',
+        },
+      ]"
+      variant="link"
+    />
+  </UFooter>
 </template>

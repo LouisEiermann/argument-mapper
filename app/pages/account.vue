@@ -1,5 +1,5 @@
 <template>
-  <UContainer class="flex flex-col gap-8 justify-center items-center">
+  <UContainer class="pt-8 flex flex-col gap-8 justify-center items-center">
     <UContainer class="flex justify-center items-center flex-col">
       <UAvatar
         v-if="user?.avatar"
@@ -104,6 +104,7 @@
     </div>
     <UModal
       :title="$t('account.settings')"
+      :description="$t('account.settingsDescription')"
       :close="{
         color: 'neutral',
         variant: 'ghost',
