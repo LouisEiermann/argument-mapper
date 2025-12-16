@@ -5,7 +5,7 @@
         'text-yellow-300':
           currentLevel === node.id || (node.thesis && currentLevel === null),
         'bg-red-500': node?.owner.id !== node?.parent?.owner.id && node.parent,
-        'bg-green-500': !(
+        'bg-primary-500': !(
           node?.owner.id !== node?.parent?.owner.id && node.parent
         ),
         'ring-2': hasAnyTags || !!fallacyKey,

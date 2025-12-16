@@ -2,6 +2,90 @@
 @import "@nuxt/ui";
 
 @layer base {
+  :root,
+  .light,
+  .dark {
+    /* Brand palette (generated from #51936E + #515593 https://colorffy.com/ui-palette-generator?colors=51936e-515593) */
+    --ui-color-primary-50: #f1f6f3;
+    --ui-color-primary-100: #e3eee8;
+    --ui-color-primary-200: #cbdfd4;
+    --ui-color-primary-300: #abccb9;
+    --ui-color-primary-400: #89b69c;
+    --ui-color-primary-500: #51936e;
+    --ui-color-primary-600: #478161;
+    --ui-color-primary-700: #3c6d51;
+    --ui-color-primary-800: #315842;
+    --ui-color-primary-900: #244130;
+    --ui-color-primary-950: #1a2f23;
+
+    --ui-color-secondary-50: #f1f1f6;
+    --ui-color-secondary-100: #e3e4ee;
+    --ui-color-secondary-200: #cbccdf;
+    --ui-color-secondary-300: #abadcb;
+    --ui-color-secondary-400: #898bb6;
+    --ui-color-secondary-500: #515593;
+    --ui-color-secondary-600: #474b81;
+    --ui-color-secondary-700: #3c3f6d;
+    --ui-color-secondary-800: #313358;
+    --ui-color-secondary-900: #242541;
+    --ui-color-secondary-950: #1a1b2f;
+
+    --ui-color-success-50: #ebf7f0;
+    --ui-color-success-100: #d6f0e1;
+    --ui-color-success-200: #b3e2c6;
+    --ui-color-success-300: #85d1a4;
+    --ui-color-success-400: #52be7e;
+    --ui-color-success-500: #009f42;
+    --ui-color-success-600: #008c3a;
+    --ui-color-success-700: #007631;
+    --ui-color-success-800: #005f28;
+    --ui-color-success-900: #00461d;
+    --ui-color-success-950: #003315;
+
+    --ui-color-info-50: #eff6ff;
+    --ui-color-info-100: #dfedfe;
+    --ui-color-info-200: #c3ddfe;
+    --ui-color-info-300: #9fc8fd;
+    --ui-color-info-400: #78b1fc;
+    --ui-color-info-500: #388cfa;
+    --ui-color-info-600: #317bdc;
+    --ui-color-info-700: #2968b9;
+    --ui-color-info-800: #225496;
+    --ui-color-info-900: #193e6e;
+    --ui-color-info-950: #122d50;
+
+    --ui-color-warning-50: #fef8f1;
+    --ui-color-warning-100: #fdf2e3;
+    --ui-color-warning-200: #fbe6ca;
+    --ui-color-warning-300: #f8d8aa;
+    --ui-color-warning-400: #f5c787;
+    --ui-color-warning-500: #f0ad4e;
+    --ui-color-warning-600: #d39845;
+    --ui-color-warning-700: #b2803a;
+    --ui-color-warning-800: #90682f;
+    --ui-color-warning-900: #6a4c22;
+    --ui-color-warning-950: #4d3719;
+
+    --ui-color-error-50: #f9edee;
+    --ui-color-error-100: #f3dbdd;
+    --ui-color-error-200: #e9bbbf;
+    --ui-color-error-300: #db9299;
+    --ui-color-error-400: #cc656f;
+    --ui-color-error-500: #b41c2b;
+    --ui-color-error-600: #9e1926;
+    --ui-color-error-700: #851520;
+    --ui-color-error-800: #6c111a;
+    --ui-color-error-900: #4f0c13;
+    --ui-color-error-950: #3a090e;
+
+    --ui-primary: var(--ui-color-primary-500);
+    --ui-secondary: var(--ui-color-secondary-500);
+    --ui-success: var(--ui-color-success-500);
+    --ui-info: var(--ui-color-info-500);
+    --ui-warning: var(--ui-color-warning-500);
+    --ui-error: var(--ui-color-error-500);
+  }
+
   html {
     font-family: "Public Sans", system-ui, sans-serif;
   }

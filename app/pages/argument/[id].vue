@@ -43,9 +43,10 @@
           <p class="text-gray-600 dark:text-gray-400">
             {{ data.argumentTrees[0]?.description }}
           </p>
-          <template #footer v-if="!data.argumentTrees[0]?.finished">
+          <template #footer>
             <div class="flex gap-4">
               <UModal
+                v-if="data.userIsCreator"
                 :title="$t('account.settings')"
                 :description="$t('argument.settings')"
                 :close="{
@@ -65,7 +66,10 @@
                   />
                 </template>
               </UModal>
+
+              <!-- Debates: mutual finish -->
               <UModal
+                v-if="data.argumentTrees[0]?.opponent && !data.argumentTrees[0]?.finished"
                 v-model="finishArgumentModalIsOpen"
                 :title="$t('argument.endArgument')"
                 :close="{
@@ -99,6 +103,35 @@
                   >
                     {{ $t("argument.iWantToEndArgument") }}
                   </UButton>
+                </template>
+              </UModal>
+
+              <!-- Beliefs: unilateral delete -->
+              <UModal
+                v-if="!data.argumentTrees[0]?.opponent && data.userIsCreator"
+                v-model="deleteBeliefModalIsOpen"
+                :title="$t('argument.deleteBelief')"
+                :close="{
+                  color: 'neutral',
+                  variant: 'ghost',
+                  icon: 'i-heroicons-x-mark-20-solid',
+                }"
+              >
+                <UButton size="sm" color="error">
+                  {{ $t("argument.deleteBelief") }}
+                </UButton>
+                <template #body>
+                  {{ $t("argument.deleteBeliefConfirm") }}
+                </template>
+                <template #footer>
+                  <div class="flex justify-end gap-3">
+                    <UButton color="neutral" variant="outline" @click="deleteBeliefModalIsOpen = false">
+                      {{ $t("general.cancel") }}
+                    </UButton>
+                    <UButton color="error" @click="deleteBelief">
+                      {{ $t("general.delete") }}
+                    </UButton>
+                  </div>
                 </template>
               </UModal>
             </div>
@@ -280,6 +313,7 @@ const finishArgumentModalIsOpen = ref(false);
 const { localizedVersion } = useLocalizedContent();
 const user = useStrapiUser();
 const minimapMode = ref<'visual' | 'text' | null>('visual');
+const deleteBeliefModalIsOpen = ref(false);
 
 const { data, refresh } = await useAsyncData(`argument-${params.id}`, async () => {
   try {
@@ -382,6 +416,18 @@ const onArgumentFinishRequest = async () => {
     });
   }
 
+  await navigateTo("/account");
+};
+
+const deleteBelief = async () => {
+  const argument = data.value?.argumentTrees?.[0];
+  const deleteId = argument?.documentId ?? argument?.id;
+  if (!deleteId) return;
+
+  await strapiDelete("argument-trees", deleteId);
+  deleteBeliefModalIsOpen.value = false;
+  const { fetchUser } = useStrapiAuth();
+  await fetchUser();
   await navigateTo("/account");
 };
 

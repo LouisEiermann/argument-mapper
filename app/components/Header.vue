@@ -1,17 +1,19 @@
 <template>
   <UHeader to="/" v-model:open="isMenuOpen" :toggle="false">
     <template #title>
-      <span class="flex items-center gap-3">
+      <span class="flex items-center">
+        <img
+          :src="isDark ? '/brand/logosmap-lockup-dark.svg' : '/brand/logosmap-lockup.svg'"
+          alt="LogosMap"
+          class="hidden sm:block h-10 w-auto"
+          draggable="false"
+        />
         <img
           src="/brand/logosmap-icon.svg"
           alt="LogosMap"
-          class="h-9 w-9 sm:h-10 sm:w-10"
+          class="sm:hidden h-9 w-9"
+          draggable="false"
         />
-        <span
-          class="text-2xl sm:text-3xl font-bold text-center sm:text-left hover:text-primary-500 transition-colors"
-        >
-          LogosMap
-        </span>
       </span>
     </template>
 
@@ -33,7 +35,7 @@
           {{ t("account.login") }}
         </UButton>
         <div v-else class="flex gap-4 sm:gap-8 hidden sm:flex">
-          <UButton color="error" @click="onLogout" class="whitespace-nowrap">
+          <UButton color="neutral" variant="ghost" @click="onLogout" class="whitespace-nowrap">
             {{ t("account.logout") }}
           </UButton>
           <UButton
@@ -95,7 +97,7 @@
             Account
           </UButton>
           <UButton
-            color="error"
+            color="neutral"
             variant="ghost"
             @click="onLogout"
             class="justify-start"

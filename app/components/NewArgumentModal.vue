@@ -28,21 +28,37 @@
     </UButton>
     <template #body>
       <div class="space-y-6">
-        <UButton
-          color="neutral"
-          :icon="
-            isDebate
-              ? 'i-heroicons-chat-bubble-left-right'
-              : 'i-heroicons-light-bulb'
-          "
-          @click="isDebate = !isDebate"
-        >
-          {{
-            isDebate
-              ? $t("argument.new.switchToBelief")
-              : $t("argument.new.switchToDebate")
-          }}
-        </UButton>
+        <UTabs
+          v-if="!props.otherUser"
+          v-model="modeValue"
+          :items="modeTabItems"
+          :content="false"
+          color="primary"
+          variant="pill"
+          size="sm"
+        />
+
+        <UAlert
+          v-if="!canToggleDebate && !isDebate"
+          type="warning"
+          :title="$t('argument.new.debateUnavailableTitle')"
+          :description="$t('argument.new.noFriendsForDebate')"
+        />
+
+        <div v-if="isDebate && !props.otherUser">
+          <UFormField :label="$t('argument.new.opponent')" name="opponent">
+            <USelect
+              v-model="selectedOpponentId"
+              :items="opponentItems"
+              :placeholder="$t('argument.new.opponentPlaceholder')"
+              icon="i-heroicons-user"
+            />
+          </UFormField>
+          <p v-if="!opponentItems.length" class="mt-2 text-sm text-(--ui-text-muted)">
+            {{ $t("argument.new.noFriendsForDebate") }}
+          </p>
+        </div>
+
         <div>
           <UFormField :label="$t('argument.new.title')" name="title">
             <UInput
@@ -136,6 +152,12 @@ const open = defineModel<boolean>("open", { default: false });
 const showTrigger = computed(() => props.showTrigger !== false);
 
 const isDebate = ref(props.isDebate || false);
+watch(
+  () => props.isDebate,
+  (value) => {
+    if (typeof value === "boolean") isDebate.value = value;
+  },
+);
 
 const { find, create, update, delete: _delete } = useStrapi();
 const toast = useToast();
@@ -152,7 +174,8 @@ const canCreateArgument = computed(() => {
   return (
     conclusion.value.trim().length > 0 &&
     premise.value.trim().length > 0 &&
-    coPremise.value.trim().length > 0
+    coPremise.value.trim().length > 0 &&
+    (!isDebate.value || !!effectiveOpponentId.value)
   );
 });
 
@@ -176,8 +199,53 @@ const tags = computed(() => {
 });
 
 const selectedTags = ref([]);
+const selectedOpponentId = ref<number | null>(null);
 
 const user = useStrapiUser();
+
+const modeTabItems = computed(() => [
+  {
+    label: t("argument.new.newBelief"),
+    value: "belief",
+    icon: "i-heroicons-light-bulb",
+  },
+  {
+    label: t("argument.new.newDebate"),
+    value: "debate",
+    icon: "i-heroicons-chat-bubble-left-right",
+    disabled: !canToggleDebate.value,
+  },
+]);
+
+const modeValue = computed({
+  get: () => (isDebate.value ? "debate" : "belief"),
+  set: (value: string) => {
+    if (value === "debate" && !canToggleDebate.value) return;
+    isDebate.value = value === "debate";
+  },
+});
+
+const canToggleDebate = computed(() => {
+  return !!props.otherUser || (user.value?.friends?.length || 0) > 0;
+});
+
+const opponentItems = computed(() => {
+  if (props.otherUser) return [];
+  const friends = user.value?.friends || [];
+  return friends.map((f: any) => ({ label: f.username, value: f.id }));
+});
+
+const effectiveOpponentId = computed(() => {
+  return props.otherUser?.id ?? selectedOpponentId.value ?? null;
+});
+
+watch(
+  () => open.value,
+  (isOpen) => {
+    if (!isOpen) return;
+    if (props.otherUser) isDebate.value = true;
+  },
+);
 
 const onNewThesis = async () => {
   if (!canCreateArgument.value) return;
@@ -195,11 +263,20 @@ const onNewThesis = async () => {
 
     // Then create the argument tree
     if (isDebate.value) {
+      const opponentId = effectiveOpponentId.value;
+      if (!opponentId) {
+        toast.add({
+          title: t("notification.error"),
+          description: t("argument.new.debateNeedsOpponentDescription"),
+          color: "error",
+        });
+        return;
+      }
       argumentTree.value = await create("argument-trees", {
         title: title.value,
         nodes: thesis.id,
         creator: user.value?.id,
-        opponent: props.otherUser.id,
+        opponent: opponentId,
         tags: selectedTags.value,
       });
     } else {
@@ -266,4 +343,11 @@ const onNewThesis = async () => {
     loading.value = false;
   }
 };
+
+watch(
+  () => isDebate.value,
+  (value) => {
+    if (!value) selectedOpponentId.value = null;
+  },
+);
 </script>

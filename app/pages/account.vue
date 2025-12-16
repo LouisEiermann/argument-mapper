@@ -83,15 +83,64 @@
           <div class="space-y-6 flex flex-col">
             <div>
               <h4 class="text-sm font-medium mb-4">
+                {{ $t("account.changeUsername") }}
+              </h4>
+              <UFormField
+                :label="$t('account.username')"
+                name="username"
+                :help="$t('account.changeUsernameHelp')"
+              >
+                <UInput
+                  v-model="usernameDraft"
+                  icon="i-heroicons-user"
+                  autocomplete="username"
+                  :placeholder="$t('account.username')"
+                  :disabled="usernameUpdating"
+                />
+              </UFormField>
+              <div class="mt-3 flex justify-end">
+                <UButton
+                  size="sm"
+                  :loading="usernameUpdating"
+                  :disabled="!canUpdateUsername || usernameUpdating"
+                  @click="updateUsername"
+                >
+                  {{ $t("general.save") }}
+                </UButton>
+              </div>
+            </div>
+
+            <USeparator />
+
+            <div>
+              <h4 class="text-sm font-medium mb-4">
                 {{ $t("account.changeAvatar") }}
               </h4>
-              <UInput
-                type="file"
-                icon="i-heroicons-photo"
-                accept="image/*"
-                class="upload-avatar"
-                @change="handleFileChange"
-              />
+              <div class="flex items-center gap-4">
+                <UAvatar
+                  v-if="user?.avatar?.url"
+                  :src="useStrapiMedia(user.avatar.url)"
+                  :alt="user?.username"
+                  size="xl"
+                />
+                <UAvatar v-else :alt="user?.username" size="xl" />
+                <div class="flex-1">
+                  <UInput
+                    type="file"
+                    icon="i-heroicons-photo"
+                    accept="image/*"
+                    class="upload-avatar"
+                    :disabled="avatarUploading"
+                    @change="handleFileChange"
+                  />
+                  <p
+                    v-if="avatarUploading"
+                    class="mt-2 text-sm text-(--ui-text-muted)"
+                  >
+                    {{ $t("account.uploading") }}
+                  </p>
+                </div>
+              </div>
             </div>
 
             <div>
@@ -310,12 +359,34 @@ definePageMeta({
 const { find, update, delete: _delete } = useStrapi();
 const client = useStrapiClient();
 const { formatDate } = useDateFormatter();
-const { locale } = useI18n();
+const { locale, t } = useI18n();
+const toast = useToast();
+const { fetchUser } = useStrapiAuth();
 const user = useStrapiUser();
 
 const isFriendsManagementModalOpen = ref(false);
 const isNewArgumentModalOpen = ref(false);
 const isSettingsOpen = ref(false);
+const avatarUploading = ref(false);
+const usernameDraft = ref("");
+const usernameUpdating = ref(false);
+
+watch(
+  () => isSettingsOpen.value,
+  (open) => {
+    if (!open) return;
+    usernameDraft.value = user.value?.username ?? "";
+  },
+);
+
+const canUpdateUsername = computed(() => {
+  const current = user.value?.username ?? "";
+  const next = usernameDraft.value.trim();
+  if (!next) return false;
+  if (next === current) return false;
+  if (next.length < 3) return false;
+  return true;
+});
 
 const { data: socialData, refresh } = useAsyncData("socialData", async () => {
   const friendIds = user.value?.friends?.map((friend: any) => friend.id) || [];
@@ -388,18 +459,62 @@ const onDeleteUser = async () => {
   }
 };
 
+const updateUsername = async () => {
+  if (!canUpdateUsername.value) return;
+  if (!user.value?.id) return;
+
+  usernameUpdating.value = true;
+  try {
+    await client(`/users/${user.value.id}`, {
+      method: "PUT",
+      body: {
+        username: usernameDraft.value.trim(),
+      },
+    });
+
+    await fetchUser();
+    toast.add({ title: t("notification.saved") });
+  } catch (e: any) {
+    console.error(e);
+    toast.add({
+      title: t("notification.error"),
+      description: e?.data?.error?.message || e?.message || t("notification.errorDescription"),
+      color: "error",
+    });
+  } finally {
+    usernameUpdating.value = false;
+  }
+};
+
 const handleFileChange = async (event) => {
+  const file = event?.target?.files?.[0];
+  if (!file || !user.value?.id) return;
+
   const formData = new FormData();
 
-  formData.append("files", event.target.files[0]);
+  formData.append("files", file);
   formData.append("ref", "plugin::users-permissions.user");
   formData.append("refId", user.value?.id);
   formData.append("field", "avatar");
 
-  await client("/upload", {
-    method: "POST",
-    body: formData,
-  });
-  refresh();
+  avatarUploading.value = true;
+  try {
+    await client("/upload", {
+      method: "POST",
+      body: formData,
+    });
+
+    await fetchUser();
+    toast.add({ title: t("notification.saved") });
+  } catch (e: any) {
+    console.error(e);
+    toast.add({
+      title: t("notification.error"),
+      description: e?.data?.error?.message || e?.message || t("notification.errorDescription"),
+      color: "error",
+    });
+  } finally {
+    avatarUploading.value = false;
+  }
 };
 </script>
