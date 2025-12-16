@@ -1,188 +1,303 @@
 <template>
-  <UContainer class="pt-8 flex flex-col gap-8 justify-center items-center">
-    <UContainer class="flex justify-center items-center flex-col">
-      <UAvatar
-        v-if="user?.avatar"
-        :src="useStrapiMedia(user?.avatar?.url)"
-        :alt="user?.username"
-        size="3xl"
-        class="shadow-2xl relative"
-      />
-      <UContainer>
-        <h1 class="text-center mt-2 text-4xl">
-          {{ user?.username }}
-        </h1>
-        <p v-if="user?.createdAt" class="text-center text-sm">
-          {{ $t("account.joined") }} :
-          {{ formatDate(user.createdAt, locale) }}
-        </p>
-      </UContainer>
-    </UContainer>
-    <NewArgumentModal
-      :is-open="isNewArgumentModalOpen"
-      @refresh="refresh"
-      @update:is-open="isNewArgumentModalOpen = $event"
-    />
-    <USeparator
-      class="my-8"
-      :label="$t('account.myBeliefs')"
-      :ui="{ label: 'text-4xl' }"
-    />
-    <div class="grid grid-cols-3 gap-2.5">
-      <UCard
-        v-for="standpoint in standpoints"
-        :key="standpoint.id"
-        class="flex items-center justify-center p-5"
-      >
-        {{ standpoint.title }}
-        <UButton :to="'/argument/' + standpoint.id">{{
-          $t("account.toBelief")
-        }}</UButton>
-      </UCard>
-    </div>
-    <USeparator
-      class="my-8"
-      :label="$t('account.myDebates')"
-      :ui="{ label: 'text-4xl' }"
-    />
-    <div
-      v-if="sentArgumentRequests?.length || receivedArgumentRequests?.length"
-      class="grid grid-cols-3 gap-2.5"
-    >
-      <UCard
-        v-for="argument in sentArgumentRequests"
-        :key="argument.id"
-        class="flex items-center justify-center p-5"
-      >
-        {{ argument.id }}
-        <UButton
-          v-if="argument.opponentAccepted"
-          :to="'/argument/' + argument.id"
-          >{{ $t("general.toArgument") }}</UButton
-        >
-        <UChip
-          v-else
-          class="cursor-pointer"
-          :text="$t('account.withdrawArgumentRequest')"
-          size="2xl"
-          @click="withdrawArgumentRequest(argument.id)"
-        >
-          <UButton disabled>{{ $t("general.pending") }}</UButton>
-        </UChip>
-        <UBadge v-if="argument.finished" color="error">{{
-          $t("argument.closed")
-        }}</UBadge>
-      </UCard>
-      <UCard
-        v-for="argument in receivedArgumentRequests"
-        :key="argument.id"
-        class="flex items-center justify-center p-5"
-      >
-        {{ argument.id }}
-        <UButton
-          v-if="argument.opponentAccepted"
-          :to="'/argument/' + argument.id"
-          >{{ $t("general.toArgument") }}</UButton
-        >
-        <div v-else>
-          <UButton @click="acceptArgumentRequest(argument.documentId)">{{
-            $t("account.acceptArgumentRequest")
-          }}</UButton>
-          <UButton color="error" @click="rejectArgumentRequest(argument.id)">{{
-            $t("account.rejectArgumentRequest")
-          }}</UButton>
-        </div>
-        <UBadge v-if="argument.finished" color="error">{{
-          $t("argument.closed")
-        }}</UBadge>
-      </UCard>
-    </div>
-    <div v-else>
-      <UCard class="text-center">
-        <UAlert type="warning" :title="$t('general.nothingHere')" />
-      </UCard>
-    </div>
-    <UModal
-      :title="$t('account.settings')"
-      :description="$t('account.settingsDescription')"
-      :close="{
-        color: 'neutral',
-        variant: 'ghost',
-        icon: 'i-heroicons-x-mark',
-      }"
-    >
-      <UButton icon="heroicons:cog">{{ $t("account.settings") }}</UButton>
+  <UContainer class="py-10">
+    <div class="mx-auto max-w-5xl space-y-8">
+      <!-- Profile -->
+      <UCard>
+        <div class="flex flex-col sm:flex-row items-center sm:items-start gap-6">
+          <UAvatar
+            v-if="user?.avatar"
+            :src="useStrapiMedia(user?.avatar?.url)"
+            :alt="user?.username"
+            size="3xl"
+            class="shadow-xl"
+          />
+          <div class="flex-1 w-full">
+            <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+              <div class="text-center sm:text-left">
+                <h1 class="text-3xl sm:text-4xl font-semibold tracking-tight">
+                  {{ user?.username }}
+                </h1>
+                <p v-if="user?.createdAt" class="mt-1 text-sm text-(--ui-text-muted)">
+                  {{ $t("account.joined") }}:
+                  {{ formatDate(user.createdAt, locale) }}
+                </p>
+              </div>
 
-      <template #body>
-        <div class="space-y-6 flex flex-col">
-          <div>
-            <h4 class="text-sm font-medium text-gray-900 dark:text-white mb-4">
-              {{ $t("account.changeAvatar") }}
-            </h4>
-            <UInput
-              type="file"
-              icon="i-heroicons-photo"
-              accept="image/*"
-              class="upload-avatar"
-              @change="handleFileChange"
-            />
-          </div>
-
-          <div>
-            <USeparator :label="$t('account.dangerZone')" color="error" />
-            <div class="mt-4">
-              <UButton color="error" variant="soft" @click="onDeleteUser">
-                {{ $t("account.deleteAccount") }}
-              </UButton>
+              <div class="flex flex-wrap gap-2 justify-center sm:justify-end">
+                <UButton
+                  icon="i-heroicons-plus"
+                  @click="isNewArgumentModalOpen = true"
+                >
+                  {{ $t("account.newArgument") }}
+                </UButton>
+                <UButton
+                  color="neutral"
+                  variant="outline"
+                  icon="i-heroicons-user-group"
+                  @click="isFriendsManagementModalOpen = true"
+                >
+                  {{ $t("account.addFriends") }}
+                </UButton>
+                <UButton
+                  color="primary"
+                  variant="soft"
+                  icon="i-heroicons-academic-cap"
+                  to="/learn"
+                >
+                  {{ $t("account.learn") }}
+                </UButton>
+                <UButton
+                  color="neutral"
+                  variant="outline"
+                  icon="i-heroicons-cog-6-tooth"
+                  @click="isSettingsOpen = true"
+                >
+                  {{ $t("account.settings") }}
+                </UButton>
+              </div>
             </div>
           </div>
         </div>
-      </template>
-    </UModal>
-    <FriendManagement
-      :is-friends-management-open="isFriendsManagementModalOpen"
-      @refresh="refresh"
-      @update:is-open="isFriendsManagementModalOpen = $event"
-    />
-    <USeparator
-      :label="$t('account.friends')"
-      :ui="{ label: 'text-4xl' }"
-      class="mb-4 my-8"
-    />
-    <UContainer>
-      <div v-for="friend in user?.friends" :key="friend.id">
-        <div class="flex items-center gap-4">
-          {{ friend.username }}
-          <UButton @click="navigateTo(`/users/${friend.id}`)">
-            {{ $t("account.userProfile") }}
-          </UButton>
-          <UButton @click="navigateTo(`/users/${friend.id}/chat`)">
-            {{ $t("account.chat") }}
-          </UButton>
-        </div>
-      </div>
-    </UContainer>
-    <div class="flex items-start gap-4">
-      <div class="flex-1">
-        <USeparator
-          :label="$t('account.achievements')"
-          :ui="{ label: 'text-4xl' }"
-          class="mb-4"
-        />
-        <UContainer>
-          <div v-for="achievement in user?.achievements" :key="achievement.id">
-            <UAvatar :src="useStrapiMedia(achievement.image.url)" />
-            {{ achievement.name }}
-          </div>
-        </UContainer>
-      </div>
-      <UButton
-        color="primary"
-        to="/learn"
-        class="basis-1/2 ml-4 h-14 px-6 text-lg font-semibold flex items-center justify-center"
+      </UCard>
+
+      <!-- Modals -->
+      <NewArgumentModal
+        v-model:open="isNewArgumentModalOpen"
+        :show-trigger="false"
+      />
+      <FriendManagement
+        v-model:open="isFriendsManagementModalOpen"
+        :show-trigger="false"
+      />
+      <UModal
+        v-model:open="isSettingsOpen"
+        :title="$t('account.settings')"
+        :description="$t('account.settingsDescription')"
+        :close="{
+          color: 'neutral',
+          variant: 'ghost',
+          icon: 'i-heroicons-x-mark',
+        }"
       >
-        {{ $t("account.learn") }}
-      </UButton>
+        <template #body>
+          <div class="space-y-6 flex flex-col">
+            <div>
+              <h4 class="text-sm font-medium mb-4">
+                {{ $t("account.changeAvatar") }}
+              </h4>
+              <UInput
+                type="file"
+                icon="i-heroicons-photo"
+                accept="image/*"
+                class="upload-avatar"
+                @change="handleFileChange"
+              />
+            </div>
+
+            <div>
+              <USeparator :label="$t('account.dangerZone')" color="error" />
+              <div class="mt-4">
+                <UButton color="error" variant="soft" @click="onDeleteUser">
+                  {{ $t("account.deleteAccount") }}
+                </UButton>
+              </div>
+            </div>
+          </div>
+        </template>
+      </UModal>
+
+      <!-- Content -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <UCard>
+          <template #header>
+            <div class="flex items-center justify-between gap-4">
+              <h2 class="text-lg font-semibold">{{ $t("account.myBeliefs") }}</h2>
+              <UBadge color="neutral" variant="subtle">{{ standpoints.length }}</UBadge>
+            </div>
+          </template>
+
+          <div v-if="standpoints.length" class="divide-y divide-(--ui-border)">
+            <div
+              v-for="standpoint in standpoints"
+              :key="standpoint.id"
+              class="py-3 flex items-center justify-between gap-4"
+            >
+              <div class="min-w-0">
+                <div class="font-medium truncate">{{ standpoint.title }}</div>
+              </div>
+              <UButton size="sm" :to="'/argument/' + standpoint.id">
+                {{ $t("account.toBelief") }}
+              </UButton>
+            </div>
+          </div>
+          <UAlert
+            v-else
+            type="warning"
+            :title="$t('general.nothingHere')"
+          />
+        </UCard>
+
+        <UCard>
+          <template #header>
+            <div class="flex items-center justify-between gap-4">
+              <h2 class="text-lg font-semibold">{{ $t("account.myDebates") }}</h2>
+              <UBadge color="neutral" variant="subtle">{{
+                sentArgumentRequests.length + receivedArgumentRequests.length
+              }}</UBadge>
+            </div>
+          </template>
+
+          <div
+            v-if="sentArgumentRequests.length || receivedArgumentRequests.length"
+            class="divide-y divide-(--ui-border)"
+          >
+            <div
+              v-for="argument in sentArgumentRequests"
+              :key="`sent-${argument.id}`"
+              class="py-3 flex items-center justify-between gap-4"
+            >
+              <div class="min-w-0">
+                <div class="font-medium truncate">
+                  {{ argument.title || `#${argument.id}` }}
+                </div>
+                <div class="text-sm text-(--ui-text-muted) truncate" v-if="argument.opponent?.username">
+                  vs {{ argument.opponent.username }}
+                </div>
+              </div>
+              <div class="flex items-center gap-2">
+                <UBadge v-if="argument.finished" color="error">{{ $t("argument.closed") }}</UBadge>
+                <template v-else-if="argument.opponentAccepted">
+                  <UButton size="sm" :to="'/argument/' + argument.id">
+                    {{ $t("general.toArgument") }}
+                  </UButton>
+                </template>
+                <template v-else>
+                  <UButton size="sm" disabled color="neutral" variant="outline">
+                    {{ $t("general.pending") }}
+                  </UButton>
+                  <UButton
+                    size="sm"
+                    color="error"
+                    variant="ghost"
+                    @click="withdrawArgumentRequest(argument.id)"
+                  >
+                    {{ $t("account.withdrawArgumentRequest") }}
+                  </UButton>
+                </template>
+              </div>
+            </div>
+
+            <div
+              v-for="argument in receivedArgumentRequests"
+              :key="`received-${argument.id}`"
+              class="py-3 flex items-center justify-between gap-4"
+            >
+              <div class="min-w-0">
+                <div class="font-medium truncate">
+                  {{ argument.title || `#${argument.id}` }}
+                </div>
+              </div>
+              <div class="flex items-center gap-2">
+                <UBadge v-if="argument.finished" color="error">{{ $t("argument.closed") }}</UBadge>
+                <template v-else-if="argument.opponentAccepted">
+                  <UButton size="sm" :to="'/argument/' + argument.id">
+                    {{ $t("general.toArgument") }}
+                  </UButton>
+                </template>
+                <template v-else>
+                  <UButton size="sm" @click="acceptArgumentRequest(argument.documentId)">
+                    {{ $t("account.acceptArgumentRequest") }}
+                  </UButton>
+                  <UButton
+                    size="sm"
+                    color="error"
+                    variant="outline"
+                    @click="rejectArgumentRequest(argument.id)"
+                  >
+                    {{ $t("account.rejectArgumentRequest") }}
+                  </UButton>
+                </template>
+              </div>
+            </div>
+          </div>
+          <UAlert
+            v-else
+            type="warning"
+            :title="$t('general.nothingHere')"
+          />
+        </UCard>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <UCard class="lg:col-span-2">
+          <template #header>
+            <div class="flex items-center justify-between gap-4">
+              <h2 class="text-lg font-semibold">{{ $t("account.friends") }}</h2>
+              <UBadge color="neutral" variant="subtle">{{
+                user?.friends?.length || 0
+              }}</UBadge>
+            </div>
+          </template>
+
+          <div v-if="user?.friends?.length" class="divide-y divide-(--ui-border)">
+            <div
+              v-for="friend in user?.friends"
+              :key="friend.id"
+              class="py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
+            >
+              <div class="min-w-0">
+                <div class="font-medium truncate">{{ friend.username }}</div>
+              </div>
+              <div class="flex items-center gap-2">
+                <UButton size="sm" color="neutral" variant="outline" @click="navigateTo(`/users/${friend.id}`)">
+                  {{ $t("account.userProfile") }}
+                </UButton>
+                <UButton size="sm" @click="navigateTo(`/users/${friend.id}/chat`)">
+                  {{ $t("account.chat") }}
+                </UButton>
+              </div>
+            </div>
+          </div>
+          <UAlert
+            v-else
+            type="warning"
+            :title="$t('general.nothingHere')"
+          />
+        </UCard>
+
+        <UCard>
+          <template #header>
+            <div class="flex items-center justify-between gap-4">
+              <h2 class="text-lg font-semibold">{{ $t("account.achievements") }}</h2>
+              <UBadge color="neutral" variant="subtle">{{
+                user?.achievements?.length || 0
+              }}</UBadge>
+            </div>
+          </template>
+
+          <div v-if="user?.achievements?.length" class="space-y-3">
+            <div
+              v-for="achievement in user?.achievements"
+              :key="achievement.id"
+              class="flex items-center gap-3"
+            >
+              <UAvatar
+                v-if="achievement.image?.url"
+                :src="useStrapiMedia(achievement.image.url)"
+                size="sm"
+              />
+              <div class="min-w-0">
+                <div class="font-medium truncate">{{ achievement.name }}</div>
+              </div>
+            </div>
+          </div>
+          <UAlert
+            v-else
+            type="warning"
+            :title="$t('general.nothingHere')"
+          />
+        </UCard>
+      </div>
     </div>
   </UContainer>
 </template>
@@ -200,6 +315,7 @@ const user = useStrapiUser();
 
 const isFriendsManagementModalOpen = ref(false);
 const isNewArgumentModalOpen = ref(false);
+const isSettingsOpen = ref(false);
 
 const { data: socialData, refresh } = useAsyncData("socialData", async () => {
   const friendIds = user.value?.friends?.map((friend: any) => friend.id) || [];

@@ -1,5 +1,6 @@
 <template>
   <UModal
+    v-model:open="open"
     :close="{
       color: 'neutral',
       variant: 'ghost',
@@ -14,7 +15,13 @@
         : $t('argument.new.newBeliefDescription')
     "
   >
-    <UButton icon="i-heroicons-user-group" size="xl" class="text-2xl">
+    <UButton
+      v-if="showTrigger"
+      icon="i-heroicons-user-group"
+      size="xl"
+      class="text-2xl"
+      @click="open = true"
+    >
       {{
         isDebate ? $t("argument.new.newDebate") : $t("argument.new.newBelief")
       }}
@@ -122,7 +129,11 @@ const emit = defineEmits<{
 const props = defineProps<{
   otherUser?: any;
   isDebate?: boolean;
+  showTrigger?: boolean;
 }>();
+
+const open = defineModel<boolean>("open", { default: false });
+const showTrigger = computed(() => props.showTrigger !== false);
 
 const isDebate = ref(props.isDebate || false);
 
@@ -238,6 +249,7 @@ const onNewThesis = async () => {
 
     emit("refresh");
     emit("update:isOpen", false);
+    open.value = false;
     conclusion.value = "";
     premise.value = "";
     coPremise.value = "";

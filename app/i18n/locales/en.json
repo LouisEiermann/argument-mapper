@@ -34,6 +34,7 @@
     }
   },
   "account": {
+    "newArgument": "New",
     "register": "Register",
     "login": "Login",
     "logout": "Logout",

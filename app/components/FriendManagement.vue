@@ -1,5 +1,6 @@
 <template>
   <UModal
+    v-model:open="open"
     :close="{
       color: 'neutral',
       variant: 'ghost',
@@ -8,9 +9,13 @@
     :title="$t('account.addFriends')"
     :description="$t('account.addFriendsDescription')"
   >
-    <UButton icon="i-heroicons-user-group">{{
-      $t("account.addFriends")
-    }}</UButton>
+    <UButton
+      v-if="showTrigger"
+      icon="i-heroicons-user-group"
+      @click="open = true"
+    >
+      {{ $t("account.addFriends") }}
+    </UButton>
     <template #body>
       <div class="space-y-6 flex flex-col">
         <div>
@@ -239,6 +244,13 @@
 </template>
 
 <script lang="ts" setup>
+const props = defineProps<{
+  showTrigger?: boolean;
+}>();
+
+const open = defineModel<boolean>("open", { default: false });
+const showTrigger = computed(() => props.showTrigger !== false);
+
 const { find, create, update, delete: _delete } = useStrapi();
 const foundUsers = ref([]);
 const searchForFriendsSearchTerm = ref("");
