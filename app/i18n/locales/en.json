@@ -1,5 +1,38 @@
 {
-  "welcome": "Welcome to Appname",
+  "welcome": "Welcome to LogosMap",
+  "landing": {
+    "pageTitle": "LogosMap",
+    "badge": "LogosMap",
+    "headline": "Think clearly. Argue clearly.",
+    "subheadline": "Map arguments as short, structured premise groups—then discuss, challenge, and refine them together.",
+    "quote": {
+      "text": "“Everything that can be thought at all can be thought clearly. Everything that can be said can be said clearly.”",
+      "citation": "— Ludwig Wittgenstein, Tractatus Logico-Philosophicus, Proposition 4.116"
+    },
+    "readDocs": "Read the docs",
+    "screenshotsTitle": "Inside the app",
+    "screenshotsSubtitle": "A quick look at how debates and beliefs become navigable maps.",
+    "screenshot": {
+      "treeAlt": "Overview and minimap screenshot",
+      "treeTitle": "Overview",
+      "treeText": "Switch views and keep the whole debate in sight.",
+      "tagsAlt": "Syllogism and premise groups screenshot",
+      "tagsTitle": "Syllogisms",
+      "tagsText": "Each step is built from compact premise groups.",
+      "minimapAlt": "Tagging interface screenshot",
+      "minimapTitle": "Tagging",
+      "minimapText": "Mark fallacies and common patterns directly on premise groups."
+    },
+    "featuresTitle": "What it’s for",
+    "features": {
+      "mapTitle": "Structured arguments",
+      "mapText": "Turn discussions into clear, inspectable structures.",
+      "twoPremisesTitle": "Two-premise groups",
+      "twoPremisesText": "Each step is supported by a compact pair of premises.",
+      "tagsTitle": "Fallacies & patterns",
+      "tagsText": "Annotate and evaluate reasoning as you go."
+    }
+  },
   "account": {
     "register": "Register",
     "login": "Login",

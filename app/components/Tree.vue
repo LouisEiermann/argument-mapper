@@ -10,7 +10,7 @@
     class="flex flex-col items-center relative min-h-[368px] min-w-[664px] justify-center m-8"
   >
     <UCard
-      class="w-[300px] h-[200px] relative mb-8"
+      class="w-[300px] h-[200px] relative mb-8 !overflow-visible"
       :class="{
         'shadow-[5px_5px_5px_rgb(239,68,68)]': node.soundnessDoubted,
         'opacity-50': isNotValid,
@@ -22,7 +22,7 @@
         class="absolute -top-4 right-4"
         icon="i-heroicons-x-circle-20-solid"
         color="error"
-        @click.stop="deleteReason(node.documentId)"
+        @click.stop="deleteReason(node)"
       />
       <UButton
         v-if="node.parent"
@@ -112,10 +112,10 @@
       }"
       v-model:open="isOpen"
     >
-      <UButton v-if="node.owner?.id !== ownUser?.id" color="error"
+      <UButton v-if="node.owner?.id !== ownUser?.id" class="mt-2" color="error"
         >{{ $t("argument.objection.add") }}
       </UButton>
-      <UButton v-else color="primary">{{ $t("argument.support.add") }}</UButton>
+      <UButton v-else class="mt-2" color="primary">{{ $t("argument.support.add") }}</UButton>
 
       <template #body>
         <div class="space-y-6 flex flex-col">
@@ -159,6 +159,7 @@
         v-if="node.owner?.id !== ownUser?.id && !node.thesis"
         color="primary"
         @click="openTaggingModal"
+        class="mt-2"
         >{{ $t("argument.tagging.title") }}</UButton
       >
       <template #body>
@@ -204,7 +205,7 @@
         node.level <= currentLevel &&
         !end
       "
-      class="flex justify-center relative"
+      class="flex justify-center relative w-full min-w-0"
     >
       <Slider
         :slider-items="itemsGroupedByCoPremises"
@@ -449,8 +450,10 @@ const isOpen = ref(false);
 	  isTaggingOpen.value = false;
 	};
 
-const deleteReason = async (id: string) => {
-  await deleteStrapi("nodes", id);
+const { deletePremiseGroupForNode } = usePremiseGroupDeletion();
+
+const deleteReason = async (node: any) => {
+  await deletePremiseGroupForNode(node);
   refresh();
 };
 

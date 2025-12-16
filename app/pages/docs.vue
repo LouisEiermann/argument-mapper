@@ -6,7 +6,7 @@
       </template>
       <div class="prose dark:prose-invert max-w-none">
         <p>
-          Welcome to the Reason App documentation. Here you can find information about how to use the application.
+          Welcome to the LogosMap documentation. Here you can find information about how to use the application.
         </p>
         <h2>Getting Started</h2>
         <p>

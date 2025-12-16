@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1400" height="320" viewBox="0 0 1400 320" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">LogosMap logo lockup</title>
+  <desc id="desc">Icon badge and the LogosMap wordmark in a horizontal layout.</desc>
+  <style>
+    .word { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji"; }
+  </style>
+
+  <!-- icon -->
+  <rect x="16" y="16" width="288" height="288" rx="80" fill="#0B1220"/>
+  <rect x="16" y="16" width="288" height="288" rx="80" stroke="#1F2937" stroke-width="6"/>
+  <g stroke="#22C55E" stroke-width="18" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M116 126 L160 188 L204 126" />
+  </g>
+  <g fill="#22C55E">
+    <circle cx="116" cy="126" r="18" />
+    <circle cx="204" cy="126" r="18" />
+    <circle cx="160" cy="188" r="20" />
+  </g>
+
+  <!-- wordmark -->
+  <text x="340" y="206" class="word" font-size="160" font-weight="650" letter-spacing="-2" fill="#0B1220">
+    Logos
+    <tspan font-weight="800" fill="#16A34A">Map</tspan>
+  </text>
+</svg>
+

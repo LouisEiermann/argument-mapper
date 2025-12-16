@@ -1,10 +1,17 @@
 <template>
   <UHeader to="/" v-model:open="isMenuOpen" :toggle="false">
     <template #title>
-      <span
-        class="text-2xl sm:text-3xl font-bold text-center sm:text-left hover:text-primary-500 transition-colors"
-      >
-        Reason App
+      <span class="flex items-center gap-3">
+        <img
+          src="/brand/logosmap-icon.svg"
+          alt="LogosMap"
+          class="h-9 w-9 sm:h-10 sm:w-10"
+        />
+        <span
+          class="text-2xl sm:text-3xl font-bold text-center sm:text-left hover:text-primary-500 transition-colors"
+        >
+          LogosMap
+        </span>
       </span>
     </template>
 

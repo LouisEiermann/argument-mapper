@@ -1,6 +1,19 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   devtools: { enabled: true },
+  app: {
+    head: {
+      titleTemplate: "%s · LogosMap",
+      link: [
+        { rel: "icon", type: "image/svg+xml", href: "/brand/logosmap-icon.svg" },
+      ],
+      meta: [
+        { name: "application-name", content: "LogosMap" },
+        { name: "apple-mobile-web-app-title", content: "LogosMap" },
+        { property: "og:site_name", content: "LogosMap" },
+      ],
+    },
+  },
 
   modules: [
     "@nuxtjs/strapi",

@@ -12,7 +12,7 @@
     <UNavigationMenu
       :items="[
         {
-          label: 'Reason App',
+          label: 'LogosMap',
           to: '/',
         },
         {

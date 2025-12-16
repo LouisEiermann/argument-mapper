@@ -1,5 +1,38 @@
 {
-  "welcome": "Willkommen bei Appname",
+  "welcome": "Willkommen bei LogosMap",
+  "landing": {
+    "pageTitle": "LogosMap",
+    "badge": "LogosMap",
+    "headline": "Klar denken. Klar argumentieren.",
+    "subheadline": "Baue Argumente als kurze, strukturierte Prämissengruppen auf – und diskutiere, hinterfrage und verbessere sie gemeinsam.",
+    "quote": {
+      "text": "„Alles was überhaupt gedacht werden kann, kann klar gedacht werden. Alles was sich aussprechen lässt, lässt sich klar aussprechen.“",
+      "citation": "— Ludwig Wittgenstein, Satz 4.116"
+    },
+    "readDocs": "Dokumentation",
+    "screenshotsTitle": "Ein Blick in die App",
+    "screenshotsSubtitle": "So werden Debatten und Überzeugungen zu navigierbaren Argumentkarten.",
+    "screenshot": {
+      "treeAlt": "Screenshot der Übersicht und Minimap",
+      "treeTitle": "Übersicht",
+      "treeText": "Ansichten wechseln und die Debatte als Ganzes im Blick behalten.",
+      "tagsAlt": "Screenshot eines Syllogismus und von Prämissengruppen",
+      "tagsTitle": "Syllogismen",
+      "tagsText": "Jeder Schritt entsteht aus kompakten Prämissengruppen.",
+      "minimapAlt": "Screenshot der Tagging-Oberfläche",
+      "minimapTitle": "Tagging",
+      "minimapText": "Fehlschlüsse und Muster direkt an Prämissengruppen markieren."
+    },
+    "featuresTitle": "Wofür es da ist",
+    "features": {
+      "mapTitle": "Struktur statt Streit",
+      "mapText": "Diskussionen werden zu klaren, überprüfbaren Strukturen.",
+      "twoPremisesTitle": "Zwei-Prämissen-Gruppen",
+      "twoPremisesText": "Jeder Schritt basiert auf einem kompakten Prämissenpaar.",
+      "tagsTitle": "Fehlschlüsse & Muster",
+      "tagsText": "Argumentation laufend annotieren und bewerten."
+    }
+  },
   "account": {
     "register": "Registrieren",
     "login": "Einloggen",

@@ -108,7 +108,7 @@
 
       <!-- Progress Bar -->
       <UProgress
-        v-if="data.argumentTrees[0]?.opponent && data.votes"
+        v-if="data.argumentTrees[0]?.opponent && data.votes?.data?.length"
         :value="useVoteCalculator(data?.votes).creatorPercentage"
         class="max-w-2xl mx-auto"
       />
