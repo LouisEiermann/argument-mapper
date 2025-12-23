@@ -101,3 +101,115 @@
     cursor: default;
   }
 }
+
+@layer components {
+  .cookieControl {
+    font-family: inherit;
+  }
+
+  .cookieControl__Bar {
+    border-top: 1px solid var(--ui-border);
+    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.08);
+  }
+
+  .cookieControl__BarContainer {
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+  }
+
+  .cookieControl__Bar h2 {
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  .cookieControl__Bar p {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+  }
+
+  .cookieControl__BarButtons button,
+  .cookieControl__ModalButtons button,
+  .cookieControl__ModalClose {
+    border: 1px solid var(--ui-border);
+    border-radius: 10px;
+    font-weight: 600;
+  }
+
+  /* Ensure radius wins against global button styles */
+  .cookieControl__Modal button {
+    border-radius: 10px !important;
+  }
+
+  /* Ensure bar buttons win against module defaults */
+  .cookieControl__Bar .cookieControl__BarButtons > button {
+    border: 1px solid var(--ui-border) !important;
+    border-radius: 10px !important;
+    padding: 10px 14px !important;
+    font-weight: 600 !important;
+  }
+
+  /* Match Nuxt UI compact button sizing */
+  .cookieControl__Bar .cookieControl__BarButtons > button,
+  .cookieControl__Modal .cookieControl__ModalButtons > button,
+  .cookieControl__Modal .cookieControl__ModalClose {
+    font-size: 0.875rem !important;
+    line-height: 1.25rem !important;
+    padding: 8px 12px !important;
+  }
+
+  /* Keep buttons compact on mobile (module default makes them full-width/stacked) */
+  @media screen and (max-width: 768px) {
+    .cookieControl__Bar .cookieControl__BarButtons {
+      flex-direction: row !important;
+      flex-wrap: wrap !important;
+      gap: 10px !important;
+      width: auto !important;
+      margin-top: 12px !important;
+    }
+
+    .cookieControl__Bar .cookieControl__BarButtons > button {
+      width: auto !important;
+    }
+  }
+
+  .cookieControl__BarButtons button,
+  .cookieControl__ModalButtons button {
+    padding: 10px 14px;
+  }
+
+  .cookieControl__ModalClose {
+    background: transparent;
+    color: var(--ui-text);
+  }
+
+  .cookieControl__ModalClose:hover {
+    background: var(--ui-bg-elevated);
+  }
+
+  .cookieControl__ModalContent {
+    border: 1px solid var(--ui-border);
+    border-radius: 16px;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.25);
+    overflow: hidden;
+  }
+
+  .cookieControl__ModalContentInner {
+    padding: 24px;
+  }
+
+  .cookieControl__ModalCookieName {
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+  }
+
+  .cookieControl__ModalButtons {
+    gap: 12px;
+  }
+
+  .cookieControl__ControlButton {
+    border: 1px solid var(--ui-border);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  }
+}

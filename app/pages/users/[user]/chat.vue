@@ -1,6 +1,18 @@
 <template>
-  <div class="h-[calc(100vh-140px)] mt-4 flex flex-col ring-1 ring-gray-200 dark:ring-gray-800 rounded-lg overflow-hidden bg-white dark:bg-gray-900 shadow">
-    <div class="flex-1 overflow-y-auto p-4 space-y-4">
+  <div class="mt-4 space-y-3">
+    <div class="flex items-center justify-between">
+      <UButton
+        icon="i-heroicons-arrow-left"
+        color="neutral"
+        variant="ghost"
+        @click="goBack"
+      >
+        {{ $t("general.back") }}
+      </UButton>
+    </div>
+
+    <div class="h-[calc(100vh-180px)] flex flex-col ring-1 ring-gray-200 dark:ring-gray-800 rounded-lg overflow-hidden bg-white dark:bg-gray-900 shadow">
+      <div class="flex-1 overflow-y-auto p-4 space-y-4">
       <ClientOnly>
         <div 
           v-for="message in messages" 
@@ -48,6 +60,7 @@
       </div>
     </div>
   </div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -55,7 +68,7 @@ import { io } from "socket.io-client";
 import { useRoute } from "vue-router";
 
 definePageMeta({
-  middleware: "auth",
+  middleware: ["auth", "friends-only"],
 });
 
 const messages = ref<any[]>([]);
@@ -63,6 +76,13 @@ const newMessage = ref("");
 let socket: any = null;
 const { create, find } = useStrapi();
 const { params } = useRoute();
+const router = useRouter();
+
+const goBack = () => {
+  const fallback = "/account";
+  if (window.history.length > 1) return router.back();
+  return navigateTo(fallback);
+};
 
 const { data } = useAsyncData("chat-user-data", async () => {
   try {

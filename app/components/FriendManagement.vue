@@ -18,7 +18,7 @@
     </UButton>
     <template #body>
       <div class="space-y-6 flex flex-col">
-        <div>
+        <div v-if="!isPrivateMode">
           <h4 class="text-sm font-medium text-gray-900 dark:text-white mb-4">
             {{ $t("friends.suggestions") }}
           </h4>
@@ -42,6 +42,7 @@
                 </div>
                 <div class="flex items-center gap-2">
                   <UButton
+                    v-if="!isPrivateMode || isFriend(suggestedFriend.id)"
                     color="neutral"
                     variant="ghost"
                     icon="i-heroicons-user-circle"
@@ -139,10 +140,11 @@
                 </div>
                 <div class="flex items-center gap-2">
                   <UButton
+                    v-if="!isPrivateMode || isFriend(receivedFriendRequest.sender?.id)"
                     color="neutral"
                     variant="ghost"
                     icon="i-heroicons-user-circle"
-                    @click="visitProfile(receivedFriendRequest.id)"
+                    @click="visitProfile(receivedFriendRequest.sender?.id)"
                   >
                     {{ $t("friends.profile") }}
                   </UButton>
@@ -206,6 +208,7 @@
                 </div>
                 <div class="flex items-center gap-2">
                   <UButton
+                    v-if="!isPrivateMode || isFriend(foundUser.id)"
                     color="neutral"
                     variant="ghost"
                     icon="i-heroicons-user-circle"
@@ -256,6 +259,13 @@ const foundUsers = ref([]);
 const searchForFriendsSearchTerm = ref("");
 const searching = ref(false);
 const user = useStrapiUser();
+const { public: publicConfig } = useRuntimeConfig();
+const isPrivateMode = computed(() => (publicConfig.appMode || "private").toString() === "private");
+const isFriend = (id: unknown) => {
+  const friends = (user.value as any)?.friends;
+  if (!Array.isArray(friends)) return false;
+  return friends.some((f: any) => String(f?.id) === String(id));
+};
 
 const { data, refresh } = useAsyncData("friendManagement", async () => {
   const currentUserId = user.value?.id;
@@ -281,17 +291,19 @@ const { data, refresh } = useAsyncData("friendManagement", async () => {
     (e) => e.receiver.id === currentUserId && e.requestStatus === "pending"
   );
 
-  const suggestedFriends = await find("users", {
-    filters: {
-      id: {
-        $notIn: excludeIds,
-      },
-    },
-    pagination: {
-      start: 1,
-      limit: 5,
-    },
-  });
+  const suggestedFriends = isPrivateMode.value
+    ? []
+    : await find("users", {
+        filters: {
+          id: {
+            $notIn: excludeIds,
+          },
+        },
+        pagination: {
+          start: 1,
+          limit: 5,
+        },
+      });
 
   return {
     sentFriendRequests,

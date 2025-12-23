@@ -1,5 +1,5 @@
 <template>
-  <UHeader to="/" v-model:open="isMenuOpen" :toggle="false">
+  <UHeader :to="homeTo" v-model:open="isMenuOpen" :toggle="false">
     <template #title>
       <span class="flex items-center">
         <img
@@ -17,7 +17,7 @@
       </span>
     </template>
 
-    <UNavigationMenu :items="items" class="hidden sm:flex" />
+    <UNavigationMenu v-if="items.length" :items="items" class="hidden sm:flex" />
 
     <template #right>
       <div class="flex gap-4 sm:gap-8 items-center">
@@ -27,24 +27,35 @@
           @update:model-value="onLocaleChange"
         />
 
-        <UButton
-          v-if="!user"
-          to="login"
-          class="whitespace-nowrap hidden sm:inline-flex"
-        >
-          {{ t("account.login") }}
-        </UButton>
-        <div v-else class="flex gap-4 sm:gap-8 hidden sm:flex">
-          <UButton color="neutral" variant="ghost" @click="onLogout" class="whitespace-nowrap">
-            {{ t("account.logout") }}
-          </UButton>
+        <ClientOnly>
           <UButton
-            icon="i-heroicons-user-20-solid"
-            label="Account"
-            to="/account"
-            class="sm:flex"
-          />
-        </div>
+            v-if="!user"
+            to="login"
+            class="whitespace-nowrap hidden sm:inline-flex"
+          >
+            {{ t("account.login") }}
+          </UButton>
+          <div v-else class="flex gap-4 sm:gap-8 hidden sm:flex">
+            <UButton
+              color="neutral"
+              variant="outline"
+              icon="i-heroicons-arrow-left-on-rectangle"
+              @click="onLogout"
+              class="whitespace-nowrap"
+            >
+              {{ t("account.logout") }}
+            </UButton>
+            <UButton
+              icon="i-heroicons-user-20-solid"
+              label="Account"
+              to="/account"
+              class="sm:flex"
+            />
+          </div>
+          <template #fallback>
+            <div class="hidden sm:block w-[140px]" />
+          </template>
+        </ClientOnly>
 
         <ClientOnly>
           <UButton
@@ -73,38 +84,48 @@
     </template>
 
     <template #body>
-      <UNavigationMenu :items="items" orientation="vertical" class="-mx-2.5" />
-      <USeparator class="my-4" />
+      <UNavigationMenu
+        v-if="items.length"
+        :items="items"
+        orientation="vertical"
+        class="-mx-2.5"
+      />
+      <USeparator v-if="items.length" class="my-4" />
       <div class="flex flex-col gap-2">
-        
-        <UButton
-          v-if="!user"
-          to="login"
-          class="justify-start"
-          color="neutral"
-          variant="ghost"
-        >
-          {{ $t("account.login") }}
-        </UButton>
-        <template v-else>
+        <ClientOnly>
           <UButton
-            to="/account"
+            v-if="!user"
+            to="login"
             class="justify-start"
             color="neutral"
             variant="ghost"
-            icon="i-heroicons-user-20-solid"
           >
-            Account
+            {{ $t("account.login") }}
           </UButton>
-          <UButton
-            color="neutral"
-            variant="ghost"
-            @click="onLogout"
-            class="justify-start"
-          >
-            {{ $t("account.logout") }}
-          </UButton>
-        </template>
+          <template v-else>
+            <UButton
+              to="/account"
+              class="justify-start"
+              color="neutral"
+              variant="ghost"
+              icon="i-heroicons-user-20-solid"
+            >
+              Account
+            </UButton>
+            <UButton
+              color="neutral"
+              variant="outline"
+              icon="i-heroicons-arrow-left-on-rectangle"
+              @click="onLogout"
+              class="justify-start"
+            >
+              {{ $t("account.logout") }}
+            </UButton>
+          </template>
+          <template #fallback>
+            <div class="h-9" />
+          </template>
+        </ClientOnly>
       </div>
     </template>
   </UHeader>
@@ -118,16 +139,26 @@ const { t, setLocale, locale } = useI18n();
 const { logout } = useStrapiAuth();
 
 const user = useStrapiUser();
+const { public: publicConfig } = useRuntimeConfig();
+const appMode = computed(() => (publicConfig.appMode || "private").toString());
 
 const isMenuOpen = ref(false);
 
-const items = [
-  {
-    label: "Docs",
-    to: "/docs",
-    icon: "i-heroicons-book-open",
-  },
-];
+const items = computed(() => {
+  if (appMode.value === "private") return [];
+  return [
+    {
+      label: "Docs",
+      to: "/docs",
+      icon: "i-heroicons-book-open",
+    },
+  ];
+});
+
+const homeTo = computed(() => {
+  if (appMode.value === "private") return user.value ? "/account" : "/login";
+  return "/";
+});
 
 const isDark = computed({
   get() {
@@ -142,7 +173,7 @@ const onLogout = async () => {
   try {
     logout();
 
-    await navigateTo("/");
+    await navigateTo(appMode.value === "private" ? "/login" : "/");
   } catch (e) {}
 };
 

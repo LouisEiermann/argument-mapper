@@ -20,7 +20,7 @@
           </div>
         </template>
 
-        <div class="space-y-4">
+        <form class="space-y-4" @submit.prevent="onSubmit">
           <UFormField :label="$t('account.email')" name="email">
             <UInput
               v-model="email"
@@ -46,7 +46,7 @@
             size="lg"
             :loading="loading"
             :disabled="!canSubmit || loading"
-            @click="onSubmit"
+            type="submit"
           >
             {{ $t("account.login") }}
           </UButton>
@@ -56,15 +56,19 @@
               {{ $t("account.noAccount") }}
             </ULink>
           </p>
-        </div>
+        </form>
       </UCard>
     </div>
   </UContainer>
 </template>
 <script setup lang="ts">
+import { getApiErrorI18nKey } from "~/composables/useApiErrorMessage";
+
 const { login } = useStrapiAuth();
 const toast = useToast();
 const { t } = useI18n();
+const { public: publicConfig } = useRuntimeConfig();
+const appMode = computed(() => (publicConfig.appMode || "private").toString());
 
 const email = ref("");
 const password = ref("");
@@ -82,10 +86,18 @@ const onSubmit = async () => {
       identifier: email.value,
       password: password.value,
     });
-    await navigateTo("/feed");
+    const redirectCookie = useCookie<string | null>("redirect", { path: "/" });
+    const target =
+      redirectCookie.value && redirectCookie.value.startsWith("/")
+        ? redirectCookie.value
+        : appMode.value === "private"
+          ? "/account"
+          : "/feed";
+    redirectCookie.value = null;
+    await navigateTo(target);
   } catch (error) {
     console.log(error);
-    toast.add({ title: t("notification.loginFailed"), color: "error" });
+    toast.add({ title: t(getApiErrorI18nKey(error)), color: "error" });
   } finally {
     loading.value = false;
   }

@@ -16,6 +16,14 @@
           to: '/',
         },
         {
+          label: 'Datenschutz',
+          to: '/datenschutz',
+        },
+        {
+          label: 'Impressum',
+          to: '/impressum',
+        },
+        {
           label: $t('general.submitBug'),
           to: '/contact',
         },

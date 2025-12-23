@@ -20,7 +20,7 @@
           </div>
         </template>
 
-        <div class="space-y-4">
+        <form class="space-y-4" @submit.prevent="onSubmit">
           <UFormField
             :label="$t('account.username')"
             name="username"
@@ -79,7 +79,6 @@
             :loading="loading"
             :disabled="!canSubmit || loading"
             type="submit"
-            @click="onSubmit"
           >
             {{ $t("account.register") }}
           </UButton>
@@ -89,15 +88,19 @@
               {{ $t("account.haveAccount") }}
             </ULink>
           </p>
-        </div>
+        </form>
       </UCard>
     </div>
   </UContainer>
 </template>
 <script setup lang="ts">
+import { getApiErrorI18nKey } from "~/composables/useApiErrorMessage";
+
 const { register } = useStrapiAuth();
 const toast = useToast();
 const { t } = useI18n();
+const { public: publicConfig } = useRuntimeConfig();
+const appMode = computed(() => (publicConfig.appMode || "private").toString());
 
 const username = ref("");
 const email = ref("");
@@ -135,10 +138,10 @@ const onSubmit = async () => {
       email: email.value,
       password: password.value,
     });
-    await navigateTo("/feed");
+    await navigateTo(appMode.value === "private" ? "/account" : "/feed");
   } catch (error) {
     console.log(error);
-    toast.add({ title: t("notification.registerFailed"), color: "error" });
+    toast.add({ title: t(getApiErrorI18nKey(error)), color: "error" });
   } finally {
     loading.value = false;
   }

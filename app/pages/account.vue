@@ -146,10 +146,49 @@
             <div>
               <USeparator :label="$t('account.dangerZone')" color="error" />
               <div class="mt-4">
-                <UButton color="error" variant="soft" @click="onDeleteUser">
+                <UButton color="error" variant="soft" @click="isDeleteConfirmOpen = true">
                   {{ $t("account.deleteAccount") }}
                 </UButton>
               </div>
+            </div>
+          </div>
+        </template>
+      </UModal>
+
+      <UModal
+        v-model:open="isDeleteConfirmOpen"
+        :title="$t('account.deleteAccountConfirmTitle')"
+        :description="$t('account.deleteAccountConfirmDescription')"
+        :close="{
+          color: 'neutral',
+          variant: 'ghost',
+          icon: 'i-heroicons-x-mark',
+        }"
+      >
+        <template #body>
+          <div class="space-y-4">
+            <UAlert
+              color="error"
+              variant="soft"
+              :title="$t('account.deleteAccountWarningTitle')"
+              :description="$t('account.deleteAccountWarningText')"
+            />
+
+            <UFormField :label="$t('account.deleteAccountTypeToConfirm')" name="deleteConfirm">
+              <UInput v-model="deleteConfirmText" autocomplete="off" />
+            </UFormField>
+
+            <div class="flex justify-end gap-2">
+              <UButton color="neutral" variant="outline" @click="isDeleteConfirmOpen = false">
+                {{ $t("general.cancel") }}
+              </UButton>
+              <UButton
+                color="error"
+                :disabled="deleteConfirmText.trim() !== 'DELETE'"
+                @click="onDeleteUser"
+              >
+                {{ $t("account.deleteAccountFinal") }}
+              </UButton>
             </div>
           </div>
         </template>
@@ -356,6 +395,8 @@ definePageMeta({
   middleware: "auth",
 });
 
+import { getApiErrorI18nKey } from "~/composables/useApiErrorMessage";
+
 const { find, update, delete: _delete } = useStrapi();
 const client = useStrapiClient();
 const { formatDate } = useDateFormatter();
@@ -367,15 +408,24 @@ const user = useStrapiUser();
 const isFriendsManagementModalOpen = ref(false);
 const isNewArgumentModalOpen = ref(false);
 const isSettingsOpen = ref(false);
+const isDeleteConfirmOpen = ref(false);
 const avatarUploading = ref(false);
 const usernameDraft = ref("");
 const usernameUpdating = ref(false);
+const deleteConfirmText = ref("");
 
 watch(
   () => isSettingsOpen.value,
   (open) => {
     if (!open) return;
     usernameDraft.value = user.value?.username ?? "";
+  },
+);
+
+watch(
+  () => isDeleteConfirmOpen.value,
+  (open) => {
+    if (open) deleteConfirmText.value = "";
   },
 );
 
@@ -386,38 +436,6 @@ const canUpdateUsername = computed(() => {
   if (next === current) return false;
   if (next.length < 3) return false;
   return true;
-});
-
-const { data: socialData, refresh } = useAsyncData("socialData", async () => {
-  const friendIds = user.value?.friends?.map((friend: any) => friend.id) || [];
-  const excludeIds = [user.value?.id, ...friendIds];
-
-  const friendRequests = await find("friend-requests", {
-    populate: ["sender", "receiver"],
-    filters: {
-      $or: [
-        { sender: { id: { $eq: user.value?.id } } },
-        { receiver: { id: { $eq: user.value?.id } } },
-      ],
-    },
-  });
-
-  const suggestedFriends = await find("users", {
-    filters: {
-      id: {
-        $notIn: excludeIds,
-      },
-    },
-    pagination: {
-      start: 1,
-      limit: 5,
-    },
-  });
-
-  return {
-    friendRequests,
-    suggestedFriends,
-  };
 });
 
 const sentArgumentRequests = computed(() => {
@@ -448,11 +466,14 @@ const withdrawArgumentRequest = async (id: string) => {
 };
 
 const onDeleteUser = async () => {
+  if (deleteConfirmText.value.trim() !== "DELETE") return;
   try {
     await client(`/users/${user.value?.id}`, {
       method: "DELETE",
     });
 
+    isDeleteConfirmOpen.value = false;
+    isSettingsOpen.value = false;
     await navigateTo("/");
   } catch (e) {
     console.error(e);
@@ -477,7 +498,7 @@ const updateUsername = async () => {
   } catch (e: any) {
     console.error(e);
     toast.add({
-      title: t("notification.error"),
+      title: t(getApiErrorI18nKey(e)),
       description: e?.data?.error?.message || e?.message || t("notification.errorDescription"),
       color: "error",
     });
